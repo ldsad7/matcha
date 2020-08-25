@@ -30,9 +30,21 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # utility apps
+    'easy_thumbnails',
+
+    # rest framework
     'rest_framework',
+
+    # filters
+    'django_filters',
+
+    # swagger
     'drf_yasg',
     'rest_framework_swagger',
+
+    # site apps
+    'matcha',
 ]
 
 MIDDLEWARE = [
@@ -104,6 +116,8 @@ REST_FRAMEWORK = {
 # Password validation
 ####################################
 
+AUTH_USER_MODEL = "matcha.User"
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -124,6 +138,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ####################################
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 ####################################
 # Local Settings

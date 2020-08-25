@@ -1,5 +1,6 @@
 # Django
-Django==3.1
+Django==2.2.10
+django-model-utils==3.2.0
 
 # DB
 PyMySQL==0.9.3
@@ -7,8 +8,13 @@ PyMySQL==0.9.3
 # Swagger
 drf_yasg==1.16.1
 packaging==19.1
+django-rest-swagger==2.2.0
 
 # rest
 djangorestframework==3.10.3
 django-cors-headers==3.0.2
 django-filter==2.1.0
+
+# Images
+Pillow==7.2.0
+easy-thumbnails==2.6
