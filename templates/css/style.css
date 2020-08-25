@@ -41,10 +41,61 @@ a:link {
 }
 
 .header #notif {
+  position: relative;
   height: 25px;
   fill: #e2e2e2;
   margin-top: 12px;
   margin-right: 15px;
+}
+
+.header .notifications {
+  position: relative;
+}
+
+.header .notifications:hover #notif_list {
+  opacity: 1;
+}
+
+.header .notifications::after {
+  position: absolute;
+  content: "";
+  top: 10px;
+  left: 15px;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+  -webkit-animation: notification 2s infinite;
+          animation: notification 2s infinite;
+}
+
+.header #notif_list {
+  position: absolute;
+  width: 120px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  opacity: 0;
+  -webkit-transition: .3s ease;
+  transition: .3s ease;
+  top: 45px;
+  left: -50px;
+}
+
+.header #notif_list .notif_elem {
+  padding: 4px;
+  color: #e2e2e2;
+  text-align: center;
+  display: inline-block;
+  min-height: 20px;
+  font-size: 15px;
+  overflow: hidden;
+  border: 1px solid;
+  border-radius: 1px 10px / 12px;
 }
 
 .header .login {
@@ -64,6 +115,30 @@ a:link {
 
 .header .login:hover {
   color: pink;
+}
+
+@-webkit-keyframes notification {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes notification {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .navbar {
