@@ -1,6 +1,7 @@
 * {
   margin: 0;
   padding: 0;
+  font-family: 'Roboto', sans-serif;
 }
 
 body {
@@ -165,12 +166,13 @@ a:link {
   width: 80px;
   left: -50px;
   opacity: 0;
-  background-color: #262729;
+  background-color: rgba(38, 39, 41, 0.6);
   -webkit-transition: .2s ease-in;
   transition: .2s ease-in;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  z-index: 10;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
@@ -217,5 +219,86 @@ a:link {
 .content {
   height: 600px;
   width: 20px;
+}
+
+.user-profile {
+  position: absolute;
+  margin-top: 60px;
+  margin-left: 60px;
+  padding: 20px;
+  background-color: #1d1d1d;
+  width: 64rem;
+  max-width: 80%;
+  min-height: 400px;
+}
+
+.user-profile figure {
+  display: inline-block;
+}
+
+.user-profile figure img {
+  width: 65px;
+  height: 65px;
+  display: inline-block;
+}
+
+.user-profile figcaption {
+  margin-left: 10px;
+  display: inline-block;
+  color: #e2e2e2;
+}
+
+.user-profile figcaption div {
+  min-width: 240px;
+}
+
+.user-profile figcaption #rating, .user-profile figcaption #age, .user-profile figcaption #gender {
+  color: #b0b0b0;
+}
+
+.user-profile figcaption #rating span, .user-profile figcaption #age span, .user-profile figcaption #gender span {
+  color: #e2e2e2;
+}
+
+.user-profile .user-data {
+  color: #e2e2e2;
+  margin-top: 5px;
+  margin-left: 10px;
+}
+
+.user-profile .user-data #history {
+  margin-top: 20px;
+  color: #e2e2e2;
+}
+
+.user-profile .interests {
+  margin-top: 20px;
+  color: pink;
+}
+
+.user-profile .interests #tags {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+
+.user-profile .interests #tags .tag {
+  margin-right: 5px;
+  border: 1px aqua solid;
+  border-radius: 5px;
+  padding: 2px;
+}
+
+.center {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 100%;
+  position: absolute;
 }
 /*# sourceMappingURL=style.css.map */
