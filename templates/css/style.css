@@ -67,6 +67,7 @@ a:link {
 .header .notifications::after {
   position: absolute;
   content: "";
+  z-index: 2;
   top: 10px;
   left: 15px;
   width: 10px;
@@ -80,6 +81,7 @@ a:link {
 .header #notif_list {
   position: absolute;
   width: 120px;
+  z-index: 10;
   display: none;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
@@ -124,30 +126,6 @@ a:link {
 
 .header .login:hover {
   color: pink;
-}
-
-@-webkit-keyframes notification {
-  0% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-@keyframes notification {
-  0% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
 }
 
 .navbar {
@@ -238,6 +216,19 @@ a:link {
   width: 64rem;
   max-width: 80%;
   min-height: 400px;
+  overflow: hidden;
+}
+
+.user-profile .btn_span {
+  z-index: -1;
+  position: absolute;
+  background: #fff;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  pointer-events: none;
+  border-radius: 50%;
+  -webkit-animation: btn_span 1s linear infinite;
+          animation: btn_span 1s linear infinite;
 }
 
 .user-profile figure {
@@ -335,6 +326,23 @@ a:link {
   height: 8px;
   top: 6px;
   left: -12px;
+}
+
+.user-profile .buttons div {
+  cursor: pointer;
+  padding: 25px 50px;
+  /* z-index: 5; */
+  border-radius: 40px;
+  text-transform: uppercase;
+  font-size: 18px;
+  letter-spacing: 2px;
+  text-decoration: none;
+  color: #fff;
+  display: inline-block;
+  overflow: hidden;
+  margin: 20px;
+  background: -webkit-gradient(linear, left top, right top, from(#0162c8), to(#55e7fc));
+  background: linear-gradient(90deg, #0162c8, #55e7fc);
 }
 
 .user-profile .user-data {
@@ -466,5 +474,55 @@ a:link {
   color: #e2e2e2;
   margin-left: 10px;
   margin-top: 5px;
+}
+
+@-webkit-keyframes notification {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes notification {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes btn_span {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.25;
+  }
+  100% {
+    height: 1000px;
+    width: 1000px;
+    opacity: 0;
+  }
+}
+
+@keyframes btn_span {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.25;
+  }
+  100% {
+    height: 1000px;
+    width: 1000px;
+    opacity: 0;
+  }
 }
 /*# sourceMappingURL=style.css.map */

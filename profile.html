@@ -78,7 +78,11 @@
                     <div id="location">Россия, Москва</div>
                 </figcaption>
                 <div id="connection">online</div>
-                
+                <!-- <div class="buttons">
+                    <div class="chat"></div>
+                    <div class="block"></div>
+                    <div class="connect"></div>
+                </div> -->
                 <section class="user-data">
                 <div id="history">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Qui tempora ipsum enim delectus officia tenetur cum, vitae ad eos aliquid incidunt numquam voluptatem nobis! Doloremque itaque laudantium architecto eius illo. Lorem ipsum dolor sit amet consectetur adipisicing elit. Soluta dolorum, iste inventore asperiores eaque aliquid dicta odio, est ipsa ad quam vel officia, magni tenetur rem explicabo at eligendi deleniti!</div>
             </section>
@@ -112,5 +116,31 @@
 <script src="/templates/js/changeName.js"></script>
 <script src="/templates/js/changeUserData.js"></script>
 <script src="/templates/js/changeTags.js"></script>
-<!-- <script> -->
+<script>
+    // document.querySelectorAll(".user-profile").forEach(btn => {
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+        document.addEventListener("click", function(e) {
+            let area = document.querySelector(".user-profile");
+            // console.log(area.contains(e.target));
+            if (e.target == area || area.contains(e.target)) {
+                let x = e.clientX - area.offsetLeft;
+                let y = e.clientY - area.offsetTop - 50;
+                let span = document.createElement("span");
+                span.classList.add("btn_span");
+                span.style.left = x + "px";
+                span.style.top = y + "px";
+                span.style.backgroundColor = getRandomColor();
+                area.appendChild(span);
+                setTimeout(() => { span.remove() }, 1000);
+            }
+        });
+    // });
+</script>
 </html>
