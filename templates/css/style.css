@@ -275,6 +275,14 @@ a:link {
   background-color: #262729;
 }
 
+.user-profile figcaption #firstname, .user-profile figcaption #lastname {
+  color: #e2e2e2;
+  background-color: #262729;
+  border: none;
+  width: 120px;
+  font-size: 16px;
+}
+
 .user-profile #change-profile-data {
   position: absolute;
   top: 1px;

@@ -28,11 +28,13 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         tags.edit();
         age.edit();
         gender.edit();
+        _name.edit();
     } else {
         hist.submit();
         tags.submit();
         age.submit();
         gender.submit();
+        _name.submit();
         this.innerHTML = "&#9998;";
         this.style.padding = "2px 5px";
         change_user_data = false;
