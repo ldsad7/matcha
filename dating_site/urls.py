@@ -19,5 +19,6 @@ urlpatterns = [
     path('api/v1/', include('matcha.urls')),
     path(
         'api/v1/docs/', schema_view.with_ui(cache_timeout=0), name='API'
-    )
+    ),
+    path('accounts/', include('registration.backends.default.urls')),
 ]

@@ -37,7 +37,7 @@ class User(AbstractUser):
         return get_by_model_and_id(self, _id)
 
     def __str__(self):
-        return f"Пользователь {self.last_name} {self.first_name}"
+        return f"{self.last_name} {self.first_name}"
 
     class Meta:
         verbose_name = "Пользователь"
