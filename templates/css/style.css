@@ -132,7 +132,7 @@ a:link {
   width: 60px;
   height: 100%;
   top: 0;
-  position: absolute;
+  position: fixed;
   background-color: #262729;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -217,27 +217,47 @@ a:link {
   max-width: 80%;
   min-height: 400px;
   overflow: hidden;
-}
-
-.user-profile .btn_span {
-  position: absolute;
-  background: #fff;
-  -webkit-transform: translate(-50%, -50%);
-          transform: translate(-50%, -50%);
-  pointer-events: none;
-  border-radius: 50%;
-  -webkit-animation: btn_span 1s linear infinite;
-          animation: btn_span 1s linear infinite;
+  margin-bottom: 50px;
 }
 
 .user-profile figure {
+  position: relative;
   display: inline-block;
 }
 
-.user-profile figure img {
+.user-profile figure div {
+  text-align: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
   width: 65px;
-  height: 65px;
+  width: 65px;
+}
+
+.user-profile figure div img {
+  max-width: 65px;
+  max-height: 65px;
   display: inline-block;
+}
+
+.user-profile figure #del-avatar {
+  position: absolute;
+  top: 3px;
+  right: 1px;
+  border: none;
+  display: inline-block;
+  background-color: rgba(250, 18, 18, 0.925);
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  vertical-align: center;
+  color: #000;
+  cursor: pointer;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  font-size: 15px;
 }
 
 .user-profile figcaption {
@@ -484,10 +504,34 @@ a:link {
       flex-wrap: wrap;
 }
 
+.user-profile .images .img-area div {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
 .user-profile .images .img-area img {
-  width: 20%;
+  max-width: 300px;
+  max-height: 250px;
   margin: 10px;
   margin-top: 20px;
+  -webkit-transition: .5s ease;
+  transition: .5s ease;
+}
+
+.user-profile .images .img-area .hover-info {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-transition: .5s ease;
+  transition: .5s ease;
+  background-color: rgba(0, 0, 0, 0);
 }
 
 .center {

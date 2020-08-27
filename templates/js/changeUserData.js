@@ -29,12 +29,16 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         age.edit();
         gender.edit();
         _name.edit();
+        avatar.edit();
+        image.edit();
     } else {
         hist.submit();
         tags.submit();
         age.submit();
         gender.submit();
         _name.submit();
+        avatar.submit();
+        image.submit();
         this.innerHTML = "&#9998;";
         this.style.padding = "2px 5px";
         change_user_data = false;
