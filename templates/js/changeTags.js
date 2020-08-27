@@ -1,6 +1,6 @@
 var new_tag_edited = false;
 var change_tag_btn = document.getElementById("change-tag");
-var change_tag = false; 
+// var change_tag = false; 
 
 function submitTag(el) {
     let input = el.querySelector("input");
@@ -80,7 +80,6 @@ function tagListener(el) {
             el.remove();
         });
     } catch {
-        console.log("error here");
     }
 }
 
@@ -98,18 +97,19 @@ function editTag() {
     });
 }
 
-change_tag_btn.addEventListener("click", function(e) {
-    if (change_tag === false) {
+var tags = {
+    edit: function() {
         document.querySelectorAll(".tag").forEach(el => {
             let del_btn = document.createElement("div");
             del_btn.classList.add("del_btn");
             el.appendChild(del_btn);
         });
-        change_tag_btn.innerHTML = "&#10004;";
+        // change_tag_btn.innerHTML = "&#10004;";
         createNewTag();
         editTag();
-        change_tag = true;
-    } else {
+        // change_tag = true;
+    },
+    submit: function() {
         document.querySelectorAll(".tag").forEach(el => {
             try {
                 el.querySelector(".del_btn").remove();
@@ -117,7 +117,13 @@ change_tag_btn.addEventListener("click", function(e) {
             }
         });
         document.querySelector(".new-tag").remove();
-        change_tag = false;
-        change_tag_btn.innerHTML = "&#9998;";
+        // change_tag = false;
+        // change_tag_btn.innerHTML = "&#9998;";
     }
-});
+}
+
+// change_tag_btn.addEventListener("click", function(e) {
+//     if (change_tag === false) {
+//     } else {
+//     }
+// });

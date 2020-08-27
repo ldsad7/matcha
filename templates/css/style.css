@@ -67,6 +67,7 @@ a:link {
 .header .notifications::after {
   position: absolute;
   content: "";
+  z-index: 2;
   top: 10px;
   left: 15px;
   width: 10px;
@@ -80,6 +81,7 @@ a:link {
 .header #notif_list {
   position: absolute;
   width: 120px;
+  z-index: 10;
   display: none;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
@@ -126,35 +128,11 @@ a:link {
   color: pink;
 }
 
-@-webkit-keyframes notification {
-  0% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-@keyframes notification {
-  0% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
 .navbar {
   width: 60px;
   height: 100%;
   top: 0;
-  position: absolute;
+  position: fixed;
   background-color: #262729;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -238,16 +216,48 @@ a:link {
   width: 64rem;
   max-width: 80%;
   min-height: 400px;
+  overflow: hidden;
+  margin-bottom: 50px;
 }
 
 .user-profile figure {
+  position: relative;
   display: inline-block;
 }
 
-.user-profile figure img {
+.user-profile figure div {
+  text-align: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
   width: 65px;
-  height: 65px;
+  width: 65px;
+}
+
+.user-profile figure div img {
+  max-width: 65px;
+  max-height: 65px;
   display: inline-block;
+}
+
+.user-profile figure #del-avatar {
+  position: absolute;
+  top: 3px;
+  right: 1px;
+  border: none;
+  display: inline-block;
+  background-color: rgba(250, 18, 18, 0.925);
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  vertical-align: center;
+  color: #000;
+  cursor: pointer;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  font-size: 15px;
 }
 
 .user-profile figcaption {
@@ -268,6 +278,92 @@ a:link {
   color: #e2e2e2;
 }
 
+.user-profile figcaption #selectGender {
+  outline: none;
+  border: none;
+  color: #e2e2e2;
+  background-color: #262729;
+}
+
+.user-profile figcaption #firstname, .user-profile figcaption #lastname {
+  color: #e2e2e2;
+  background-color: #262729;
+  border: none;
+  width: 120px;
+  font-size: 16px;
+}
+
+.user-profile #change-profile-data {
+  position: absolute;
+  top: 1px;
+  right: 5px;
+  display: inline-block;
+  background-color: rgba(18, 250, 45, 0.925);
+  padding: 2px 5px;
+  border-radius: 5px;
+  margin-top: 5px;
+  color: #000;
+  cursor: pointer;
+}
+
+.user-profile #change-profile-data-cancel {
+  position: absolute;
+  top: 1px;
+  right: 35px;
+  border: none;
+  display: inline-block;
+  background-color: rgba(250, 18, 18, 0.925);
+  padding: 2px 6px;
+  border-radius: 5px;
+  margin-top: 5px;
+  color: #000;
+  cursor: pointer;
+  display: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+
+.user-profile #change-profile-data-cancel:checked {
+  outline: none;
+}
+
+.user-profile #connection {
+  position: relative;
+  margin-left: 15px;
+  font-size: 14px;
+  color: #c4c2c2;
+}
+
+.user-profile #connection::after {
+  content: "";
+  border-radius: 50%;
+  background-color: green;
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  top: 6px;
+  left: -12px;
+}
+
+.user-profile .buttons div {
+  cursor: pointer;
+  padding: 25px 50px;
+  /* z-index: 5; */
+  border-radius: 40px;
+  text-transform: uppercase;
+  font-size: 18px;
+  letter-spacing: 2px;
+  text-decoration: none;
+  color: #fff;
+  display: inline-block;
+  overflow: hidden;
+  margin: 20px;
+  background: -webkit-gradient(linear, left top, right top, from(#0162c8), to(#55e7fc));
+  background: linear-gradient(90deg, #0162c8, #55e7fc);
+}
+
 .user-profile .user-data {
   color: #e2e2e2;
   margin-top: 5px;
@@ -277,6 +373,19 @@ a:link {
 .user-profile .user-data #history {
   margin-top: 20px;
   color: #e2e2e2;
+}
+
+.user-profile .user-data #textArea {
+  font-size: 16px;
+  width: 100%;
+  border: 0;
+  margin-top: 10px;
+  color: #e2e2e2;
+  background-color: #262729;
+}
+
+.user-profile .user-data #textArea:focus {
+  outline: none;
 }
 
 .user-profile .interests {
@@ -364,6 +473,67 @@ a:link {
   cursor: pointer;
 }
 
+.user-profile .images #imageInput {
+  display: none;
+}
+
+.user-profile .images #image-input {
+  width: 55px;
+  height: 45px;
+  margin-top: 20px;
+  margin-left: 15px;
+  text-align: center;
+  padding-top: 10px;
+  border: 1px solid #5555ee;
+  display: inline-block;
+  border-radius: 5px;
+  cursor: pointer;
+  background: linear-gradient(45deg, #0162c8, #55e7fc);
+}
+
+.user-profile .images #image-input svg {
+  width: 80%;
+  height: 80%;
+}
+
+.user-profile .images .img-area {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+
+.user-profile .images .img-area div {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.user-profile .images .img-area img {
+  max-width: 300px;
+  max-height: 250px;
+  margin: 10px;
+  margin-top: 20px;
+  -webkit-transition: .5s ease;
+  transition: .5s ease;
+}
+
+.user-profile .images .img-area .hover-info {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-transition: .5s ease;
+  transition: .5s ease;
+  background-color: rgba(0, 0, 0, 0);
+}
+
 .center {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -373,5 +543,66 @@ a:link {
           justify-content: center;
   width: 100%;
   position: absolute;
+}
+
+#date-picker {
+  border: none;
+  border-radius: 5px;
+  outline: none;
+  padding: 4px;
+  background-color: #262729;
+  color: #e2e2e2;
+  margin-left: 10px;
+  margin-top: 5px;
+}
+
+@-webkit-keyframes notification {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes notification {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes btn_span {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.25;
+  }
+  100% {
+    height: 1000px;
+    width: 1000px;
+    opacity: 0;
+  }
+}
+
+@keyframes btn_span {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.25;
+  }
+  100% {
+    height: 1000px;
+    width: 1000px;
+    opacity: 0;
+  }
 }
 /*# sourceMappingURL=style.css.map */
