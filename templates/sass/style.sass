@@ -189,7 +189,40 @@ a:link
             color: #b0b0b0
             span
                 color: #e2e2e2
+        #selectGender
+            outline: none
+            border: none
+            color: #e2e2e2
+            background-color: $section-col
 
+    #change-profile-data
+        position: absolute
+        top: 1px
+        right: 5px
+        display: inline-block
+        background-color: rgba(18, 250, 45, 0.925)
+        padding: 2px 5px
+        border-radius: 5px
+        margin-top: 5px
+        color: #000
+        cursor: pointer
+    #change-profile-data-cancel
+        position: absolute
+        top: 1px
+        right: 35px
+        border: none
+        display: inline-block
+        background-color: rgba(250, 18, 18, 0.925)
+        padding: 2px 6px
+        border-radius: 5px
+        margin-top: 5px
+        color: #000
+        cursor: pointer
+        display: none
+        user-select: none
+        &:checked
+            outline: none
+            
     // #second_caption
         // margin-left: 40px
 
@@ -200,6 +233,15 @@ a:link
         #history
             margin-top: 20px
             color: #e2e2e2
+        #textArea
+            font-size: 16px
+            width: 100%
+            border: 0
+            margin-top: 10px
+            color: #e2e2e2
+            background-color: $section-col
+            &:focus
+                outline: none
     
     .interests
         margin-left: 10px
@@ -266,3 +308,15 @@ a:link
     justify-content: center
     width: 100%
     position: absolute
+
+#date-picker
+    border: none
+    border-radius: 5px
+    outline: none
+    padding: 4px
+    background-color: $section-col
+    color: #e2e2e2
+    margin-left: 10px
+    margin-top: 5px
+
+
