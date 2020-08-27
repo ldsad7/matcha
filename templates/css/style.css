@@ -319,6 +319,24 @@ a:link {
   outline: none;
 }
 
+.user-profile #connection {
+  position: relative;
+  margin-left: 15px;
+  font-size: 14px;
+  color: #c4c2c2;
+}
+
+.user-profile #connection::after {
+  content: "";
+  border-radius: 50%;
+  background-color: green;
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  top: 6px;
+  left: -12px;
+}
+
 .user-profile .user-data {
   color: #e2e2e2;
   margin-top: 5px;
