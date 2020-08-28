@@ -231,7 +231,6 @@ a:link {
       -ms-flex-align: center;
           align-items: center;
   width: 65px;
-  width: 65px;
 }
 
 .user-profile figure div img {
@@ -603,6 +602,90 @@ a:link {
     height: 1000px;
     width: 1000px;
     opacity: 0;
+  }
+}
+
+.user-profile-short {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.user-profile-short .user-data {
+  max-width: 70%;
+}
+
+.user-profile-short figure div {
+  width: auto;
+}
+
+.user-profile-short figure div img {
+  max-width: 320px;
+  max-height: 250px;
+}
+
+.user-profile-short #rating, .user-profile-short #age, .user-profile-short #gender, .user-profile-short #username, .user-profile-short #name {
+  margin-left: 10px;
+  line-height: 20px;
+  display: inline-block;
+}
+
+.user-profile-short div {
+  color: #b0b0b0;
+}
+
+.user-profile-short div span {
+  color: #e2e2e2;
+}
+
+.user-profile-short #name {
+  display: block;
+}
+
+.user-profile-short .user-data div {
+  position: relative;
+}
+
+.user-profile-short .user-data .short-history {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.user-profile-short .user-data #show-more {
+  left: 0;
+  position: absolute;
+  bottom: -17px;
+  background-color: #1d1d1d;
+  color: #96cbf8;
+  outline: none;
+  border: none;
+}
+
+.user-profile-short .user-data #show-more:focus ~ .short-history {
+  display: inline-block;
+}
+
+@media screen and (max-width: 780px) {
+  .navbar {
+    display: none;
+  }
+  .user-profile-short {
+    padding: 20px 0;
+    margin-left: 0;
+  }
+  .user-profile-short figure img {
+    max-width: 90%;
+  }
+  .user-profile-short .user-data {
+    margin-top: 20px;
+    max-width: 90%;
   }
 }
 /*# sourceMappingURL=style.css.map */

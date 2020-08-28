@@ -185,7 +185,8 @@ a:link
         div
             text-align: center
             align-items: center
-            width: 65px
+            // width: 65px
+            // width: auto
             width: 65px
             img
                 max-width: 65px
@@ -468,3 +469,62 @@ a:link
         height: 1000px
         width: 1000px
         opacity: 0
+
+// 
+    // INDEX PAGE
+// 
+
+.user-profile-short
+    display: flex
+    flex-wrap: wrap
+    justify-content: center
+    .user-data
+        max-width: 70%
+    figure
+        div
+            width: auto
+            img
+                max-width: 320px
+                max-height: 250px
+    #rating, #age, #gender, #username, #name
+        margin-left: 10px
+        line-height: 20px
+        display: inline-block
+        // color: #e2e2e2
+    div
+        color: #b0b0b0
+        span
+            color: #e2e2e2
+    #name
+        display: block
+    .user-data
+        div
+            position: relative
+        .short-history
+            overflow: hidden
+            display: -webkit-box
+            -webkit-box-orient: vertical
+            -webkit-line-clamp: 3
+        #show-more
+            left: 0
+            position: absolute
+            bottom: -17px
+            background-color: #1d1d1d
+            color: #96cbf8
+            outline: none
+            border: none
+            &:focus ~ .short-history
+                display: inline-block
+                
+@media screen and ( max-width: 780px )
+    .navbar
+        display: none
+    .user-profile-short
+        padding: 20px 0
+        margin-left: 0  
+        figure
+            img
+                max-width: 90%
+        .user-data
+            margin-top: 20px
+            max-width: 90%
