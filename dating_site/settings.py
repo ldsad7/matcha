@@ -23,6 +23,9 @@ USE_L10N = True
 ####################################
 
 INSTALLED_APPS = [
+    'django.contrib.sites',
+    # registration
+    'registration',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -59,10 +62,14 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'dating_site.urls'
 
+####################################
+# Templates
+####################################
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -140,6 +147,15 @@ AUTH_PASSWORD_VALIDATORS = [
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+####################################
+# Registration
+####################################
+
+ACCOUNT_ACTIVATION_DAYS = 7
+REGISTRATION_AUTO_LOGIN = True
+REGISTRATION_USE_SITE_EMAIL = True
+SITE_ID = 1
 
 ####################################
 # Local Settings
