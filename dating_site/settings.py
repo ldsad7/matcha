@@ -156,6 +156,7 @@ ACCOUNT_ACTIVATION_DAYS = 7
 REGISTRATION_AUTO_LOGIN = True
 REGISTRATION_USE_SITE_EMAIL = True
 SITE_ID = 1
+REGISTRATION_FORM = 'matcha.forms.CustomRegistrationForm'
 
 ####################################
 # Local Settings
