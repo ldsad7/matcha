@@ -21,3 +21,5 @@ easy-thumbnails==2.6
 
 # Registration
 django-registration-redux==2.8
+
+cryptography
