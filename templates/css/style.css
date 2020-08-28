@@ -330,7 +330,6 @@ a:link {
 
 .user-profile #connection {
   position: relative;
-  margin-left: 15px;
   font-size: 14px;
   color: #c4c2c2;
 }
@@ -343,7 +342,7 @@ a:link {
   width: 8px;
   height: 8px;
   top: 6px;
-  left: -12px;
+  left: 0px;
 }
 
 .user-profile .buttons div {
@@ -673,12 +672,29 @@ a:link {
 }
 
 @media screen and (max-width: 780px) {
+  .user-profile figure div {
+    width: auto;
+  }
+  .user-profile figure div img {
+    max-width: 70%;
+    max-height: 350px;
+  }
+  .user-profile .img-area {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+  }
   .navbar {
     display: none;
   }
+  .user-profile {
+    margin-left: 0;
+  }
   .user-profile-short {
     padding: 20px 0;
-    margin-left: 0;
   }
   .user-profile-short figure img {
     max-width: 90%;

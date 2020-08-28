@@ -262,7 +262,7 @@ a:link
         // margin-left: 40px
     #connection
         position: relative
-        margin-left: 15px
+        // margin-left: 15px
         // tac
         font-size: 14px
         color: #c4c2c2
@@ -274,7 +274,7 @@ a:link
             width: 8px
             height: 8px
             top: 6px
-            left: -12px
+            left: 0px
             // animation: notification 5s infinite
 
 
@@ -517,11 +517,22 @@ a:link
                 display: inline-block
                 
 @media screen and ( max-width: 780px )
+    .user-profile
+        figure
+            div
+                width: auto
+                img
+                    max-width: 70%
+                    max-height: 350px
+        .img-area
+            display: flex
+            justify-content: center
     .navbar
         display: none
+    .user-profile
+        margin-left: 0
     .user-profile-short
         padding: 20px 0
-        margin-left: 0  
         figure
             img
                 max-width: 90%
