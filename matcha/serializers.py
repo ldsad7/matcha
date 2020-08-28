@@ -33,7 +33,8 @@ class UserReadSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
             'id', 'last_login', 'username', 'first_name', 'last_name', 'email', 'is_active',
-            'gender', 'date_of_birth', 'info', 'location', 'tags', 'photos',
+            'gender', 'orientation', 'date_of_birth', 'info', 'location', 'tags', 'photos',
+            'profile_activated'
         )
         model = User
 

@@ -49,10 +49,15 @@ class User(AbstractUser):
         return get_by_model_and_id(self, _id)
 
     def save(self, *args, **kwargs):
-        print(f'args: {args}')
-        print(f'kwargs: {kwargs}')
-        print(f'dir(self): {dir(self)}')
-        print(f"fields: {[str(elem).split('.')[-1] for elem in self._meta.fields]}")
+        was_empty_field = False
+        for field in self._meta.fields:
+            name = field.name
+            value = getattr(self, field.name)
+            if (name in ['first_name', 'last_name', 'info', 'location', 'date_of_birth'] and not value) or \
+                    (name in ['gender', 'orientation'] and value == self.UNKNOWN):
+                was_empty_field = True
+                break
+        self.profile_activated = not was_empty_field
         super().save(*args, **kwargs)
 
     def __str__(self):
