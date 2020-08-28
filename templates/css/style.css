@@ -128,6 +128,41 @@ a:link {
   color: pink;
 }
 
+.toggle {
+  display: none;
+}
+
+.toggle span {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 4px;
+  margin-top: 20px;
+  border-radius: 2px;
+  background-color: #cbcbcb;
+}
+
+.toggle span::after {
+  top: 5px;
+  left: 0;
+}
+
+.toggle span::before {
+  top: -9px;
+  left: 0;
+}
+
+.toggle span::after, .toggle span::before {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  width: 20px;
+  height: 4px;
+  margin-top: 2px;
+  border-radius: 2px;
+  background-color: #cbcbcb;
+}
+
 .navbar {
   width: 60px;
   height: 100%;
@@ -208,6 +243,7 @@ a:link {
 }
 
 .user-profile {
+  z-index: -1;
   position: absolute;
   margin-top: 60px;
   margin-left: 60px;
@@ -342,7 +378,7 @@ a:link {
   width: 8px;
   height: 8px;
   top: 6px;
-  left: 0px;
+  left: calc(50% - 30px);
 }
 
 .user-profile .buttons div {
@@ -672,6 +708,12 @@ a:link {
 }
 
 @media screen and (max-width: 780px) {
+  .toggle {
+    display: inline-block;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+  }
   .user-profile figure div {
     width: auto;
   }
@@ -689,6 +731,16 @@ a:link {
   }
   .navbar {
     display: none;
+  }
+  .navbar-active {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    top: 50px;
+  }
+  .navbar-active .navbar_info {
+    left: 60px;
+    opacity: 1;
   }
   .user-profile {
     margin-left: 0;
