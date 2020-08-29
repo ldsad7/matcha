@@ -5,10 +5,11 @@ from django.template import loader
 from rest_framework.viewsets import ModelViewSet
 
 from .models import (
-    Tag, User, UserTag, UserPhoto
+    Tag, User, UserTag, UserPhoto, UsersConnect,
 )
 from .serializers import (
-    TagSerializer, UserSerializer, UserTagSerializer, UserPhotoSerializer, UserReadSerializer
+    TagSerializer, UserSerializer, UserTagSerializer, UserPhotoSerializer, UserReadSerializer,
+    UsersConnectSerializer,
 )
 
 
@@ -57,6 +58,15 @@ class UserTagViewSet(ModelViewSet):
 class UserPhotoViewSet(ModelViewSet):
     serializer_class = UserPhotoSerializer
     queryset = UserPhoto.objects.all()
+
+
+class UsersConnectViewSet(ModelViewSet):
+    serializer_class = UsersConnectSerializer
+    queryset = UsersConnect.objects.all()
+
+    def get_object(self):
+        # self.kwargs['pk']
+        return super().get_object()
 
 
 def index(request):

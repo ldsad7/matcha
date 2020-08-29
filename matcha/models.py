@@ -116,3 +116,22 @@ class UserPhoto(TimeStampedModel):
     class Meta:
         verbose_name = 'Изображение пользователя'
         verbose_name_plural = 'Изображения пользователя'
+
+
+class UsersConnect(TimeStampedModel):
+    user_1 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 1", on_delete=models.CASCADE,
+        related_name='user_1_set'
+    )
+    user_2 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 2", on_delete=models.CASCADE,
+        related_name='user_2_set'
+    )
+
+    def get_by_id(self, _id):
+        return get_by_model_and_id(self, _id)
+
+    class Meta:
+        verbose_name = "Коннект пользователей"
+        verbose_name_plural = "Коннекты пользователей"
+        unique_together = ('user_1', 'user_2')
