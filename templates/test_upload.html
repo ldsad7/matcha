@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>test uploads file</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+</head>
+<body>
+	
+    <input type="file" id="image_to_upload"/>
+</body>
+<script>
+    // $.noConflict();	
+	formdata = new FormData();		
+	$("#image_to_upload").on("change", function() {
+		var file = this.files[0];
+		// if (formdata) {
+			formdata.append("image", file);
+			$.ajax({
+				url: "images/",
+				type: "POST",
+				data: formdata,
+				processData: false,
+				contentType: false,
+				success: function(response) {
+					alert('src: ' + response)
+				}
+			});
+	});
+</script>
+</html>
