@@ -1,5 +1,4 @@
 var new_tag_edited = false;
-var change_tag_btn = document.getElementById("change-tag");
 // var change_tag = false; 
 
 function submitTag(el) {

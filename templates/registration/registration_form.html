@@ -224,44 +224,6 @@
 
     <section>
         <div class="container">
-            <div class="form sign_in_bx">
-                <div class="block">
-                    <div class="filt">
-                        <div class="bubble b4"></div>
-                        <div class="bubble b1"></div>
-                        <div class="bubble b2"></div>
-                        <div class="bubble b3"></div>
-                        <div class="bubble b5"></div>
-                        <div class="bubble b6"></div>
-                        <!-- <div class="pointer"></div> -->
-                        <div class="pointer" id="pointer_1"></div>
-                        <div class="pointer" id="pointer_2"></div>
-                        <!-- <div class="pointer" id="pointer_3"></div>
-                        <div class="pointer" id="pointer_4"></div>
-                        <div class="pointer" id="pointer_5"></div> -->
-                    </div>
-                </div>
-                <div class="form_bx">
-                    <form method="post" action="">
-                        {% csrf_token %}
-                        <h2>Залогиниться</h2>
-                        <p class="signup">
-                            <label for="id_username">{% trans "Username" %}:</label>
-                            <input type="text" name="username" autofocus required id="id_username">
-                        </p>
-                        <p class="signup">
-                            <label for="id_password">{% trans "Password" %}:</label>
-                            <input type="password" name="password" required id="id_password">
-                        </p>
-                        <!--                        <p class="notice invis no_match">login or password incorrect</p>-->
-                        <input type="submit" value="{% trans 'Log in' %}" />
-                        <input type="hidden" name="next" value="{{ next }}" />
-                        <p class="signup">{% trans "Forgot your password?" %} <a href="{% url 'auth_password_reset' %}">{% trans "Reset it" %}</a>.</p>
-                        <!--                        <p>{% trans "Not a member?" %} <a href="{% url 'registration_register' %}">{% trans "Register" %}</a>.</p>-->
-                        <p class="signup">{% trans "Not a member?" %} <a onclick="func();" href="#">{% trans "Register" %}</a>.</p>
-                    </form>
-                </div>
-            </div>
 
             <div class="form sign_up_bx">
                 <div class="form_bx">
