@@ -48,6 +48,10 @@ INSTALLED_APPS = [
 
     # site apps
     'matcha',
+    'chat',
+
+    # chat
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -157,6 +161,22 @@ REGISTRATION_AUTO_LOGIN = True
 REGISTRATION_USE_SITE_EMAIL = True
 SITE_ID = 1
 REGISTRATION_FORM = 'matcha.forms.CustomRegistrationForm'
+
+####################################
+# Chat
+####################################
+
+ASGI_APPLICATION = 'dating_site.routing.application'
+ASGI_THREADS = 1000
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('172.17.0.2', 6379)],
+            "capacity": 300
+        },
+    },
+}
 
 ####################################
 # Local Settings

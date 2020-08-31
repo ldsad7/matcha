@@ -24,6 +24,7 @@ urlpatterns = [
     path('index/', views.index, name='index'),
     path('search/', views.search, name='search'),
     path('admin/', admin.site.urls),
+    path('chat/', include('chat.urls')),
     path('api/v1/', include('matcha.urls')),
     path(
         'api/v1/docs/', schema_view.with_ui(cache_timeout=0), name='API'
