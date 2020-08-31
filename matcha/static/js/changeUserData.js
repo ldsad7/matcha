@@ -28,6 +28,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         tags.edit();
         age.edit();
         gender.edit();
+        orientation.edit();
         _name.edit();
         avatar.edit();
         image.edit();
@@ -36,6 +37,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         tags.submit();
         age.submit();
         gender.submit();
+        orientation.submit();
         _name.submit();
         avatar.submit();
         image.submit();
