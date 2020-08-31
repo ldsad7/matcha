@@ -1,7 +1,7 @@
 # from django_filters.rest_framework import DjangoFilterBackend
 # from rest_framework.filters import OrderingFilter
-from django.http import HttpResponse
-from django.template import loader
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .models import (
@@ -49,6 +49,30 @@ class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
+    @action(detail=True)
+    def liking(self, request, *args, **kwargs):
+        """
+        returns those users that liked current user
+        """
+        user = self.get_object()
+        users = [
+            user_connect.user_1
+            for user_connect in UsersConnect.objects.filter(user_2=user)
+        ]
+        return Response(UserReadSerializer(users, many=True).data)
+
+    @action(detail=True)
+    def liked(self, request, *args, **kwargs):
+        """
+        returns those users whom current user likes
+        """
+        user = self.get_object()
+        users = [
+            user_connect.user_2
+            for user_connect in UsersConnect.objects.filter(user_1=user)
+        ]
+        return Response(UserReadSerializer(users, many=True).data)
+
 
 class UserTagViewSet(ModelViewSet):
     serializer_class = UserTagSerializer
@@ -63,10 +87,6 @@ class UserPhotoViewSet(ModelViewSet):
 class UsersConnectViewSet(ModelViewSet):
     serializer_class = UsersConnectSerializer
     queryset = UsersConnect.objects.all()
-
-    def get_object(self):
-        # self.kwargs['pk']
-        return super().get_object()
 
 
 def index(request):

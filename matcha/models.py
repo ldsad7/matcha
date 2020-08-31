@@ -119,6 +119,10 @@ class UserPhoto(TimeStampedModel):
 
 
 class UsersConnect(TimeStampedModel):
+    """
+    Connection means that user_1 likes user_2
+    """
+
     user_1 = models.ForeignKey(
         User, blank=False, null=False, verbose_name="Пользователь 1", on_delete=models.CASCADE,
         related_name='user_1_set'
