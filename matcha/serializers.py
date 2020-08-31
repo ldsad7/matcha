@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import (
-    Tag, User, UserTag, UserPhoto
+    Tag, User, UserTag, UserPhoto, UsersConnect
 )
 
 
@@ -89,3 +89,29 @@ class UserPhotoReadSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = UserPhoto
+
+
+class UsersConnectSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = '__all__'
+        model = UsersConnect
+
+    def to_representation(self, instance):
+        return UsersConnectReadSerializer(instance).data
+
+
+class UsersConnectReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = '__all__'
+        model = UsersConnect
+
+    user_1 = serializers.SerializerMethodField()
+    user_2 = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_user_1(instance: UsersConnect):
+        return UserReadSerializer(instance.user_1).data
+
+    @staticmethod
+    def get_user_2(instance: UsersConnect):
+        return UserReadSerializer(instance.user_2).data
