@@ -7,14 +7,14 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 </head>
 <body>
-	
     <input type="file" id="image_to_upload"/>
 </body>
 <script>
     // $.noConflict();	
-	formdata = new FormData();		
 	$("#image_to_upload").on("change", function() {
+		formdata = new FormData();		
 		var file = this.files[0];
+		console.log(file);
 		// if (formdata) {
 			formdata.append("image", file);
 			$.ajax({
