@@ -167,13 +167,11 @@ REGISTRATION_FORM = 'matcha.forms.CustomRegistrationForm'
 ####################################
 
 ASGI_APPLICATION = 'dating_site.routing.application'
-ASGI_THREADS = 1000
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('172.17.0.2', 6379)],
-            "capacity": 300
+            "hosts": [('127.0.0.1', 6379)],
         },
     },
 }
