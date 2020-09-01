@@ -4,6 +4,14 @@
   font-family: 'Roboto', sans-serif;
 }
 
+.mt-20 {
+  margin-top: 20px;
+}
+
+.white {
+  color: #e2e2e2;
+}
+
 body {
   background-color: #303133;
 }
@@ -439,10 +447,13 @@ a:link {
   display: flex;
   -ms-flex-wrap: wrap;
       flex-wrap: wrap;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
 
 .user-profile .interests #tags .tag {
-  margin-right: 5px;
+  margin-left: 5px;
   position: relative;
   border: 1px aqua solid;
   border-radius: 5px;
@@ -505,6 +516,10 @@ a:link {
   margin-top: 5px;
   color: #000;
   cursor: pointer;
+}
+
+.user-profile .images {
+  margin: 10px;
 }
 
 .user-profile .images #imageInput {
