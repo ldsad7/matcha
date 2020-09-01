@@ -1,7 +1,7 @@
 var orientation = {
     edit: function() {
         this.changeOrientation = document.getElementById("selectOrientation");
-        this.span = document.getElementById("orientation").querySelector("span");
+        this.span = document.getElementById("orientation-data");
         this.changeOrientation.querySelectorAll("option").forEach(opt => {
             if (opt.value === this.span.innerHTML) {
                 opt.setAttribute("selected", "");

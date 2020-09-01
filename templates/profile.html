@@ -89,14 +89,16 @@
                             <option value="unknown">Неизвестно</option>
                         </select>
                     </div>
-                    <div id="orientation">Ориентация: <span>{{ orientation }}</span>
+                    <div id="orientation"><span class="gray">Ориентация: </span><span id="orientation-data">{{ orientation }}</span> 
+                        <!-- <div id="orientation">Ориентация: <span>{{ orientation }}</span> -->
                         <select id="selectOrientation" style="display: none;">
                             <option value="heterosexual">Гетеро</option>
                             <option value="homosexual">Гомо</option>
                             <option value="bisexual">Би</option>
                         </select>
                     </div>
-                    <div id="location">Локация: {{ location }}</div>
+                    <div id="location"><span class="gray">Локация: </span><span id="location-data">{{ location }}</span></div>
+                    <!-- <div id="location">Локация: {{ location }}</div> -->
                 </figcaption>
                 <!-- <div class="buttons">
                     <div class="chat"></div>

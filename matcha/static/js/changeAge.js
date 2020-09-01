@@ -1,7 +1,5 @@
 function get_current_age(date) {
-    console.log(date)
     var d = date.split('-');
-    console.log(d)
     if( typeof d[2] !== "undefined" ) {
         date = d[1]+'.'+d[2]+'.'+d[0];
         return ((new Date().getTime() - new Date(date)) / (24 * 3600 * 365.25 * 1000)) | 0;
