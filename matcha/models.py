@@ -21,20 +21,20 @@ class Tag(TimeStampedModel):
 
 
 class User(AbstractUser):
-    UNKNOWN = "unknown"
+    UNKNOWN = "неизвестно"
 
-    MAN = "man"
-    WOMAN = "woman"
+    MAN = "мужской"
+    WOMAN = "женский"
     GENDERS = Choices(
-        (MAN, "мужской"), (WOMAN, "женский"), (UNKNOWN, "неизвестно")
+        (MAN, "man"), (WOMAN, "woman"), (UNKNOWN, "unknown")
     )
 
-    HETERO = "heterosexual"
-    HOMO = "homosexual"
-    BI = "bisexual"
+    HETERO = "гетеросексуальность"
+    HOMO = "гомосексуальность"
+    BI = "бисекусальность"
     ORIENTATIONS = Choices(
-        (HETERO, "гетеросексуальность"), (HOMO, "гомосексуальность"), (BI, "бисекусальность"),
-        (UNKNOWN, "неизвестно")
+        (HETERO, "heterosexual"), (HOMO, "homosexual"), (BI, "bisexual"),
+        (UNKNOWN, "unknown")
     )
 
     email = models.EmailField(_('email address'), blank=False, null=False, unique=True)
@@ -49,6 +49,8 @@ class User(AbstractUser):
         return get_by_model_and_id(self, _id)
 
     def save(self, *args, **kwargs):
+        print(f'args: {args}')
+        print(f'kwargs: {kwargs}')
         was_empty_field = False
         for field in self._meta.fields:
             name = field.name

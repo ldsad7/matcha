@@ -49,6 +49,22 @@ class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
+    def update(self, request, *args, **kwargs):
+        user_tags = {user_tag.tag.name for user_tag in UserTag.objects.filter(user=request.user)}
+        new_tags = {tag.strip().strip('#') for tag in request.data.get('tags') if tag.strip().strip('#')}
+
+        UserTag.objects.filter(tag__name__in=user_tags - new_tags).delete()
+
+        UserTag.objects.bulk_create([
+            UserTag(
+                user=request.user,
+                tag=Tag.objects.get_or_create(name=tag_name)[0]
+            )
+            for tag_name in new_tags - user_tags
+        ])
+
+        return super().update(request, *args, **kwargs)
+
     @action(detail=True)
     def liking(self, request, *args, **kwargs):
         """

@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% block scripts %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'js/script.js' %}"></script>
     <script src="{% static 'js/autosize.min.js' %}"></script>
 {% endblock %}
@@ -68,6 +69,7 @@
                     <div id="connection">online</div>
                 </figure>
                 <figcaption>
+                    <span id="id" style="display: none;">{{ id }}</span>
                     <div id="username">{{ username }}</div>
                     <div id="rating">Рейтинг: <span>420&#9733;</span></div>
                     <div id="name">
@@ -79,22 +81,23 @@
                 <figcaption id="second_caption">
                     <div id="age">Дата рождения:
                         <input  type="hidden" id="date-picker" name="trip-start"
-                        value="1970-01-01"
+                        value="{{ date_of_birth }}"
                         min="1945-01-01" max="2006-12-31" required>
                         <span>19</span><span> лет</span></div>
                     <div id="gender">Пол: <span>{{ gender }}</span>
                         <select id="selectGender" style="display: none;">
-                            <option value="man">М</option>
-                            <option value="woman">Ж</option>
-                            <option value="unknown">Неизвестно</option>
+                            <option value="мужской">М</option>
+                            <option value="женский">Ж</option>
+                            <option value="неизвестно">Неизвестно</option>
                         </select>
                     </div>
                     <div id="orientation"><span class="gray">Ориентация: </span><span id="orientation-data">{{ orientation }}</span> 
                         <!-- <div id="orientation">Ориентация: <span>{{ orientation }}</span> -->
                         <select id="selectOrientation" style="display: none;">
-                            <option value="heterosexual">Гетеро</option>
-                            <option value="homosexual">Гомо</option>
-                            <option value="bisexual">Би</option>
+                            <option value="гетеросексуальность">Гетеро</option>
+                            <option value="гомосексуальность">Гомо</option>
+                            <option value="бисекусальность">Би</option>
+                            <option value="неизвестно">Неизвестно</option>
                         </select>
                     </div>
                     <div id="location"><span class="gray">Локация: </span><span id="location-data">{{ location }}</span></div>
@@ -111,7 +114,7 @@
                 </section>
                 <section class="interests">
                     <div id="tags">
-                        Интересы:
+                        <p class="white">Интересы:</p>
                         {% for tag in tags %}
                             <div class="tag">
                                 <span>#{{ tag.tag }}</span>
@@ -162,22 +165,6 @@
     <script src="{% static 'js/changeTags.js' %}"></script>
     <!-- endif -->
     <script src="{% static 'js/toggleBtn.js' %}"></script>
-<!--    <script>-->
-<!--        $("#change-profile-data").click(function() {-->
-<!--            $.patch(-->
-<!--                "",-->
-<!--                {-->
-<!--                    "first_name": $("#first_name").value,-->
-<!--                    "last_name": $("#last_name").value,-->
-<!--                    "date_of_birth": $("#date-picker").value,-->
-<!--                    "gender": $("#selectGender option:checked").value,-->
-<!--                    "orientation": $("#selectOrientation option:checked").value,-->
-<!--                    "location": $("#location").value,-->
-<!--                    "info": $("#textArea").value,-->
-<!--                }-->
-<!--            )-->
-<!--        })-->
-<!--    </script>-->
 {% endblock %}
 
 

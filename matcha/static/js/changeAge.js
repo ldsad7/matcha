@@ -7,6 +7,10 @@ function get_current_age(date) {
     return 0;
 }
 
+var ageArea = document.getElementById("age");
+var datePicker = document.getElementById("date-picker");
+ageArea.querySelector("span").innerHTML = get_current_age(datePicker.value);
+
 var age = {
     edit: function() {
         this.ageArea = document.getElementById("age");
