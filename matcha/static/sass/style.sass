@@ -476,6 +476,8 @@ a:link
     justify-content: center
     width: 100%
     position: relative
+    align-items: center
+    flex-direction: column
     // padding-bottom: 100px
 
 #date-picker
@@ -554,6 +556,8 @@ a:link
                 display: inline-block
                 
 @media screen and ( max-width: 780px )
+    .search-data
+        margin: 0 !important
     .toggle
         display: inline-block
         position: fixed
@@ -676,6 +680,7 @@ section.content
             display: flex
             flex-wrap: wrap
             .tag
+                display: flex
                 margin-right: 5px
                 position: relative
                 border: 1px aqua solid

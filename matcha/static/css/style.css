@@ -596,6 +596,13 @@ a:link {
           justify-content: center;
   width: 100%;
   position: relative;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
 }
 
 #date-picker {
@@ -728,6 +735,9 @@ a:link {
 }
 
 @media screen and (max-width: 780px) {
+  .search-data {
+    margin: 0 !important;
+  }
   .toggle {
     display: inline-block;
     position: fixed;
@@ -914,6 +924,9 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
 }
 
 .search-data .interests #tags .tag {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
   margin-right: 5px;
   position: relative;
   border: 1px aqua solid;
