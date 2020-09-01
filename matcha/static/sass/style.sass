@@ -20,6 +20,9 @@ $block-bg: #1d1d1d
 .gray
     color: #b0b0b0
 
+.display-flex
+    display: flex !important
+
 body
     background-color: $bg-col
 
@@ -202,7 +205,7 @@ a:link
     background-color: #1d1d1d
     width: 64rem
     max-width: 80%
-    min-height: 400px
+    min-height: 250px
     overflow: hidden
     margin-bottom: 50px
     // .btn_span
@@ -644,9 +647,13 @@ section.content
     width: 64rem
     color: #e2e2e2
     max-width: 80%
-    margin: 60px 0 0 60px
+    margin: 10px 0 0 60px
     padding: 20px
-    display: flex
+    // background-color: rgba(27, 27, 27, 0)
+    transition: 1.5s ease
+    // display: flex
+    display: none
+    // height: 0
     flex-wrap: wrap
     justify-content: center
     align-items: center
@@ -730,3 +737,72 @@ section.content
             margin-top: 5px
             color: #000
             cursor: pointer
+
+.search-area
+    margin: 60px 0 0 60px
+    width: 80%
+    position: relative
+    input
+        width: 100%
+        border: none
+        border-radius: 10px
+        background: #1b1b1b
+        transition: .5s ease
+        height: 20px
+        padding: 5px
+        color: #e2e2e2
+        &:focus
+            outline: none
+            height: 35px
+        &:focus ~ .search-toggle
+            top: 0px
+            
+    .search-toggle
+        // display: none
+        position: absolute
+        right: 0
+        top: -7px
+        transition: .5s ease
+        span
+            position: relative
+            display: inline-block
+            width: 20px
+            height: 4px
+            margin-top: 20px
+            border-radius: 2px
+            background-color: #cbcbcb
+            &::after
+                top: 5px
+                left: 0
+            &::before
+                top: -9px
+                left: 0
+            &::after, &::before
+                transition: .5s ease
+                content: ""
+                display: inline-block
+                position: absolute
+                width: 20px
+                height: 4px
+                margin-top: 2px
+                border-radius: 2px
+                background-color: #cbcbcb
+    .search-toggle.active
+        span
+            // display: none
+            height: 0
+            &::after
+                top: 0px
+                transform: rotate(45deg) 
+            &::before
+                top: 0px
+                transform: rotate(-45deg) 
+            // span
+            //     animation: search-toggle .5s linear forwards
+
+// @keyframes search-toggle
+//     0%
+//         top: 10px  
+//     100%
+//         top: 0px  
+        

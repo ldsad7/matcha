@@ -16,6 +16,12 @@
   color: #b0b0b0;
 }
 
+.display-flex {
+  display: -webkit-box !important;
+  display: -ms-flexbox !important;
+  display: flex !important;
+}
+
 body {
   background-color: #303133;
 }
@@ -263,7 +269,7 @@ a:link {
   background-color: #1d1d1d;
   width: 64rem;
   max-width: 80%;
-  min-height: 400px;
+  min-height: 250px;
   overflow: hidden;
   margin-bottom: 50px;
 }
@@ -856,11 +862,11 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
   width: 64rem;
   color: #e2e2e2;
   max-width: 80%;
-  margin: 60px 0 0 60px;
+  margin: 10px 0 0 60px;
   padding: 20px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
+  -webkit-transition: 1.5s ease;
+  transition: 1.5s ease;
+  display: none;
   -ms-flex-wrap: wrap;
       flex-wrap: wrap;
   -webkit-box-pack: center;
@@ -990,5 +996,89 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
   margin-top: 5px;
   color: #000;
   cursor: pointer;
+}
+
+.search-area {
+  margin: 60px 0 0 60px;
+  width: 80%;
+  position: relative;
+}
+
+.search-area input {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  background: #1b1b1b;
+  -webkit-transition: .5s ease;
+  transition: .5s ease;
+  height: 20px;
+  padding: 5px;
+  color: #e2e2e2;
+}
+
+.search-area input:focus {
+  outline: none;
+  height: 35px;
+}
+
+.search-area input:focus ~ .search-toggle {
+  top: 0px;
+}
+
+.search-area .search-toggle {
+  position: absolute;
+  right: 0;
+  top: -7px;
+  -webkit-transition: .5s ease;
+  transition: .5s ease;
+}
+
+.search-area .search-toggle span {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 4px;
+  margin-top: 20px;
+  border-radius: 2px;
+  background-color: #cbcbcb;
+}
+
+.search-area .search-toggle span::after {
+  top: 5px;
+  left: 0;
+}
+
+.search-area .search-toggle span::before {
+  top: -9px;
+  left: 0;
+}
+
+.search-area .search-toggle span::after, .search-area .search-toggle span::before {
+  -webkit-transition: .5s ease;
+  transition: .5s ease;
+  content: "";
+  display: inline-block;
+  position: absolute;
+  width: 20px;
+  height: 4px;
+  margin-top: 2px;
+  border-radius: 2px;
+  background-color: #cbcbcb;
+}
+
+.search-area .search-toggle.active span {
+  height: 0;
+}
+
+.search-area .search-toggle.active span::after {
+  top: 0px;
+  -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
+}
+
+.search-area .search-toggle.active span::before {
+  top: 0px;
+  -webkit-transform: rotate(-45deg);
+          transform: rotate(-45deg);
 }
 /*# sourceMappingURL=style.css.map */
