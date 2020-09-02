@@ -7,8 +7,8 @@ var _name = {
         
         this.first_name.style.display = "inline-block";
         this.last_name.style.display = "inline-block";
-        this.first_name.value = this.firstname;
-        this.last_name.value = this.lastname;
+        this.first_name.value = this.firstname.innerHTML;
+        this.last_name.value = this.lastname.innerHTML;
 
         this.firstname.innerHTML = "";
         this.lastname.innerHTML = "";
