@@ -1,5 +1,5 @@
-# from django_filters.rest_framework import DjangoFilterBackend
-# from rest_framework.filters import OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -11,6 +11,7 @@ from .serializers import (
     TagSerializer, UserSerializer, UserTagSerializer, UserPhotoSerializer, UserReadSerializer,
     UsersConnectSerializer,
 )
+from .filters import UserFilter
 
 
 ## что я добавил:
@@ -48,6 +49,9 @@ class TagViewSet(ModelViewSet):
 class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+    filterset_class = UserFilter
+    ordering_fields = ('first_name', 'second_name')
 
     def update(self, request, *args, **kwargs):
         user_tags = {user_tag.tag.name for user_tag in UserTag.objects.filter(user=request.user)}
@@ -107,20 +111,17 @@ class UsersConnectViewSet(ModelViewSet):
 
 def index(request):
     template = loader.get_template('index.html')
-    context = {}
+    context = {'users': UserReadSerializer(User.objects.all(), many=True).data}
     return HttpResponse(template.render(context, request))
 
 
 def search(request):
     template = loader.get_template('search.html')
-    context = {}
+    context = {'users': UserReadSerializer(User.objects.all(), many=True).data}
     return HttpResponse(template.render(context, request))
 
 
 def profile(request):
-    # print(dir(request))
-    # print(type(request.user))
     template = loader.get_template('profile.html')
     context = UserReadSerializer(request.user).data
-    print(f'context: {context}')
     return HttpResponse(template.render(context, request))

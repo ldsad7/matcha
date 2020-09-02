@@ -1,3 +1,5 @@
+from datetime import datetime, date
+
 from django.db import models
 from model_utils.models import TimeStampedModel
 from django.contrib.auth.models import AbstractUser
@@ -45,12 +47,23 @@ class User(AbstractUser):
     location = models.CharField(_('местоположение'), max_length=512, blank=True, null=False)
     profile_activated = models.BooleanField(_('профиль активирован'), blank=False, null=False, default=False)
 
+    @property
+    def age(self):
+        bday = datetime.strptime(self.date_of_birth, '%Y-%m-%d')
+        d = date.today()
+        return (d.year - bday.year) - int((d.month, d.day) < (bday.month, bday.day))
+
+    @property
+    def rating(self):
+        """
+        TODO: write this function
+        """
+        return 1.
+
     def get_by_id(self, _id):
         return get_by_model_and_id(self, _id)
 
     def save(self, *args, **kwargs):
-        print(f'args: {args}')
-        print(f'kwargs: {kwargs}')
         was_empty_field = False
         for field in self._meta.fields:
             name = field.name
