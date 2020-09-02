@@ -200,9 +200,13 @@
         document.getElementById("search_button").addEventListener("click", function(e) {
             const csrftoken = getCookie('csrftoken');
             var tag_names = [];
-            var tag_tags = $(".tag span");
-            for (var i = 0; i < tag_tags.length; i++)
-                tag_names.push(tag_tags[i].textContent);
+            let tag_tags = $(".search-data .tag span");
+            for (let tag_tag of tag_tags)
+            {
+                let text = tag_tag.textContent.trim().replace('#', '');
+                if (text)
+                    tag_names.push(text);
+            }
 
             $.ajax({
                 headers: {
@@ -213,7 +217,8 @@
                 type: "GET",
                 data: "age=" + $("#low_age").val() + ":" + $("#high_age").val() + "&rating=" + $("#low_rating").val() + ":" + $("#high_rating").val() + "&location=" + $("#location").val() + "&tags=" + tag_names.join(','),
                 success: function(data) {
-                    let html_str = '<div class="center">';
+                    $("[data_id='result']").remove();
+                    let html_str = '<div class="center" data_id="result">';
                     for (let user of data.results)
                     {
                         html_str += `
