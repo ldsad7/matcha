@@ -317,19 +317,7 @@
         func();
     });
 
-    document.querySelector(".sign_in_bx .block").addEventListener("mousemove", function(e) {
-        var target = e.target.closest('.filt');
-        try {
-            var targetCoords = target.getBoundingClientRect();
-            var x = e.clientX - targetCoords.left;
-            var y = e.clientY - targetCoords.top;
-            var pointer = document.querySelector(".pointer");
-            pointer.style.top = y - 40 + "px";
-            pointer.style.left = x - 40 + "px";
-        } catch {
-
-        }
-    });
+    
     document.querySelector(".sign_up_bx .block").addEventListener("mousemove", function(e) {
         var target = e.target.closest('.filt.sec');
         try {
@@ -356,19 +344,7 @@
         document.querySelector(".filt.sec").appendChild(span);
         setTimeout(() => { span.remove() }, 1000);
     });
-    document.querySelector(".sign_in_bx .block").addEventListener("click", function(e) {
-            var target = e.target.closest('.filt');
-            var targetCoords = target.getBoundingClientRect();
-            var x = e.clientX - targetCoords.left;
-            var y = e.clientY - targetCoords.top;
-
-            let span = document.createElement("span");
-            span.classList.add("btn_span");
-            span.style.left = x + "px";
-            span.style.top = y + "px";
-            document.querySelector(".filt").appendChild(span);
-            setTimeout(() => { span.remove() }, 1000);
-        });
+    
 <!--    document.querySelector(".sign_in_bx input[type='submit']").addEventListener("click", function(e) {-->
 <!--        e.preventDefault();-->
 <!--        let flag = true;-->
