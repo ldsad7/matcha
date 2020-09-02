@@ -2,20 +2,8 @@
 
 {% block title %}Поиск{% endblock %}
 
-{% load static %}
-
-{% block links %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Red+Rose:wght@700&display=swap" rel="stylesheet">
-{% endblock %}
-
-{% block scripts %}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="{% static 'js/script.js' %}"></script>
-{% endblock %}
-
 {% block content %}
-    {% include "header.html" %}
+    {{ block.super }}
     <section class="content">
         <div class="center">
             <div class="search-area">
@@ -57,7 +45,7 @@
 {% endblock %}
 
 {% block body_scripts %}
-    <script src="{% static 'js/toggleBtn.js' %}"></script>
+    {{ block.super }}
     <script>
         var new_tag_edited = false;
     

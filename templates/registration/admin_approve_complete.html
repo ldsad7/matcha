@@ -4,9 +4,10 @@
 {% block title %}{% trans "Account Approved" %}{% endblock %}
 
 {% block content %}
-<p>
-    {% trans "The user's account is now approved." %}
-</p>
+    {{ block.super }}
+    <p>
+        {% trans "The user's account is now approved." %}
+    </p>
 {% endblock %}
 
 

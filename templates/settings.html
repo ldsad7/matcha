@@ -2,19 +2,8 @@
 
 {% block title %}Настройки{% endblock %}
 
-{% load static %}
-
-{% block links %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Red+Rose:wght@700&display=swap" rel="stylesheet">
-{% endblock %}
-
-{% block scripts %}
-    <script src="{% static 'js/script.js' %}"></script>
-{% endblock %}
-
 {% block content %}
-    {% include "header.html" %}
+    {{ block.super }}
     <section class="content">
         <div class="center">
             <section class="settings-block">
@@ -41,5 +30,5 @@
 {% endblock %}
 
 {% block body_scripts %}
-    <script src="{% static 'js/toggleBtn.js' %}"></script>
+    {{ block.super }}
 {% endblock %}

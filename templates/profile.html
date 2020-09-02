@@ -5,19 +5,17 @@
 {% load static %}
 
 {% block links %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Red+Rose:wght@700&display=swap" rel="stylesheet">
+    {{ block.super }}
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block scripts %}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="{% static 'js/script.js' %}"></script>
+    {{ block.super }}
     <script src="{% static 'js/autosize.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
-    {% include "header.html" %}
+    {{ block.super }}
     <section class="content">
         <div class="center">
             <section class="user-profile">
@@ -130,7 +128,7 @@
     <script src="{% static 'js/changeUserData.js' %}"></script>
     <script src="{% static 'js/changeTags.js' %}"></script>
     <!-- endif -->
-    <script src="{% static 'js/toggleBtn.js' %}"></script>
+    {{ block.super }}
 {% endblock %}
 
 

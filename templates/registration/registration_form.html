@@ -1,19 +1,14 @@
 {% extends "registration/registration_base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Register for an account" %}{% endblock %}
-
 {% load static %}
+
+{% block title %}{% trans "Register for an account" %}{% endblock %}
 
 {% block links %}
     <link href="https://fonts.googleapis.com/css2?family=Notable&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'css/login_style.css' %}">
-{% endblock %}
-
-{% block scripts %}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="{% static 'js/script.js' %}"></script>
 {% endblock %}
 
 {% block styles %}
@@ -221,10 +216,8 @@
 {% endblock %}
 
 {% block content %}
-
     <section>
         <div class="container">
-
             <div class="form sign_up_bx">
                 <div class="form_bx">
                     <form method="post" action="">
@@ -317,7 +310,6 @@
         func();
     });
 
-    
     document.querySelector(".sign_up_bx .block").addEventListener("mousemove", function(e) {
         var target = e.target.closest('.filt.sec');
         try {

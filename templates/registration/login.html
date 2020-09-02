@@ -1,19 +1,14 @@
 {% extends "registration/registration_base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Log in" %}{% endblock %}
-
 {% load static %}
+
+{% block title %}{% trans "Log in" %}{% endblock %}
 
 {% block links %}
     <link href="https://fonts.googleapis.com/css2?family=Notable&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'css/login_style.css' %}">
-{% endblock %}
-
-{% block scripts %}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="{% static 'js/script.js' %}"></script>
 {% endblock %}
 
 {% block styles %}
@@ -323,146 +318,147 @@
 {% endblock %}
 
 {% block body_scripts %}
-<script type="text/javascript">
-    active = true;
-    flag = false;
+    {{ block.super }}
+    <script type="text/javascript">
+        active = true;
+        flag = false;
 
-    function func() {
-        var cont = document.querySelector(".container");
-        cont.classList.toggle('active');
-        if (active)
-            active = false;
-        else
-            active = true;
-    }
-
-    $(document).ready(function() {
-        func();
-    });
-
-    document.querySelector(".sign_in_bx .block").addEventListener("mousemove", function(e) {
-        var target = e.target.closest('.filt');
-        try {
-            var targetCoords = target.getBoundingClientRect();
-            var x = e.clientX - targetCoords.left;
-            var y = e.clientY - targetCoords.top;
-            var pointer = document.querySelector(".pointer");
-            pointer.style.top = y - 40 + "px";
-            pointer.style.left = x - 40 + "px";
-        } catch {
-
+        function func() {
+            var cont = document.querySelector(".container");
+            cont.classList.toggle('active');
+            if (active)
+                active = false;
+            else
+                active = true;
         }
-    });
-    // document.querySelector(".sign_up_bx .block").addEventListener("mousemove", function(e) {
-    //     var target = e.target.closest('.filt.sec');
-    //     try {
-    //         var targetCoords = target.getBoundingClientRect();
-    //         var x = e.clientX - targetCoords.left;
-    //         var y = e.clientY - targetCoords.top;
-    //         var pointer = document.querySelector(".sec .pointer");
-    //         pointer.style.top = y - 40 + "px";
-    //         pointer.style.left = x - 40 + "px";
-    //     } catch {
 
-    //     }
-    // });
-    // document.querySelector(".sign_up_bx .block").addEventListener("click", function(e) {
-    //     var target = e.target.closest('.filt.sec');
-    //     var targetCoords = target.getBoundingClientRect();
-    //     var x = e.clientX - targetCoords.left;
-    //     var y = e.clientY - targetCoords.top;
-
-    //     let span = document.createElement("span");
-    //     span.classList.add("btn_span");
-    //     span.style.left = x + "px";
-    //     span.style.top = y + "px";
-    //     document.querySelector(".filt.sec").appendChild(span);
-    //     setTimeout(() => { span.remove() }, 1000);
-    // });
-    document.querySelector(".sign_in_bx .block").addEventListener("click", function(e) {
-            var target = e.target.closest('.filt');
-            var targetCoords = target.getBoundingClientRect();
-            var x = e.clientX - targetCoords.left;
-            var y = e.clientY - targetCoords.top;
-
-            let span = document.createElement("span");
-            span.classList.add("btn_span");
-            span.style.left = x + "px";
-            span.style.top = y + "px";
-            document.querySelector(".filt").appendChild(span);
-            setTimeout(() => { span.remove() }, 1000);
+        $(document).ready(function() {
+            func();
         });
-<!--    document.querySelector(".sign_in_bx input[type='submit']").addEventListener("click", function(e) {-->
-<!--        e.preventDefault();-->
-<!--        let flag = true;-->
-<!--        let username = document.querySelector(".sign_in_bx input[type='text']");-->
-<!--        let password = document.querySelector(".sign_in_bx input[type='password']");-->
-<!--        document.querySelector(".notice.no_match").classList.add("invis");-->
-<!--        if (flag) {-->
-<!--            SendRequest("get", "api/signin", "user=" + username.value + "&pwd=" + password.value, function(e) {-->
-<!--                var resp = JSON.parse(e.response);-->
-<!--                if (resp === true) {-->
-<!--                    window.location.href = "/index.html";-->
-<!--                } else {-->
-<!--                    document.querySelector(".notice.no_match").classList.remove("invis");-->
-<!--                }-->
-<!--            });-->
-<!--        }-->
-<!--    });-->
-<!--    document.querySelector(".sign_up_bx input[type='submit']").addEventListener("click", function(e) {-->
-<!--        e.preventDefault();-->
-<!--        let flag = true;-->
-<!--        let username = document.querySelector(".sign_up_bx input[type='text']");-->
-<!--        let password = document.querySelector(".sign_up_bx input[type='password']");-->
-<!--        let second_password = document.querySelector(".sign_up_bx .second_password");-->
-<!--        let email = document.querySelector(".sign_up_bx [type='email']");-->
-<!--        document.querySelector(".sign_up_bx .notice.min_len.pwd").classList.add("invis");-->
-<!--        document.querySelector(".sign_up_bx .notice.min_len.user").classList.add("invis");-->
-<!--        document.querySelector(".sign_up_bx .notice.cappital").classList.add("invis");-->
-<!--        document.querySelector(".sign_up_bx .notice.match").classList.add("invis");-->
-<!--        document.querySelector(".sign_up_bx .notice.email").classList.add("invis");-->
-<!--        document.querySelector(".notice.user.busy").classList.add("invis");-->
-<!--        document.querySelector(".notice.email.busy").classList.add("invis");-->
-<!--        if (/.+@.+\..+/.test(email.value) === false) {-->
-<!--            document.querySelector(".sign_up_bx .notice.email").classList.remove("invis");-->
-<!--            flag = false;-->
-<!--        }-->
-<!--        if (username.value.length < 3) {-->
-<!--            document.querySelector(".sign_up_bx .notice.min_len.user").classList.remove("invis");-->
-<!--            flag = false;-->
-<!--        }-->
-<!--        if (second_password.value !== password.value) {-->
-<!--            document.querySelector(".sign_up_bx .notice.match").classList.remove("invis");-->
-<!--            flag = false;-->
-<!--        }-->
-<!--        if (password.value.length < 7) {-->
-<!--            document.querySelector(".sign_up_bx .notice.min_len.pwd").classList.remove("invis");-->
-<!--            flag = false;-->
-<!--            return;-->
-<!--        }-->
-<!--        if ((/^(?=.*[A-Z])[A-Za-z\d]{7,}$/).test(password.value) === false) {-->
-<!--            document.querySelector(".sign_up_bx .notice.cappital").classList.remove("invis");-->
-<!--            flag = false;-->
-<!--        }-->
-<!--        if (flag) {-->
-<!--            SendRequest("get", "api/signup", "user=" + username.value + "&pwd=" + password.value + '&email=' + email.value, function(e) {-->
-<!--                console.log(e.response);-->
-<!--                var resp = e.response;-->
-<!--                if (resp === "login") {-->
-<!--                    document.querySelector(".notice.user.busy").classList.remove("invis");-->
-<!--                    return;-->
-<!--                }-->
-<!--                if (resp === "email") {-->
-<!--                    document.querySelector(".notice.email.busy").classList.remove("invis");-->
-<!--                    return;-->
-<!--                }-->
-<!--                if (resp === true) {-->
-<!--                    window.location.href = "/index.html";-->
-<!--                }-->
-<!--            });-->
-<!--        }-->
-<!--    });-->
-</script>
+
+        document.querySelector(".sign_in_bx .block").addEventListener("mousemove", function(e) {
+            var target = e.target.closest('.filt');
+            try {
+                var targetCoords = target.getBoundingClientRect();
+                var x = e.clientX - targetCoords.left;
+                var y = e.clientY - targetCoords.top;
+                var pointer = document.querySelector(".pointer");
+                pointer.style.top = y - 40 + "px";
+                pointer.style.left = x - 40 + "px";
+            } catch {
+
+            }
+        });
+        // document.querySelector(".sign_up_bx .block").addEventListener("mousemove", function(e) {
+        //     var target = e.target.closest('.filt.sec');
+        //     try {
+        //         var targetCoords = target.getBoundingClientRect();
+        //         var x = e.clientX - targetCoords.left;
+        //         var y = e.clientY - targetCoords.top;
+        //         var pointer = document.querySelector(".sec .pointer");
+        //         pointer.style.top = y - 40 + "px";
+        //         pointer.style.left = x - 40 + "px";
+        //     } catch {
+
+        //     }
+        // });
+        // document.querySelector(".sign_up_bx .block").addEventListener("click", function(e) {
+        //     var target = e.target.closest('.filt.sec');
+        //     var targetCoords = target.getBoundingClientRect();
+        //     var x = e.clientX - targetCoords.left;
+        //     var y = e.clientY - targetCoords.top;
+
+        //     let span = document.createElement("span");
+        //     span.classList.add("btn_span");
+        //     span.style.left = x + "px";
+        //     span.style.top = y + "px";
+        //     document.querySelector(".filt.sec").appendChild(span);
+        //     setTimeout(() => { span.remove() }, 1000);
+        // });
+        document.querySelector(".sign_in_bx .block").addEventListener("click", function(e) {
+                var target = e.target.closest('.filt');
+                var targetCoords = target.getBoundingClientRect();
+                var x = e.clientX - targetCoords.left;
+                var y = e.clientY - targetCoords.top;
+
+                let span = document.createElement("span");
+                span.classList.add("btn_span");
+                span.style.left = x + "px";
+                span.style.top = y + "px";
+                document.querySelector(".filt").appendChild(span);
+                setTimeout(() => { span.remove() }, 1000);
+            });
+    <!--    document.querySelector(".sign_in_bx input[type='submit']").addEventListener("click", function(e) {-->
+    <!--        e.preventDefault();-->
+    <!--        let flag = true;-->
+    <!--        let username = document.querySelector(".sign_in_bx input[type='text']");-->
+    <!--        let password = document.querySelector(".sign_in_bx input[type='password']");-->
+    <!--        document.querySelector(".notice.no_match").classList.add("invis");-->
+    <!--        if (flag) {-->
+    <!--            SendRequest("get", "api/signin", "user=" + username.value + "&pwd=" + password.value, function(e) {-->
+    <!--                var resp = JSON.parse(e.response);-->
+    <!--                if (resp === true) {-->
+    <!--                    window.location.href = "/index.html";-->
+    <!--                } else {-->
+    <!--                    document.querySelector(".notice.no_match").classList.remove("invis");-->
+    <!--                }-->
+    <!--            });-->
+    <!--        }-->
+    <!--    });-->
+    <!--    document.querySelector(".sign_up_bx input[type='submit']").addEventListener("click", function(e) {-->
+    <!--        e.preventDefault();-->
+    <!--        let flag = true;-->
+    <!--        let username = document.querySelector(".sign_up_bx input[type='text']");-->
+    <!--        let password = document.querySelector(".sign_up_bx input[type='password']");-->
+    <!--        let second_password = document.querySelector(".sign_up_bx .second_password");-->
+    <!--        let email = document.querySelector(".sign_up_bx [type='email']");-->
+    <!--        document.querySelector(".sign_up_bx .notice.min_len.pwd").classList.add("invis");-->
+    <!--        document.querySelector(".sign_up_bx .notice.min_len.user").classList.add("invis");-->
+    <!--        document.querySelector(".sign_up_bx .notice.cappital").classList.add("invis");-->
+    <!--        document.querySelector(".sign_up_bx .notice.match").classList.add("invis");-->
+    <!--        document.querySelector(".sign_up_bx .notice.email").classList.add("invis");-->
+    <!--        document.querySelector(".notice.user.busy").classList.add("invis");-->
+    <!--        document.querySelector(".notice.email.busy").classList.add("invis");-->
+    <!--        if (/.+@.+\..+/.test(email.value) === false) {-->
+    <!--            document.querySelector(".sign_up_bx .notice.email").classList.remove("invis");-->
+    <!--            flag = false;-->
+    <!--        }-->
+    <!--        if (username.value.length < 3) {-->
+    <!--            document.querySelector(".sign_up_bx .notice.min_len.user").classList.remove("invis");-->
+    <!--            flag = false;-->
+    <!--        }-->
+    <!--        if (second_password.value !== password.value) {-->
+    <!--            document.querySelector(".sign_up_bx .notice.match").classList.remove("invis");-->
+    <!--            flag = false;-->
+    <!--        }-->
+    <!--        if (password.value.length < 7) {-->
+    <!--            document.querySelector(".sign_up_bx .notice.min_len.pwd").classList.remove("invis");-->
+    <!--            flag = false;-->
+    <!--            return;-->
+    <!--        }-->
+    <!--        if ((/^(?=.*[A-Z])[A-Za-z\d]{7,}$/).test(password.value) === false) {-->
+    <!--            document.querySelector(".sign_up_bx .notice.cappital").classList.remove("invis");-->
+    <!--            flag = false;-->
+    <!--        }-->
+    <!--        if (flag) {-->
+    <!--            SendRequest("get", "api/signup", "user=" + username.value + "&pwd=" + password.value + '&email=' + email.value, function(e) {-->
+    <!--                console.log(e.response);-->
+    <!--                var resp = e.response;-->
+    <!--                if (resp === "login") {-->
+    <!--                    document.querySelector(".notice.user.busy").classList.remove("invis");-->
+    <!--                    return;-->
+    <!--                }-->
+    <!--                if (resp === "email") {-->
+    <!--                    document.querySelector(".notice.email.busy").classList.remove("invis");-->
+    <!--                    return;-->
+    <!--                }-->
+    <!--                if (resp === true) {-->
+    <!--                    window.location.href = "/index.html";-->
+    <!--                }-->
+    <!--            });-->
+    <!--        }-->
+    <!--    });-->
+    </script>
 {% endblock %}
 
 

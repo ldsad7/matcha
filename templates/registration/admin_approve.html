@@ -4,7 +4,8 @@
 {% block title %}{% trans "Approval Failure" %}{% endblock %}
 
 {% block content %}
-<p>{% trans "Account Approval failed." %}</p>
+    {{ block.super }}
+    <p>{% trans "Account Approval failed." %}</p>
 {% endblock %}
 
 
