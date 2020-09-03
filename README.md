@@ -54,3 +54,13 @@ REQUIREMENTS:
 
 Чтобы заработал чат, нужно поднять локально (или на сервере)
 redis (стандартный порт).
+
+`brew install libmaxminddb` для более быстрой геолокации
+(для других систем см. https://github.com/maxmind/libmaxminddb)
+
+Нужно изменить под себя GEOIP_PATH, в котором будут лежать файлы
+GeoLite2 City и GeoLite2 Country с
+https://www.maxmind.com/en/accounts/394283/geoip/downloads. 
+Из разархивированных папок нужно взять файлы с расширением `.mmdb`
+и поместить их в отдельную папку,
+на которую и должен указывать GEOIP_PATH.

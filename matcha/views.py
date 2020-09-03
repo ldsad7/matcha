@@ -4,6 +4,7 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from django.contrib.gis.geoip2 import GeoIP2
 
 from .models import (
     Tag, User, UserTag, UserPhoto, UsersConnect,
@@ -54,9 +55,24 @@ class UserViewSet(ModelViewSet):
     filterset_class = UserFilter
     ordering_fields = ('first_name', 'second_name')
 
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
     def update(self, request, *args, **kwargs):
         user_tags = {user_tag.tag.name for user_tag in UserTag.objects.filter(user=request.user)}
         new_tags = {tag.strip().strip('#') for tag in request.data.get('tags') if tag.strip().strip('#')}
+
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+
+        g = GeoIP2()
+        ip = '205.186.163.125'
+        # print(g.country(ip))
+        # print(g.city(ip))
+        print(g.lat_lon(ip))
 
         UserTag.objects.filter(tag__name__in=user_tags - new_tags).delete()
 

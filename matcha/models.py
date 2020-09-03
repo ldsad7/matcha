@@ -46,6 +46,8 @@ class User(AbstractUser):
     info = models.CharField(_('краткое описание'), max_length=4096, blank=True, null=False)
     location = models.CharField(_('местоположение'), max_length=512, blank=True, null=False)
     profile_activated = models.BooleanField(_('профиль активирован'), blank=False, null=False, default=False)
+    latitude = models.DecimalField(_('широта'), max_digits=8, decimal_places=6, default=0.0)
+    longitude = models.DecimalField(_('долгота'), max_digits=9, decimal_places=6, default=0.0)
 
     @property
     def age(self):
@@ -73,6 +75,10 @@ class User(AbstractUser):
                 was_empty_field = True
                 break
         self.profile_activated = not was_empty_field
+
+        # self.latitude =
+        # self.longitude =
+
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -81,6 +87,11 @@ class User(AbstractUser):
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
+
+
+class UserMiddleware:
+
+    pass
 
 
 class UserTag(TimeStampedModel):
