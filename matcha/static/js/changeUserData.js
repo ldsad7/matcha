@@ -44,6 +44,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         gender.edit();
         orientation.edit();
         _name.edit();
+        _location.edit();
         avatar.edit();
         image.edit();
         change_user_data = true;
@@ -69,7 +70,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
                 "date_of_birth": $("#date-picker").val(),
                 "gender": $("#selectGender option:checked").val(),
                 "orientation": $("#selectOrientation option:checked").val(),
-                "location": $("#location").val(),
+                "location": $("#selectLocation").val(),
                 "info": $("#textArea").val(),
                 "tags": tag_names
             })
@@ -81,6 +82,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         gender.submit();
         orientation.submit();
         _name.submit();
+        _location.submit();
         avatar.submit();
         image.submit();
         this.innerHTML = "&#9998;";

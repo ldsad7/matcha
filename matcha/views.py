@@ -1,3 +1,4 @@
+import requests
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from rest_framework.decorators import action
@@ -17,7 +18,7 @@ from .filters import UserFilter
 ## что я добавил:
 ## -->
 from django.template import loader
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from uuid import uuid4 as randID
 
@@ -125,3 +126,10 @@ def profile(request):
     template = loader.get_template('profile.html')
     context = UserReadSerializer(request.user).data
     return HttpResponse(template.render(context, request))
+
+
+def get_locations(request):
+    return JsonResponse(requests.get(
+        "https://www.avito.ru/web/1/slocations?locationId=637640&limit=10&q=" +
+        request.GET['value']
+    ).json())

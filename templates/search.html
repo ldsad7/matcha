@@ -2,6 +2,8 @@
 
 {% block title %}Поиск{% endblock %}
 
+{% load static %}
+
 {% block content %}
     {{ block.super }}
     <section class="content">
@@ -30,7 +32,12 @@
                 </div>
                 <div class="location">
                     <div class="location-gap-title">Местоположение:</div>
-                    <input type="text" name="" id="location" placeholder="Москва">
+                    <input type="text" id="selectLocation" list="locat" placeholder="Поиск..." oninput="changeDatalist(this);"  autocomplete="off">
+                    <datalist id="locat">
+                        <option value="Москва"></option>
+                        <option value="Москва и МО"></option>
+                        <option value="Московская Область"></option>
+                    </datalist>
                 </div>
                 <div class="interests">
                     <div class="rating-gap-title">Интересы:</div>
@@ -203,7 +210,7 @@
                 },
                 url: "/api/v1/users/",
                 type: "GET",
-                data: "age=" + $("#low_age").val() + ":" + $("#high_age").val() + "&rating=" + $("#low_rating").val() + ":" + $("#high_rating").val() + "&location=" + $("#location").val() + "&tags=" + tag_names.join(','),
+                data: "age=" + $("#low_age").val() + ":" + $("#high_age").val() + "&rating=" + $("#low_rating").val() + ":" + $("#high_rating").val() + "&location=" + $("#selectLocation").val() + "&tags=" + tag_names.join(','),
                 success: function(data) {
                     $("[data_id='result']").remove();
                     let html_str = '<div class="center" data_id="result">';
@@ -243,7 +250,7 @@
                                             <option value="Би">Би</option>
                                         </select>
                                     </div>
-                                    <div id="location">Россия, Москва</div>
+                                    <div id="selectLocation">Россия, Москва</div>
                                 </figcaption> -->
                             <!-- <div class="buttons">
                                 <div class="chat"></div>
@@ -294,4 +301,5 @@
             })
         });
     </script>
+    <script src="{% static 'js/callAvitoApi.js' %}"></script>
 {% endblock %}

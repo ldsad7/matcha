@@ -35,9 +35,7 @@ class UserFilter(filters.FilterSet):
         """
         TODO: rewrite with latitude, longitude?
         """
-        return queryset.filter(
-            Q(**{'__'.join([name, 'icontains']): value}) | Q(**{'__'.join([name, 'in']): value})
-        )
+        return queryset.filter(Q(**{'__'.join([name, 'icontains']): value}))
 
     def filter_tags(self, queryset, name, value):
         tag_names = value.split(',')

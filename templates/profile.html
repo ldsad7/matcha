@@ -64,7 +64,16 @@
                             <option value="неизвестно">Неизвестно</option>
                         </select>
                     </div>
-                    <div id="location"><span class="gray">Локация: </span><span id="location-data">{{ location }}</span></div>
+                    <div id="location">
+                        <span class="gray">Локация: </span>
+                        <span id="location-data">{{ location }}</span>
+                        <input style="display: none;" type="text" id="selectLocation" list="locat" oninput="changeDatalist(this);" autocomplete="off">
+                        <datalist id="locat">
+                            <option value="Москва"></option>
+                            <option value="Москва и МО"></option>
+                            <option value="Московская Область"></option>
+                        </datalist>
+                    </div>
                     <!-- <div id="location">Локация: {{ location }}</div> -->
                 </figcaption>
                 <!-- <div class="buttons">
@@ -125,10 +134,12 @@
     <script src="{% static 'js/changeGender.js' %}"></script>
     <script src="{% static 'js/changeOrientation.js' %}"></script>
     <script src="{% static 'js/changeName.js' %}"></script>
+    <script src="{% static 'js/changeLocation.js' %}"></script>
     <script src="{% static 'js/changeUserData.js' %}"></script>
     <script src="{% static 'js/changeTags.js' %}"></script>
     <!-- endif -->
     {{ block.super }}
+    <script src="{% static 'js/callAvitoApi.js' %}"></script>
 {% endblock %}
 
 
