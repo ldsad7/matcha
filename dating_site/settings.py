@@ -186,4 +186,4 @@ CHANNEL_LAYERS = {
 # Local Settings
 ####################################
 
-from local_settings import *
+from .local_settings import *
