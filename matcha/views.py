@@ -68,11 +68,11 @@ class UserViewSet(ModelViewSet):
         else:
             ip = request.META.get('REMOTE_ADDR')
 
-        g = GeoIP2()
-        ip = '205.186.163.125'
+        # g = GeoIP2()
+        # ip = '205.186.163.125'
         # print(g.country(ip))
         # print(g.city(ip))
-        print(g.lat_lon(ip))
+        # print(g.lat_lon(ip))
 
         UserTag.objects.filter(tag__name__in=user_tags - new_tags).delete()
 

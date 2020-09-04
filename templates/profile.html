@@ -99,9 +99,9 @@
                     <p class="white">Фото:</p>
                     <div class="img-area">
                         <div>
+                            <img id="output" style="display: none;">
                             {% for photo in photos %}
-                                <img src="{{ photo.image }}">
-                                <img id="output" style="display: none;">
+                                <img class="for-push" src="{{ photo.image }}">
 <!--                            <img id="output" style="display: none;">-->
                                 <!-- <div class="hover-info">
                                     <div>Swap avatar</div>

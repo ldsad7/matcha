@@ -55,6 +55,11 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         var tag_tags = $(".tag span");
         for (var i = 0; i < tag_tags.length; i++)
             tag_names.push(tag_tags[i].textContent);
+        var images_src = [];
+        var images_elems = $(".img-area div img");
+        for (var i = 0; i < images_elems.length; i++)
+            images_src.push(images_elems[i].getAttribute("src"));
+        console.log(images_src);
         const csrftoken = getCookie('csrftoken');
         $.ajax({
             headers: {
@@ -72,10 +77,24 @@ document.getElementById("change-profile-data").addEventListener("click", functio
                 "orientation": $("#selectOrientation option:checked").val(),
                 "location": $("#selectLocation").val(),
                 "info": $("#textArea").val(),
-                "tags": tag_names
+                "tags": tag_names,
             })
         })
-
+        images_src.forEach(el => {
+            $.ajax({
+                headers: {
+                    'Accept' : 'application/json',
+                    'Content-Type' : 'multipart/form-data',
+                    'X-CSRFToken': csrftoken
+                },
+                url: "/api/v1/user_photos/",
+                type: "POST",
+                data: {
+                    "image": el,
+                    "id": id
+                }
+            });
+        });
         hist.submit();
         tags.submit();
         age.submit();
