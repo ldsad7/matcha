@@ -30,3 +30,6 @@ asgiref==3.2.10
 
 # Geo
 geoip2==4.0.2
+
+# Debug
+django-debug-toolbar==2.2
