@@ -186,4 +186,4 @@ GEOIP_PATH = '/goinfre/tsimonis/geoip/'
 # Local Settings
 ####################################
 
-from local_settings import *
+from .local_settings import *
