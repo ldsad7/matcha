@@ -2,7 +2,7 @@ var avatar = {
     edit: function() {
         this.current = document.querySelector("figure img");
         this.del_btn = document.getElementById("del-avatar");
-        this.images = document.querySelectorAll(".img-area img");
+        this.images = document.querySelectorAll(".img-area div img");
         this.clicked = false;
         if (this.images.length > 1) {
             // this.del_btn.style.display = "inline-block";
@@ -21,6 +21,7 @@ var avatar = {
                         // let hover = document.createElement("div");
                         // hover.classList.add("hover-info");
                         // div.appendChild(hover);
+                        
                         div.appendChild(el);
                         document.querySelector(".img-area").appendChild(div);
                         document.querySelector("figure div").appendChild(e.target);

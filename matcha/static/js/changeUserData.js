@@ -55,11 +55,12 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         var tag_tags = $(".tag span");
         for (var i = 0; i < tag_tags.length; i++)
             tag_names.push(tag_tags[i].textContent);
+
         var images_src = [];
-        var images_elems = $(".img-area div img");
+        var images_elems = $(".for-push");
         for (var i = 0; i < images_elems.length; i++)
-            images_src.push(images_elems[i].getAttribute("src"));
-        console.log(images_src);
+            images_src.push(images_elems[i]);
+
         const csrftoken = getCookie('csrftoken');
         $.ajax({
             headers: {
@@ -80,21 +81,31 @@ document.getElementById("change-profile-data").addEventListener("click", functio
                 "tags": tag_names,
             })
         })
-        images_src.forEach(el => {
-            $.ajax({
-                headers: {
-                    'Accept' : 'application/json',
-                    'Content-Type' : 'multipart/form-data',
-                    'X-CSRFToken': csrftoken
-                },
-                url: "/api/v1/user_photos/",
-                type: "POST",
-                data: {
-                    "image": el,
-                    "id": id
-                }
-            });
+
+        images_src.forEach(elem => {
+            let imageInput = $('#imageInput').length ? $('#imageInput')[0].files[0] : null;
         });
+
+        if (imageInput)
+        var data = new FormData();
+        data.append("image", imageInput, "tmp.jpg");
+        // imageInput.name
+        data.append("user", id.toString());
+        let settings = {
+            "url": "/api/v1/user_photos/",
+            "method": "POST",
+            "timeout": 0,
+            "headers": {
+                // "Content-Type" : 'multipart/form-data',
+                "X-CSRFToken": csrftoken,
+            },
+            "processData": false,
+            "mimeType": "multipart/form-data",
+            "contentType": false,
+            "data": data
+        };
+        $.ajax(settings);
+
         hist.submit();
         tags.submit();
         age.submit();
