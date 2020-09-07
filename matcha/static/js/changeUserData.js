@@ -10,7 +10,7 @@ var hist = {
         this.textArea.innerHTML = this.history.innerHTML;
         this.history.innerHTML = "";
         this.history.appendChild(this.textArea);
-        // autosize(this.textArea);
+        autosize(this.textArea);
     },
     submit: function() {
         this.history.innerHTML = this.textArea.value;
