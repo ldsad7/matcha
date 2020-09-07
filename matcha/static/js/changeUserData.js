@@ -50,7 +50,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         cancel_btn.style.display = "inline-block";
     } else {
         const id = parseInt($("#id").text());
-        tag_names = $(".tag span").map((el) => el.textContent);
+        const tag_names = [...$(".tag span")].map(el => { return el.textContent });
 
         const images_src = [...$(".for-push")];
 
