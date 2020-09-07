@@ -1,4 +1,3 @@
-
 var change_user_data = false;
 var cancel_btn = document.getElementById("change-profile-data-cancel");
 
@@ -50,16 +49,10 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         change_user_data = true;
         cancel_btn.style.display = "inline-block";
     } else {
-        var id = parseInt($("#id").text());
-        var tag_names = [];
-        var tag_tags = $(".tag span");
-        for (var i = 0; i < tag_tags.length; i++)
-            tag_names.push(tag_tags[i].textContent);
+        const id = parseInt($("#id").text());
+        tag_names = $(".tag span").map((el) => el.textContent);
 
-        var images_src = [];
-        var images_elems = $(".for-push");
-        for (var i = 0; i < images_elems.length; i++)
-            images_src.push(images_elems[i]);
+        const images_src = [...$(".for-push")];
 
         const csrftoken = getCookie('csrftoken');
         $.ajax({
