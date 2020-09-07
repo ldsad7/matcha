@@ -6,10 +6,12 @@ from django.contrib.auth.models import AbstractUser
 from model_utils import Choices
 from django.utils.translation import ugettext_lazy as _
 from .common import get_by_model_and_id, get_thumb
+from .managers import TagManager
 
 
 class Tag(TimeStampedModel):
     name = models.CharField(_('название'), max_length=32, blank=False, null=False)
+    tag_objects = TagManager()
 
     def get_by_id(self, _id):
         return get_by_model_and_id(self, _id)
@@ -17,7 +19,19 @@ class Tag(TimeStampedModel):
     def __str__(self):
         return f"Tag {self.name}"
 
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        # super().save(force_insert, force_update, using, update_fields)
+        if self.id is not None:
+            self.tag_objects.update(self)
+        else:
+            self.tag_objects.insert(self)
+
+    def delete(self, using=None, keep_parents=False):
+        # return super().delete(using, keep_parents)
+        self.tag_objects.delete(self)
+
     class Meta:
+        db_table = 'matcha_tag'
         verbose_name = "Тег"
         verbose_name_plural = "Теги"
 
