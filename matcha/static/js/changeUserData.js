@@ -10,7 +10,7 @@ var hist = {
         this.textArea.innerHTML = this.history.innerHTML;
         this.history.innerHTML = "";
         this.history.appendChild(this.textArea);
-        autosize(this.textArea);
+        // autosize(this.textArea);
     },
     submit: function() {
         this.history.innerHTML = this.textArea.value;
@@ -86,7 +86,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
             let imageInput = $('#imageInput').length ? $('#imageInput')[0].files[0] : null;
         });
 
-        if (imageInput)
+        // if (imageInput)
         var data = new FormData();
         data.append("image", imageInput, "tmp.jpg");
         // imageInput.name

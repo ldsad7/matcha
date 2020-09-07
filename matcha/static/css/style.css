@@ -223,15 +223,16 @@ a:link {
   font-family: 'Red Rose', cursive;
   text-transform: uppercase;
   color: #e2e2e2;
+  margin-top: 45px;
 }
 
 .navbar .navbar_info span:nth-child(1) {
   margin-top: 30px;
 }
 
-.navbar .navbar_info span:nth-child(2) {
-  margin-top: 45px;
-}
+/*.navbar .navbar_info span:nth-child(2) {*/
+/*  margin-top: 45px;*/
+/*}*/
 
 .navbar:hover .navbar_info {
   left: 60px;
