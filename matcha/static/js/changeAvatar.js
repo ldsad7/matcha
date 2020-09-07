@@ -1,36 +1,47 @@
+function createDelBlock() {
+    let del_block = document.createElement("div");
+    del_block.classList.add("del-img-btn");
+    del_block.style =   `padding: 2px 5px;
+                        background-color: red;
+                        position: absolute;
+                        right: 15px;
+                        top: 25px;
+                        cursor: pointer;
+                        text-align: center;
+                        align-items: center;`
+    del_block.innerHTML = "x";
+    del_block.addEventListener("click", function(e) {
+        e.target.parentNode.remove();
+    });
+    return del_block;
+}
+
 var avatar = {
     edit: function() {
         this.current = document.querySelector("figure img");
         this.del_btn = document.getElementById("del-avatar");
         this.images = document.querySelectorAll(".img-area div img");
         this.clicked = false;
+        document.querySelectorAll(".img-area div div").forEach(el => {
+            el.appendChild(createDelBlock());
+        });
         if (this.images.length > 1) {
-            // this.del_btn.style.display = "inline-block";
-            // this.del_btn.addEventListener("click", function(e) {
-            //     this.style.display = "none";
-            // });
             this.images.forEach(img => {
-                // img.style.border = "2px solid green";
                 img.addEventListener("click", function(e) {
-                    // document.querySelectorAll(".img-area img").forEach(img => {
-                    //     img.style.border = "none";
-                    // });
                     let el = document.querySelector("figure img");
                     if (document.querySelector("#change-profile-data-cancel").style.display !== "none") {
                         let div = document.createElement("div");
-                        // let hover = document.createElement("div");
-                        // hover.classList.add("hover-info");
-                        // div.appendChild(hover);
-                        
                         div.appendChild(el);
-                        document.querySelector(".img-area").appendChild(div);
+                        div.appendChild(createDelBlock());
+                        document.querySelector(".img-area div").appendChild(div);
+                        e.target.parentNode.remove();
                         document.querySelector("figure div").appendChild(e.target);
                         el.addEventListener("click", function(e) {
                             if (document.querySelector("#change-profile-data-cancel").style.display !== "none") {
                                 let div = document.createElement("div");
-                                
                                 div.appendChild(document.querySelector("figure img"));
-                                document.querySelector(".img-area").appendChild(div);
+                                document.querySelector(".img-area div").appendChild(div);
+                                e.target.parentNode.remove();
                                 document.querySelector("figure div").appendChild(e.target);
                             }
                         });
@@ -40,16 +51,14 @@ var avatar = {
         }
     },
     submit: function() {
+        document.querySelectorAll(".img-area div div .del-img-btn").forEach(el => {
+            el.remove();
+        });
         document.querySelectorAll(".img-area img").forEach(el => {
             el.removeEventListener("click", function(e) {
                 document.querySelector(".img-area").appendChild(document.querySelector("figure img"));
                 document.querySelector("figure div").appendChild(e.target);
             });
-            // el.addEventListener("click", function(e) {});
         });
-        // this.del_btn.style.display = "none";
-        // this.images.forEach(img => {
-        //     img.style.border = "none";
-        // });
     }
 }
