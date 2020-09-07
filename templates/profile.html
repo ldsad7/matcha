@@ -101,11 +101,9 @@
                         <div style="flex-wrap: wrap;">
                             <img id="output" style="display: none;">
                             {% for photo in photos %}
-                                <img class="for-push" src="{{ photo.image }}">
-<!--                            <img id="output" style="display: none;">-->
-                                <!-- <div class="hover-info">
-                                    <div>Swap avatar</div>
-                                </div> -->
+                                <div>
+                                    <img class="for-push" src="{{ photo.image }}">
+                                </div>
                             {% endfor %}
                         </div>
                     </div>
