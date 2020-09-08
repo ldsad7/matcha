@@ -1,7 +1,8 @@
 import requests
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status
 from rest_framework.filters import OrderingFilter
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from django.contrib.gis.geoip2 import GeoIP2
@@ -11,41 +12,57 @@ from .models import (
 )
 from .serializers import (
     TagSerializer, UserSerializer, UserTagSerializer, UserPhotoSerializer, UserReadSerializer,
-    UsersConnectSerializer,
+    UsersConnectSerializer, UsersConnectReadSerializer,
 )
 from .filters import UserFilter
 
-
-## что я добавил:
-## -->
 from django.template import loader
 from django.http import HttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from uuid import uuid4 as randID
-
-def index(request):
-    template = loader.get_template('test_upload.html')
-    context = {'1' : 'true'} # just for example
-    return HttpResponse(template.render(context, request))
-
-def handle_uploaded_file(f, name):
-    with open('media/images/' + name, 'wb+') as destination:
-        for chunk in f.chunks():
-            destination.write(chunk)
-
-@csrf_exempt
-def images(request):
-    ''' gets image from Ajax, generates random name, uploads file in media/images and returns src of this img '''
-    if request.method == 'POST':
-        randName = randID().__str__() + '.' + request.FILES['image'].__str__().split('.')[-1]
-        handle_uploaded_file(request.FILES['image'], randName)
-    return HttpResponse(randName)
-##  <--
 
 
-class TagViewSet(ModelViewSet):
-    serializer_class = TagSerializer
-    queryset = Tag.objects.all()
+def common_list(request, model, model_serializer, model_read_serializer):
+    if request.method == 'GET':
+        objs = model.objects_.all()
+        serializer = model_read_serializer(objs, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        serializer = model_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        raise ValueError("Invalid request")
+
+
+def common_detail(request, model, model_serializer, model_read_serializer, id_):
+    obj = model.objects_.get(id=id_)
+    if obj is None:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        serializer = model_read_serializer(obj)
+        return Response(serializer.data)
+    elif request.method in ['PUT', 'PATCH']:
+        serializer = model_serializer(obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        obj.delete()
+        return HttpResponse(status=status.HTTP_204_NO_CONTENT)
+    else:
+        raise ValueError("Invalid request")
+
+
+@api_view(['GET', 'POST'])
+def tag_list(request):
+    return common_list(request, Tag, TagSerializer, TagSerializer)
+
+
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+def tag_detail(request, id):
+    return common_detail(request, Tag, TagSerializer, TagSerializer, id)
 
 
 class UserViewSet(ModelViewSet):
@@ -124,6 +141,16 @@ class UserPhotoViewSet(ModelViewSet):
 class UsersConnectViewSet(ModelViewSet):
     serializer_class = UsersConnectSerializer
     queryset = UsersConnect.objects.all()
+
+
+@api_view(['GET', 'POST'])
+def users_connects_list(request):
+    return common_list(request, UsersConnect, UsersConnectSerializer, UsersConnectReadSerializer)
+
+
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+def users_connects_detail(request, id):
+    return common_detail(request, UsersConnect, UsersConnectSerializer, UsersConnectReadSerializer, id)
 
 
 def index(request):

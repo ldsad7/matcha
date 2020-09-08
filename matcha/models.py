@@ -6,12 +6,12 @@ from django.contrib.auth.models import AbstractUser
 from model_utils import Choices
 from django.utils.translation import ugettext_lazy as _
 from .common import get_by_model_and_id, get_thumb
-from .managers import TagManager
+from .managers import TagManager, UsersConnectManager
 
 
 class Tag(TimeStampedModel):
     name = models.CharField(_('название'), max_length=32, blank=False, null=False)
-    tag_objects = TagManager()
+    objects_ = TagManager()
 
     def get_by_id(self, _id):
         return get_by_model_and_id(self, _id)
@@ -20,20 +20,19 @@ class Tag(TimeStampedModel):
         return f"Tag {self.name}"
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        # super().save(force_insert, force_update, using, update_fields)
         if self.id is not None:
-            self.tag_objects.update(self)
+            self.objects_.update(self)
         else:
-            self.tag_objects.insert(self)
+            self.objects_.insert(self)
 
     def delete(self, using=None, keep_parents=False):
-        # return super().delete(using, keep_parents)
-        self.tag_objects.delete(self)
+        self.objects_.delete(self)
 
     class Meta:
         db_table = 'matcha_tag'
         verbose_name = "Тег"
         verbose_name_plural = "Теги"
+        unique_together = ('name',)
 
 
 class User(AbstractUser):
@@ -103,11 +102,6 @@ class User(AbstractUser):
         verbose_name_plural = "Пользователи"
 
 
-class UserMiddleware:
-
-    pass
-
-
 class UserTag(TimeStampedModel):
     user = models.ForeignKey(
         User, blank=False, null=False, verbose_name="Пользователь", on_delete=models.CASCADE
@@ -171,6 +165,8 @@ class UsersConnect(TimeStampedModel):
         User, blank=False, null=False, verbose_name="Пользователь 2", on_delete=models.CASCADE,
         related_name='user_2_set'
     )
+
+    objects_ = UsersConnectManager()
 
     def get_by_id(self, _id):
         return get_by_model_and_id(self, _id)
