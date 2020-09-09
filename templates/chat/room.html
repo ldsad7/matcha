@@ -3,11 +3,38 @@
 {% block title %}{{ room_name|json_script:"room-name" }}{% endblock %}
 
 
+
 {% block content %}
     {{ block.super }}
-    <textarea id="chat-log" cols="100" rows="20"></textarea><br>
-    <input id="chat-message-input" type="text" size="100"><br>
-    <input id="chat-message-submit" type="button" value="Send">
+    <style>
+        .data-message {
+            color: #e2e2e2;
+        }
+        .block-message {
+            margin-top: 7px;
+            border: 2px #e2e2e2 solid;
+            width: 100%;
+            padding: 4px;
+        }
+        .from {
+            color: #a1a1a1;
+            font-size: 8px;
+        }
+    </style>
+    <section style="display: flex; justify-content: center;">
+        <div>
+            <!-- <textarea style="padding: 10px;" id="chat-log" cols="100" rows="20"></textarea><br> -->
+            <section id="messages" style="display: flex; flex-direction: column;">
+                <div class="message">
+                    <p class="data-message"></p>
+                </div>
+            </section>
+            <input style="margin-top: 5px;" id="chat-message-input" type="text" size="100"><br>
+            <input style="margin-top: 5px;" id="chat-message-submit" type="button" value="Send">
+            <input type="checkbox" id="toggleBlock" onclick="toggleBlock()">
+            <p style="display: inline-block;">change site</p>
+        </div>
+    </section>
     {{ room_name|json_script:"room-name" }}
 {% endblock %}
 
@@ -23,9 +50,52 @@
             + '/'
         );
 
+        const userId = 1;
+        let messageFromId = 1;
+
+        function createBlockMessage(from) {
+            let newBlockMessage = document.createElement("div");
+
+            newBlockMessage.innerHTML = `<p class="from">${from}</p>`
+            newBlockMessage.classList.add("block-message");
+            return newBlockMessage;
+        }
+
+        function toggleBlock() {
+            messageFromId *= -1;
+            console.log(messageFromId);
+        }
+
         chatSocket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').value += (data.message + '\n');
+            const { message } = JSON.parse(e.data);
+            const messagesArea = document.getElementById("messages");
+            let newMessage = document.createElement("p");
+            const blocksMessages = document.querySelectorAll(".block-message");
+            const lastMessageBlock = [...blocksMessages][blocksMessages.length - 1];
+            let isLastMessageFromEnemy = false;
+
+            if (lastMessageBlock) {
+                isLastMessageFromEnemy = lastMessageBlock.querySelector(".from").innerHTML == "you:" ? false : true;
+            }
+            newMessage.classList.add("data-message");
+            newMessage.innerHTML = message;
+            if ((isLastMessageFromEnemy || !(lastMessageBlock)) && messageFromId == userId) {
+                let newBlockMessage = createBlockMessage("you:");
+
+                newBlockMessage.appendChild(newMessage);
+                messagesArea.appendChild(newBlockMessage);
+            } else if (messageFromId == userId) {
+                lastMessageBlock.appendChild(newMessage);
+            } else {
+                if (lastMessageBlock && isLastMessageFromEnemy) {
+                    lastMessageBlock.appendChild(newMessage);
+                } else {
+                    let newBlockMessage = createBlockMessage("enemy:");
+
+                    newBlockMessage.appendChild(newMessage);
+                    messagesArea.appendChild(newBlockMessage);
+                }
+            }
         };
 
         chatSocket.onclose = function(e) {
