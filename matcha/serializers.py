@@ -1,4 +1,4 @@
-from django.db.models import ForeignKey
+from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, ErrorDetail
 from rest_framework.fields import (
@@ -46,31 +46,32 @@ class CommonSerializer(serializers.Serializer):
     def run_validation(self, data=None):
         if not data:
             raise_exception('Запрос', 'Некорректный запрос')
-
         model_fields = self.model_fields
+        # print(f'model_fields: {model_fields}')
         diff = set(data) - set(model_fields)
         if diff:
             raise_exception(diff.pop(), 'Неизвестное поле')
         unique_together = self.main_model._meta.unique_together
         if unique_together:
-            unique_together = unique_together[0]
-        field_to_correct_field = {}
+            unique_together = list(unique_together[0])
+        # print(f'unique_together: {unique_together}')
         for i, field in enumerate(unique_together):
-            field_to_correct_field[field] = field
-            if isinstance(getattr(self.main_model, field), ForeignKey):
-                field_to_correct_field[field] += '_id'
-            unique_together[i] = field_to_correct_field[field]
-        print(f'unique_together: {unique_together}')  # TODO: need to fix it
+            if isinstance(getattr(self.main_model, field), ForwardManyToOneDescriptor):
+                unique_together[i] += '_id'
         unique_together_dict = {}
         for field in model_fields:
+
+            if isinstance(getattr(self.main_model, field), ForwardManyToOneDescriptor):
+                pass
+            if isinstance(getattr(self.main_model, field.strip('_id')), ForwardManyToOneDescriptor):
+                pass
             model_field = self.get_field(field)
             required = self.get_model_field_attr(model_field, 'required')
             read_only = self.get_model_field_attr(model_field, 'read_only')
             if field in data:
                 value = data[field]
-                print(f'field: {field}')
                 if field in unique_together:
-                    unique_together_dict[field_to_correct_field[field]] = value
+                    unique_together_dict[field] = value
                 if read_only:
                     raise_exception(field, 'Это поле read_only')
                 allow_null = self.get_model_field_attr(model_field, 'allow_null')
@@ -96,9 +97,9 @@ class CommonSerializer(serializers.Serializer):
                         raise_exception(field, 'Значение не соответствует типу поля')
             elif required:
                 raise_exception(field, 'Это поле должно обязательно присутствовать в запросе')
-        print(f'unique_together_dict: {unique_together_dict}')
         if self.main_model.objects_.filter(**unique_together_dict):
             raise_exception(', '.join(unique_together_dict), 'Эти поля должны образовывать уникальный набор')
+        # print(f'data: {data}')
         return data
 
     def create(self, validated_data):
@@ -113,6 +114,40 @@ class CommonSerializer(serializers.Serializer):
             setattr(c, field, validated_data.get(field, getattr(c, field)))
         c.save()
         return c
+
+    def is_valid(self, raise_exception=False):
+        if not hasattr(self, '_validated_data'):
+            try:
+                self._validated_data = self.run_validation(self.initial_data)
+            except ValidationError as exc:
+                self._validated_data = {}
+                self._errors = exc.detail
+            else:
+                self._errors = {}
+        if self._errors and raise_exception:
+            raise ValidationError(self.errors)
+        return not bool(self._errors)
+
+    def save(self, **kwargs):
+        validated_data = dict(
+            list(self.validated_data.items()) + list(kwargs.items())
+        )
+        if self.instance is not None:
+            self.instance = self.update(self.instance, validated_data)
+            assert self.instance is not None, (
+                '`update()` did not return an object instance.'
+            )
+        else:
+            self.instance = self.create(validated_data)
+            assert self.instance is not None, (
+                '`create()` did not return an object instance.'
+            )
+
+        return self.instance
+
+    @property
+    def validated_data(self):
+        return self._validated_data
 
     class Meta:
         validators = []
