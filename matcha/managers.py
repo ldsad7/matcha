@@ -7,6 +7,7 @@ CURSOR = connection.cursor()
 NL = '\n'
 ISO_SEP = ' '
 MODIFIED = 'modified'
+CREATED = 'created'
 
 
 class CommonManager:
@@ -45,8 +46,14 @@ class CommonManager:
             if isinstance(value, datetime.datetime):
                 if field == MODIFIED:
                     value = self.get_current_datetime()
-                else:
+                elif field == CREATED:
                     value = self.format_datetime(value)
+                setattr(c, field, value)
+            elif value is None and field in [MODIFIED, CREATED]:
+                if field == MODIFIED:
+                    value = self.get_current_datetime()
+                elif field == CREATED:
+                    value = self.get_current_datetime()
                 setattr(c, field, value)
             values.append(f"'{value}'")
         return values
@@ -56,14 +63,7 @@ class CommonManager:
                     DELETE FROM {self.db_table}
                     WHERE id={c.id};
                 """
-        CURSOR.execute(query)
-
-    def insert(self, c):
-        query = f"""
-                    INSERT INTO {self.db_table}
-                    ({','.join(self.fields_without_id)})
-                    VALUES ({','.join(self.field_values(c, self.fields_without_id))});
-                """
+        print(f'delete query: {query}')
         CURSOR.execute(query)
 
     def all(self):
@@ -71,6 +71,7 @@ class CommonManager:
                     SELECT {','.join(self.fields)}
                     FROM {self.db_table};
                 """
+        print(f'all query: {query}')
         CURSOR.execute(query)
         objects = []
         for row in CURSOR.fetchall():
@@ -86,6 +87,7 @@ class CommonManager:
                     FROM {self.db_table}
                     WHERE id={id};
                 """
+        print(f'get query: {query}')
         CURSOR.execute(query)
         objects = []
         for row in CURSOR.fetchall():
@@ -106,6 +108,19 @@ class CommonManager:
                 """
         print(f'update query: {query}')
         CURSOR.execute(query)
+
+    def insert(self, c):
+        query = f"""
+                    INSERT INTO {self.db_table}
+                    ({','.join(self.fields_without_id)})
+                    VALUES ({','.join(self.field_values(c, self.fields_without_id))});
+                """
+        print(f'insert query: {query}')
+        CURSOR.execute(query)
+
+    def save(self, c):
+        print(self)
+        print(c)
 
     def filter(self, *args, **kwargs):
         where_conditions = [f"{key}='{value}'" for key, value in kwargs.items()]

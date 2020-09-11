@@ -60,11 +60,6 @@ class CommonSerializer(serializers.Serializer):
                 unique_together[i] += '_id'
         unique_together_dict = {}
         for field in model_fields:
-
-            if isinstance(getattr(self.main_model, field), ForwardManyToOneDescriptor):
-                pass
-            if isinstance(getattr(self.main_model, field.strip('_id')), ForwardManyToOneDescriptor):
-                pass
             model_field = self.get_field(field)
             required = self.get_model_field_attr(model_field, 'required')
             read_only = self.get_model_field_attr(model_field, 'read_only')
@@ -95,6 +90,11 @@ class CommonSerializer(serializers.Serializer):
                 elif isinstance(model_field, IntegerField):
                     if not isinstance(value, int):
                         raise_exception(field, 'Значение не соответствует типу поля')
+
+                obj = getattr(self.main_model, field.strip('_id'), None)
+                if isinstance(obj, ForwardManyToOneDescriptor):
+                    if not obj.field.remote_field.model.objects.filter(id=value):
+                        raise_exception(field, 'Не существует такого значения в базе')
             elif required:
                 raise_exception(field, 'Это поле должно обязательно присутствовать в запросе')
         if self.main_model.objects_.filter(**unique_together_dict):
@@ -103,7 +103,7 @@ class CommonSerializer(serializers.Serializer):
         return data
 
     def create(self, validated_data):
-        c = self.model()
+        c = self.main_model()
         for field in self.model_fields_without_id:
             setattr(c, field, validated_data.get(field))
         c.save()
@@ -142,7 +142,6 @@ class CommonSerializer(serializers.Serializer):
             assert self.instance is not None, (
                 '`create()` did not return an object instance.'
             )
-
         return self.instance
 
     @property
@@ -240,32 +239,6 @@ class UserPhotoReadSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = UserPhoto
-
-
-# class UsersConnectSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         fields = '__all__'
-#         model = UsersConnect
-#
-#     def to_representation(self, instance):
-#         return UsersConnectReadSerializer(instance).data
-#
-#
-# class UsersConnectReadSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         fields = '__all__'
-#         model = UsersConnect
-#
-    # user_1 = serializers.SerializerMethodField()
-    # user_2 = serializers.SerializerMethodField()
-    #
-    # @staticmethod
-    # def get_user_1(instance: UsersConnect):
-    #     return UserReadSerializer(instance.user_1).data
-    #
-    # @staticmethod
-    # def get_user_2(instance: UsersConnect):
-    #     return UserReadSerializer(instance.user_2).data
 
 
 class UsersConnectSerializer(CommonSerializer):
