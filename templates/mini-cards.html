@@ -1,0 +1,48 @@
+{% load static %}
+
+<div class="center">
+    {% for user in users %}
+        <section class="user-profile user-profile-short user-card-mini">
+            <figure>
+                <div>
+                    {% if user.photos %}
+                        <img src="{{ user.photos.0.image }}" alt="profile picture">
+                    {% else %}
+                        <img src="{% static 'img/default.png' %}" alt="default profile picture">
+                    {% endif %}
+                </div>
+                <div class="not-here-pls" id="del-avatar" style="display: none;">
+                    <span class="not-here-pls">&#10008;</span>
+                </div>
+                <!-- <div id="connection">{{ user.last_login }}</div> -->
+                <div id="connection">online</div>
+            </figure>
+            <section class="user-data">
+                <div id="username"><span>{{ user.username }}</span></div>
+                <div id="name">
+                    <span>{{ user.first_name }} {{ user.last_name }}</span>
+                </div>
+                <div id="rating">Рейтинг: <span>420&#9733;</span></div>
+                <div>
+                    {% if user.tags %}
+                    <section class="interests">
+                        <div id="tags">
+                            <p class="white">Интересы:</p>
+                            {% for tag in user.tags %}
+                                <div class="tag">
+                                    <span>#{{ tag.tag }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </section>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="buttons-sec">
+                <button style="background-color: rgb(199, 69, 69);">Ignore</button>
+                <button>Like</button>
+            </section>
+        </section>
+    {% endfor %}
+</div>
