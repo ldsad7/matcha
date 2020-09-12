@@ -143,6 +143,10 @@ def profile(request):
     context = UserReadSerializer(request.user).data
     return HttpResponse(template.render(context, request))
 
+def connections(request):
+    template = loader.get_template('connections.html')
+    context = {'users': UserReadSerializer(User.objects.all(), many=True).data}
+    return HttpResponse(template.render(context, request))
 
 def get_locations(request):
     return JsonResponse(requests.get(

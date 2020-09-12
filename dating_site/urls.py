@@ -31,5 +31,5 @@ urlpatterns = [
     ),
     path('accounts/', include('registration.backends.default.urls')),
     path('accounts/profile/', views.profile, name='profile'),
-    path('connects', views.connects, name='connects'),
+    path('connections', views.connects, name='connects'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

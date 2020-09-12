@@ -230,10 +230,6 @@ a:link {
   margin-top: 30px;
 }
 
-/*.navbar .navbar_info span:nth-child(2) {*/
-/*  margin-top: 45px;*/
-/*}*/
-
 .navbar:hover .navbar_info {
   left: 60px;
   opacity: 1;
@@ -258,6 +254,11 @@ a:link {
 }
 
 .navbar #settings {
+  width: 40px;
+  height: 40px;
+}
+
+.navbar #connection {
   width: 40px;
   height: 40px;
 }
@@ -579,6 +580,13 @@ a:link {
           align-items: center;
 }
 
+.user-profile .images .img-area div .del-img-btn {
+  background-color: #e2e2e2;
+  position: absolute;
+  top: 2px;
+  right: 5px;
+}
+
 .user-profile .images .img-area img {
   max-width: 300px;
   max-height: 250px;
@@ -684,9 +692,9 @@ a:link {
   display: flex;
   -ms-flex-wrap: wrap;
       flex-wrap: wrap;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
 }
 
 .user-profile-short .user-data {
@@ -1089,4 +1097,43 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
   -webkit-transform: rotate(-45deg);
           transform: rotate(-45deg);
 }
-/*# sourceMappingURL=style.css.map */
+
+.user-card-mini {
+  min-height: 100px;
+  padding-bottom: 25px;
+  margin-top: 30px;
+  margin-bottom: 0px;
+}
+
+.user-card-mini figure div img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.user-card-mini .buttons-sec {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
+.user-card-mini .buttons-sec button {
+  position: absolute;
+  cursor: pointer;
+  right: 10px;
+  top: 15px;
+  min-width: 70px;
+  margin: 10px 0 0 20px;
+  border-radius: 5px;
+  padding: 5px;
+  border: none;
+  background-color: #99c4d8;
+}
+
+.user-card-mini .buttons-sec button:nth-child(1) {
+  top: 55px;
+}

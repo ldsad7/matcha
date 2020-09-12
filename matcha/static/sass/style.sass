@@ -192,6 +192,9 @@ a:link
     #settings
         width: 40px
         height: 40px
+    #connection
+        width: 40px
+        height: 40px
 
 .content
     min-height: 600px
@@ -530,7 +533,7 @@ a:link
 .user-profile-short
     display: flex
     flex-wrap: wrap
-    justify-content: center
+    justify-content: flex-start
     .user-data
         max-width: 70%
     figure
@@ -820,3 +823,34 @@ section.content
 //     100%
 //         top: 0px  
         
+
+.user-card-mini
+    min-height: 100px
+    padding-bottom: 25px
+    margin-top: 30px
+    margin-bottom: 0px
+    figure
+        div
+            img
+                width: 50px
+                height: 50px
+                border-radius: 50%
+    .buttons-sec
+        display: flex
+        flex-direction: column
+        button
+            position: absolute
+            cursor: pointer
+            right: 10px
+            top: 15px
+            min-width: 70px
+            margin: 10px 0 0 20px
+            border-radius: 5px
+            padding: 5px
+            border: none
+            background-color: #99c4d8
+            &:nth-child(1)
+                top: 55px
+                
+            
+
