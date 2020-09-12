@@ -24,15 +24,17 @@
     <section style="display: flex; justify-content: center;">
         <div>
             <!-- <textarea style="padding: 10px;" id="chat-log" cols="100" rows="20"></textarea><br> -->
-            <section id="messages" style="display: flex; flex-direction: column;">
+            <section id="messages" style="display: flex; flex-direction: column; min-width: 500px;">
                 <div class="message">
                     <p class="data-message"></p>
                 </div>
             </section>
-            <input style="margin-top: 5px;" id="chat-message-input" type="text" size="100"><br>
-            <input style="margin-top: 5px;" id="chat-message-submit" type="button" value="Send">
-            <input type="checkbox" id="toggleBlock" onclick="toggleBlock()">
-            <p style="display: inline-block;">change site</p>
+            <section class="messageInput" style="position: fixed; bottom: 0px; left: 10%;">
+                <input style="margin-top: 5px;" id="chat-message-input" type="text" size="100"><br>
+                <input style="margin-top: 5px;" id="chat-message-submit" type="button" value="Send">
+                <input type="checkbox" id="toggleBlock" onclick="toggleBlock()">
+                <p style="display: inline-block;">change site</p>
+            </section>
         </div>
     </section>
     {{ room_name|json_script:"room-name" }}
@@ -63,7 +65,6 @@
 
         function toggleBlock() {
             messageFromId *= -1;
-            console.log(messageFromId);
         }
 
         chatSocket.onmessage = function(e) {

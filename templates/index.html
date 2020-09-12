@@ -11,6 +11,22 @@
 
 {% block body_scripts %}
     {{ block.super }}
+    <script>
+        function check_line_clamp() {
+            document.querySelectorAll("#history").forEach(el => {
+                if (el.scrollHeight === el.clientHeight) {
+                    el.parentNode.querySelector("button").style.display = "none";
+                } else {
+                    el.parentNode.querySelector("button").style.display = "block";
+                }
+            })
+        }
+        check_line_clamp();
+        window.onresize = function(e) {
+            check_line_clamp();
+            console.log("here");
+        }
+    </script>
 {% endblock %}
 
 </html>
