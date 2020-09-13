@@ -8,6 +8,7 @@ NL = '\n'
 ISO_SEP = ' '
 MODIFIED = 'modified'
 CREATED = 'created'
+DATE_JOINED = 'date_joined'
 
 
 class CommonManager:
@@ -43,19 +44,26 @@ class CommonManager:
         values = []
         for field in fields:
             value = getattr(c, field)
+            # print(field, value, type(value))
             if isinstance(value, datetime.datetime):
+                value = value.replace(tzinfo=None)
                 if field == MODIFIED:
                     value = self.get_current_datetime()
-                elif field == CREATED:
+                elif field in [CREATED, DATE_JOINED]:
                     value = self.format_datetime(value)
                 setattr(c, field, value)
-            elif value is None and field in [MODIFIED, CREATED]:
-                if field == MODIFIED:
-                    value = self.get_current_datetime()
-                elif field == CREATED:
+                values.append(f"'{value}'")
+            elif isinstance(value, bool):
+                values.append(f'{value}')
+            elif value is None and field in [MODIFIED, CREATED, DATE_JOINED]:
+                if field in [MODIFIED, CREATED, DATE_JOINED]:
                     value = self.get_current_datetime()
                 setattr(c, field, value)
-            values.append(f"'{value}'")
+                values.append(f"'{value}'")
+            elif value is None:
+                values.append("NULL")
+            else:
+                values.append(f"'{value}'")
         return values
 
     def delete(self, c):
@@ -117,12 +125,11 @@ class CommonManager:
                 """
         print(f'insert query: {query}')
         CURSOR.execute(query)
-
-    def save(self, c):
-        print(self)
-        print(c)
+        setattr(c, 'id', CURSOR.lastrowid)
 
     def filter(self, *args, **kwargs):
+        if not kwargs:
+            return
         where_conditions = [f"{key}='{value}'" for key, value in kwargs.items()]
         query = f"""
                     SELECT {','.join(self.fields)}
@@ -147,8 +154,29 @@ class TagManager(CommonManager):
         return Tag
 
 
+class UserTagManager(CommonManager):
+    @property
+    def model(self):
+        from .models import UserTag
+        return UserTag
+
+
 class UsersConnectManager(CommonManager):
     @property
     def model(self):
         from .models import UsersConnect
         return UsersConnect
+
+
+class UserPhotoManager(CommonManager):
+    @property
+    def model(self):
+        from .models import UserPhoto
+        return UserPhoto
+
+
+class UserManager(CommonManager):
+    @property
+    def model(self):
+        from .models import User
+        return User

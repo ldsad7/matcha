@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractUser
 from model_utils import Choices
 from django.utils.translation import ugettext_lazy as _
 from .common import get_by_model_and_id, get_thumb
-from .managers import TagManager, UsersConnectManager
+from .managers import TagManager, UsersConnectManager, UserTagManager, UserPhotoManager, UserManager
 
 
 class ManagedModel:
@@ -39,7 +39,7 @@ class Tag(ManagedModel, TimeStampedModel, GetById):
         unique_together = ('name',)
 
 
-class User(AbstractUser, GetById):
+class User(ManagedModel, AbstractUser, GetById):
     UNKNOWN = "неизвестно"
 
     MAN = "мужской"
@@ -65,6 +65,8 @@ class User(AbstractUser, GetById):
     profile_activated = models.BooleanField(_('профиль активирован'), blank=False, null=False, default=False)
     latitude = models.DecimalField(_('широта'), max_digits=8, decimal_places=6, default=0.0)
     longitude = models.DecimalField(_('долгота'), max_digits=9, decimal_places=6, default=0.0)
+
+    objects_ = UserManager()
 
     @property
     def age(self):
@@ -103,7 +105,7 @@ class User(AbstractUser, GetById):
         verbose_name_plural = "Пользователи"
 
 
-class UserTag(TimeStampedModel, GetById):
+class UserTag(ManagedModel, TimeStampedModel, GetById):
     user = models.ForeignKey(
         User, blank=False, null=False, verbose_name="Пользователь", on_delete=models.CASCADE
     )
@@ -111,18 +113,22 @@ class UserTag(TimeStampedModel, GetById):
         Tag, blank=False, null=False, verbose_name="Тег", on_delete=models.CASCADE
     )
 
+    objects_ = UserTagManager()
+
     class Meta:
         verbose_name = "Тег пользователя"
         verbose_name_plural = "Теги пользователя"
         unique_together = ('user', 'tag')
 
 
-class UserPhoto(TimeStampedModel, GetById):
+class UserPhoto(ManagedModel, TimeStampedModel, GetById):
     title = models.CharField(_('название'), max_length=32, blank=True, null=False)
     image = models.ImageField(_('изображение'), upload_to='images/', blank=False, null=False)
     user = models.ForeignKey(
         User, blank=False, null=False, verbose_name="Пользователь", on_delete=models.CASCADE
     )
+
+    objects_ = UserPhotoManager()
 
     def __str__(self):
         return self.title
