@@ -275,11 +275,11 @@ class UserReadSerializer(CommonSerializer):
 
     @staticmethod
     def get_tags(instance: User):
-        return UserTagReadSerializer(UserTag.objects_.filter(user=instance), many=True).data
+        return UserTagReadSerializer(UserTag.objects_.filter(user_id=instance.id), many=True).data
 
     @staticmethod
     def get_photos(instance: User):
-        return UserPhotoReadSerializer(UserPhoto.objects_.filter(user=instance), many=True).data
+        return UserPhotoReadSerializer(UserPhoto.objects_.filter(user_id=instance.id), many=True).data
 
     @property
     def model(self):
