@@ -72,6 +72,30 @@ def user_list(request):
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def user_detail(request, id):
+    if request.method in ['PUT', 'PATCH']:
+        user_tags = {user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=request.user.id)}
+        new_tags = {tag.strip().strip('#') for tag in request.data.get('tags') if tag.strip().strip('#')}
+
+        # x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        # if x_forwarded_for:
+        #     ip = x_forwarded_for.split(',')[0]
+        # else:
+        #     ip = request.META.get('REMOTE_ADDR')
+        # g = GeoIP2()
+        # ip = '205.186.163.125'
+        # print(g.country(ip))
+        # print(g.city(ip))
+        # print(g.lat_lon(ip))
+
+        tag_ids = [obj.id for obj in Tag.objects_.filter(name__in=user_tags - new_tags)]
+        for obj in UserTag.objects_.filter(tag_id__in=tag_ids):
+            obj.delete()
+
+        for tag_name in new_tags - user_tags:
+            if not Tag.objects_.filter(name=tag_name):
+                Tag(name=tag_name).save()
+            tag_obj = Tag.objects_.filter(name=tag_name)[0]
+            UserTag(user_id=request.user.id, tag_id=tag_obj.id).save()
     return common_detail(request, User, UserSerializer, UserReadSerializer, id)
 
 
@@ -120,25 +144,6 @@ def user_tags_list(request):
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def user_tags_detail(request, id):
-    if request.method in ['PUT', 'PATCH']:
-        user_tags = {user_tag.tag.name for user_tag in UserTag.objects_.filter(user=request.user)}
-        new_tags = {tag.strip().strip('#') for tag in request.data.get('tags') if tag.strip().strip('#')}
-
-        # x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        # if x_forwarded_for:
-        #     ip = x_forwarded_for.split(',')[0]
-        # else:
-        #     ip = request.META.get('REMOTE_ADDR')
-        # g = GeoIP2()
-        # ip = '205.186.163.125'
-        # print(g.country(ip))
-        # print(g.city(ip))
-        # print(g.lat_lon(ip))
-
-        UserTag.objects_.filter(tag__name__in=user_tags - new_tags).delete()
-
-        for tag_name in new_tags - user_tags:
-            UserTag(user=request.user, tag=Tag.objects_.get_or_create(name=tag_name)[0]).save()
     return common_detail(request, UserTag, UserTagSerializer, UserTagReadSerializer, id)
 
 

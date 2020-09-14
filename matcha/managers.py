@@ -126,6 +126,7 @@ class CommonManager:
         print(f'insert query: {query}')
         CURSOR.execute(query)
         setattr(c, 'id', CURSOR.lastrowid)
+        c.save()
 
     def filter(self, *args, **kwargs):
         if not kwargs:
@@ -162,13 +163,8 @@ class CommonManager:
                 FROM {self.db_table}
                 WHERE {' AND '.join(where_conditions)}
             """
-        else:
-            query = f"""
-                SELECT {','.join(self.fields)}
-                FROM {self.db_table}
-            """
-        print(f'filter query: {query}')
-        CURSOR.execute(query)
+            print(f'filter query: {query}')
+            CURSOR.execute(query)
         objects = []
         for row in CURSOR.fetchall():
             c = self.model()

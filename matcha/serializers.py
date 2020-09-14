@@ -142,9 +142,9 @@ class CommonSerializer(serializers.Serializer):
         if self.main_model.objects_.filter(**unique_together_dict):
             raise_exception(', '.join(unique_together_dict), 'Эти поля должны образовывать уникальный набор')
         for field in self.unique_fields:
-            if self.main_model.objects_.filter(**{field: data[field]}):
+            if field in data and self.main_model.objects_.filter(**{field: data[field]}):
                 raise_exception(field, 'Это поле должно быть уникальным')
-        print(f'data: {data}')
+        # print(f'data: {data}')
         return data
 
     def create(self, validated_data):
@@ -156,7 +156,7 @@ class CommonSerializer(serializers.Serializer):
 
     def update(self, c, validated_data):
         for field in self.model_fields:
-            setattr(c, field, validated_data.get(field, getattr(c, field)))
+            setattr(c, field, validated_data.get(field, getattr(c, field, None)))
         c.save()
         return c
 
@@ -217,13 +217,13 @@ class TagSerializer(CommonSerializer):
 
 class UserSerializer(CommonSerializer):
     id = serializers.IntegerField(read_only=True)
-    password = serializers.CharField(required=True, max_length=128)
+    password = serializers.CharField(required=False, max_length=128)
     last_login = serializers.DateTimeField(required=False, allow_null=True)
     username = serializers.CharField(required=False, max_length=150)
     is_superuser = serializers.BooleanField(required=False, default=False)
     first_name = serializers.CharField(required=False, allow_blank=True, max_length=30, default='')
     last_name = serializers.CharField(required=False, allow_blank=True, max_length=150, default='')
-    email = serializers.EmailField(required=True)
+    email = serializers.EmailField(required=False)
     is_staff = serializers.BooleanField(required=False, default=False)
     is_active = serializers.BooleanField(required=False, default=True)
     date_joined = serializers.DateTimeField(required=False)
@@ -235,6 +235,8 @@ class UserSerializer(CommonSerializer):
     orientation = serializers.CharField(required=False, max_length=32, default=User.UNKNOWN)
     latitude = serializers.FloatField(required=False, default=0.0)
     longitude = serializers.FloatField(required=False, default=0.0)
+    tags = serializers.ListField(required=False, default=[])
+    photos = serializers.ListField(required=False, default=[])
 
     @property
     def unique_fields(self):
@@ -273,11 +275,11 @@ class UserReadSerializer(CommonSerializer):
 
     @staticmethod
     def get_tags(instance: User):
-        return UserTagReadSerializer(UserTag.objects.filter(user=instance), many=True).data
+        return UserTagReadSerializer(UserTag.objects_.filter(user=instance), many=True).data
 
     @staticmethod
     def get_photos(instance: User):
-        return UserPhotoReadSerializer(UserPhoto.objects.filter(user=instance), many=True).data
+        return UserPhotoReadSerializer(UserPhoto.objects_.filter(user=instance), many=True).data
 
     @property
     def model(self):
