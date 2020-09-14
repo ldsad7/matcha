@@ -130,12 +130,43 @@ class CommonManager:
     def filter(self, *args, **kwargs):
         if not kwargs:
             return
-        where_conditions = [f"{key}='{value}'" for key, value in kwargs.items()]
-        query = f"""
-                    SELECT {','.join(self.fields)}
-                    FROM {self.db_table}
-                    WHERE {' AND '.join(where_conditions)}
-                """
+        where_conditions = []
+        for key, value in kwargs.items():
+            key, *op = key.rsplit('__', maxsplit=1)
+            if op:
+                op = op[0]
+                if op == 'gte':
+                    where_condition = f"{key}>='{value}'"
+                elif op == 'gt':
+                    where_condition = f"{key}>'{value}'"
+                elif op == 'lte':
+                    where_condition = f"{key}<='{value}'"
+                elif op == 'lt':
+                    where_condition = f"{key}<'{value}'"
+                elif op == 'in':
+                    objs = ', '.join([f"'{obj}'" for obj in value])
+                    where_condition = ''
+                    if objs:
+                        where_condition = f"{key} IN ({objs})"
+                elif op == 'icontains':
+                    where_condition = f"LOWER({key}) LIKE '%{value}%'"
+                else:
+                    raise ValueError(f"Unknown op {op}")
+            else:
+                where_condition = f"{key}='{value}'"
+            if where_condition:
+                where_conditions.append(where_condition)
+        if where_conditions:
+            query = f"""
+                SELECT {','.join(self.fields)}
+                FROM {self.db_table}
+                WHERE {' AND '.join(where_conditions)}
+            """
+        else:
+            query = f"""
+                SELECT {','.join(self.fields)}
+                FROM {self.db_table}
+            """
         print(f'filter query: {query}')
         CURSOR.execute(query)
         objects = []

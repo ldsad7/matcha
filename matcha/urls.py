@@ -15,6 +15,8 @@ urlpatterns = [
     # path('', include(api_router.urls)),
     path('users/', views.user_list, name='users'),
     path('users/<int:id>/', views.user_detail, name='users'),
+    path('users/<int:id>/liking/', views.user_liking, name='user_linkng'),
+    path('users/<int:id>/liked/', views.user_liked, name='user_liked'),
     path('tags/', views.tag_list, name='tags'),
     path('tags/<int:id>/', views.tag_detail, name='tags'),
     path('user_connects/', views.users_connects_list, name='user_connects'),

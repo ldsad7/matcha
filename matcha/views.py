@@ -1,10 +1,7 @@
 import requests
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
-from rest_framework.filters import OrderingFilter
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 from django.contrib.gis.geoip2 import GeoIP2
 
 from .models import (
@@ -14,7 +11,7 @@ from .serializers import (
     TagSerializer, UserSerializer, UserPhotoSerializer, UserReadSerializer,
     UsersConnectSerializer, UsersConnectReadSerializer, UserTagSerializer, UserTagReadSerializer,
     UserPhotoReadSerializer)
-from .filters import UserFilter
+from .filters import filter_age, filter_rating, filter_location, filter_tags
 
 from django.template import loader
 from django.http import HttpResponse, JsonResponse
@@ -56,6 +53,29 @@ def common_detail(request, model, model_serializer, model_read_serializer, id_):
 
 
 @api_view(['GET', 'POST'])
+def user_list(request):
+    if request.method == 'GET':
+        objs = User.objects_.all()
+        for query_param, value in request.query_params.items():
+            if query_param == 'age':
+                objs = filter_age(objs, value, User)
+            elif query_param == 'rating':
+                objs = filter_rating(objs, value, User)
+            elif query_param == 'location':
+                objs = filter_location(objs, value, User)
+            elif query_param == 'tags':
+                objs = filter_tags(objs, value, User)
+        serializer = UserReadSerializer(objs, many=True)
+        return Response(serializer.data)
+    return common_list(request, User, UserSerializer, UserReadSerializer)
+
+
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+def user_detail(request, id):
+    return common_detail(request, User, UserSerializer, UserReadSerializer, id)
+
+
+@api_view(['GET', 'POST'])
 def tag_list(request):
     return common_list(request, Tag, TagSerializer, TagSerializer)
 
@@ -65,67 +85,32 @@ def tag_detail(request, id):
     return common_detail(request, Tag, TagSerializer, TagSerializer, id)
 
 
-# class UserViewSet(ModelViewSet):
-#     serializer_class = UserSerializer
-#     queryset = User.objects.all()
-#     filter_backends = (DjangoFilterBackend, OrderingFilter)
-#     filterset_class = UserFilter
-#     ordering_fields = ('first_name', 'second_name')
-#
-#     def create(self, request, *args, **kwargs):
-#         return super().create(request, *args, **kwargs)
-#
-#     def update(self, request, *args, **kwargs):
-#         user_tags = {user_tag.tag.name for user_tag in UserTag.objects.filter(user=request.user)}
-#         new_tags = {tag.strip().strip('#') for tag in request.data.get('tags') if tag.strip().strip('#')}
-#
-#         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-#         if x_forwarded_for:
-#             ip = x_forwarded_for.split(',')[0]
-#         else:
-#             ip = request.META.get('REMOTE_ADDR')
-#
-#         g = GeoIP2()
-#         ip = '205.186.163.125'
-#         # print(g.country(ip))
-#         # print(g.city(ip))
-#         print(g.lat_lon(ip))
-#
-#         UserTag.objects.filter(tag__name__in=user_tags - new_tags).delete()
-#
-#         UserTag.objects.bulk_create([
-#             UserTag(
-#                 user=request.user,
-#                 tag=Tag.objects.get_or_create(name=tag_name)[0]
-#             )
-#             for tag_name in new_tags - user_tags
-#         ])
-#
-#         return super().update(request, *args, **kwargs)
-#
-#     @action(detail=True)
-#     def liking(self, request, *args, **kwargs):
-#         """
-#         returns those users that liked current user
-#         """
-#         user = self.get_object()
-#         users = [
-#             user_connect.user_1
-#             for user_connect in UsersConnect.objects.filter(user_2=user)
-#         ]
-#         return Response(UserReadSerializer(users, many=True).data)
-#
-#     @action(detail=True)
-#     def liked(self, request, *args, **kwargs):
-#         """
-#         returns those users whom current user likes
-#         """
-#         user = self.get_object()
-#         users = [
-#             user_connect.user_2
-#             for user_connect in UsersConnect.objects.filter(user_1=user)
-#         ]
-#         return Response(UserReadSerializer(users, many=True).data)
+@api_view(['GET'])
+def user_liking(request, id):
+    """
+    returns those users that liked current user
+    """
+
+    user = User.objects_.get(id=id)
+    users = [
+        user_connect.user_1
+        for user_connect in UsersConnect.objects_.filter(user_2_id=user.id)
+    ]
+    return Response(UserReadSerializer(users, many=True).data)
+
+
+@api_view(['GET'])
+def user_liked(request, id):
+    """
+    returns those users whom current user likes
+    """
+
+    user = User.objects_.get(id=id)
+    users = [
+        user_connect.user_2
+        for user_connect in UsersConnect.objects_.filter(user_1_id=user.id)
+    ]
+    return Response(UserReadSerializer(users, many=True).data)
 
 
 @api_view(['GET', 'POST'])
@@ -135,6 +120,25 @@ def user_tags_list(request):
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def user_tags_detail(request, id):
+    if request.method in ['PUT', 'PATCH']:
+        user_tags = {user_tag.tag.name for user_tag in UserTag.objects_.filter(user=request.user)}
+        new_tags = {tag.strip().strip('#') for tag in request.data.get('tags') if tag.strip().strip('#')}
+
+        # x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        # if x_forwarded_for:
+        #     ip = x_forwarded_for.split(',')[0]
+        # else:
+        #     ip = request.META.get('REMOTE_ADDR')
+        # g = GeoIP2()
+        # ip = '205.186.163.125'
+        # print(g.country(ip))
+        # print(g.city(ip))
+        # print(g.lat_lon(ip))
+
+        UserTag.objects_.filter(tag__name__in=user_tags - new_tags).delete()
+
+        for tag_name in new_tags - user_tags:
+            UserTag(user=request.user, tag=Tag.objects_.get_or_create(name=tag_name)[0]).save()
     return common_detail(request, UserTag, UserTagSerializer, UserTagReadSerializer, id)
 
 
@@ -156,16 +160,6 @@ def users_connects_list(request):
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def users_connects_detail(request, id):
     return common_detail(request, UsersConnect, UsersConnectSerializer, UsersConnectReadSerializer, id)
-
-
-@api_view(['GET', 'POST'])
-def user_list(request):
-    return common_list(request, User, UserSerializer, UserReadSerializer)
-
-
-@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
-def user_detail(request, id):
-    return common_detail(request, User, UserSerializer, UserReadSerializer, id)
 
 
 # Additional functions
