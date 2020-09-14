@@ -124,6 +124,7 @@ class UserTag(ManagedModel, TimeStampedModel, GetById):
 class UserPhoto(ManagedModel, TimeStampedModel, GetById):
     title = models.CharField(_('название'), max_length=32, blank=True, null=False)
     image = models.ImageField(_('изображение'), upload_to='images/', blank=False, null=False)
+    main = models.BooleanField(_('главное'), default=False, blank=False, null=False)
     user = models.ForeignKey(
         User, blank=False, null=False, verbose_name="Пользователь", on_delete=models.CASCADE
     )
