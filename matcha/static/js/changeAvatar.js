@@ -40,6 +40,7 @@ var avatar = {
                             if (document.querySelector("#change-profile-data-cancel").style.display !== "none") {
                                 let div = document.createElement("div");
                                 div.appendChild(document.querySelector("figure img"));
+                                div.appendChild(createDelBlock());
                                 document.querySelector(".img-area div").appendChild(div);
                                 e.target.parentNode.remove();
                                 document.querySelector("figure div").appendChild(e.target);
