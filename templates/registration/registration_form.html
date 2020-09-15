@@ -224,35 +224,18 @@
                         {% csrf_token %}
                         <h2>Создать аккаунт</h2>
                         <p class="required">
-<!--                            <label class="required" for="id_username">{% trans 'Username' %}:</label>-->
                             <input type="text" name="username" maxlength="150" autofocus required id="id_username" placeholder="{% trans 'Username' %}">
-<!--                            <span class="helptext">Обязательное поле. Не более 150 символов. Только буквы, цифры и символы @/./+/-/_.</span>-->
                         </p>
-<!--                        <input type="text" name="" placeholder="Username">-->
-<!--                        <p class="notice min_len user invis">username length must be at least 3 characters</p>-->
-<!--                        <p class="notice min_len user invis busy">this username is busy</p>-->
                         <p class="required">
-<!--                            <label class="required" for="id_email">{% trans 'Email' %}:</label>-->
                             <input type="email" name="email" required id="id_email" placeholder="{% trans 'Email' %}">
                         </p>
-<!--                        <input type="email" name="" placeholder="Email Address">-->
-<!--                        <p class="notice email invis">incorrect email address</p>-->
-<!--                        <p class="notice email invis busy">this email address is busy</p>-->
                         <p class="required">
-<!--                            <label class="required" for="id_password1">{% trans 'Password' %}:</label>-->
                             <input type="password" name="password1" required id="id_password1" placeholder="{% trans 'Password' %}">
                         </p>
-<!--                        <input type="password" name="" placeholder="Password">-->
-<!--                        <p class="notice min_len pwd invis">password length must be at least 7 characters</p>-->
-<!--                        <p class="notice cappital pwd invis">password must contain at least one capital letter</p>-->
                         <p class="required">
-<!--                            <label class="required" for="id_password2">{% trans 'Password confirmation' %}:</label>-->
                             <input type="password" name="password2" required id="id_password2" placeholder="{% trans 'Password confirmation' %}">
                         </p>
-<!--                        <input class="second_password" type="password" name="" placeholder="Confirm Password">-->
-<!--                        <p class="notice match invis">passwords don't match</p>-->
                         <input type="submit" value="{% trans 'Submit' %}" />
-<!--                        <p class="signup">Already have an account? <a onclick="func();" href="#">Sign In.</a></p>-->
                         <p class="signup">Уже есть аккаунт? <a href="{% url 'auth_login' %}">{% trans 'Log in' %}</a>.</p>
                     </form>
                 </div>
@@ -286,11 +269,6 @@
         </filter>
     </svg>
 
-<!--<form method="post" action="">-->
-<!--    {% csrf_token %}-->
-<!--    {{ form.as_p }}-->
-<!--    <input type="submit" value="{% trans 'Submit' %}" />-->
-<!--</form>-->
 {% endblock %}
 
 {% block body_scripts %}
