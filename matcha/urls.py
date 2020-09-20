@@ -20,7 +20,6 @@ api_router.register('user_connects', UsersConnectViewSet, 'user_connects')
 
 urlpatterns = [
     path('', include(api_router.urls)),
-    path('images/', views.images, name='images'),
     ## -->
     path("test_upload", views.index, name="test_upload"),
     ##
