@@ -1,38 +1,44 @@
 var image = {
     loadFile: function(event) {
-        var output = document.getElementById('output');
+        // var output = document.getElementById('output');
 
-        if (document.querySelectorAll(".img-area img").length < 4) {
-            let tmp = document.createElement("img");
-            tmp.setAttribute("id", "output");
-            tmp.style.display = "none";
-            document.querySelector(".img-area").appendChild(tmp);
-        } else {
-            document.getElementById("image-input").style.display = "none";
-        }
-        output.style.display = "inline-block";
-        output.src = URL.createObjectURL(event.target.files[0]);
-        output.removeAttribute("id");
-        avatar.edit();
-        // output.onload = function() {
-        //     URL.revokeObjectURL(output.src) // free memory
-        //     avatar.edit();
-        //     // var ajax = new XMLHttpRequest();
-        //     $.ajax({
-        //         url: '/api/v1/user_photos', // url where to submit the request
-        //         type : "POST", // type of action POST || GET
-        //         dataType : 'json', // data type
-        //         data : $("#form").serialize(), // post data || get data
-        //         success : function(result) {
-        //             // you can see the result from the console
-        //             // tab of the developer tools
-        //             console.log(result);
-        //         },
-        //         error: function(xhr, resp, text) {
-        //             console.log(xhr, resp, text);
-        //         }
-        //     })
+        // if (document.querySelectorAll(".img-area img").length < 4) {
+        //     let tmp = document.createElement("img");
+        //     tmp.setAttribute("id", "output");
+        //     tmp.style.display = "none";
+        //     document.querySelector(".img-area").appendChild(tmp);
+        // } else {
+        //     document.getElementById("image-input").style.display = "none";
         // }
+        // output.style.display = "inline-block";
+        // output.src = URL.createObjectURL(event.target.files[0]);
+        // output.removeAttribute("id");
+        // avatar.edit();
+        output.onload = function() {
+            const csrftoken = getCookie('csrftoken');
+
+            URL.revokeObjectURL(output.src) // free memory
+            avatar.edit();
+            $.ajax({
+                // headers: {
+                //     'Accept' : 'application/json',
+                //     'Content-Type' : 'application/json',
+                //     'X-CSRFToken': csrftoken
+                // },
+                url: '/api/v1/test_upload', // url where to submit the request
+                type : "POST", // type of action POST || GET
+                dataType : 'json', // data type
+                data : this.files[0], // post data || get data
+                success : function(result) {
+                    // you can see the result from the console
+                    // tab of the developer tools
+                    console.log(result);
+                },
+                error: function(xhr, resp, text) {
+                    console.log(xhr, resp, text);
+                }
+            })
+        }
     },
     edit: function() {
         this.input = document.getElementById("image-input");

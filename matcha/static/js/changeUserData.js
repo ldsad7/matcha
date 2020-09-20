@@ -49,13 +49,19 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         change_user_data = true;
         cancel_btn.style.display = "inline-block";
     } else {
-        var id = parseInt($("#id").text());
+        var id = parseInt(jQuery("#id").text());
         var tag_names = [];
-        var tag_tags = $(".tag span");
+        var imgs = [];
+        var tag_tags = jQuery(".tag span");
         for (var i = 0; i < tag_tags.length; i++)
             tag_names.push(tag_tags[i].textContent);
+        document.querySelectorAll(".img-area div img").forEach(el => {
+            const str = el.getAttribute("src").split("/");
+            imgs.push(str[str.length - 1]);
+        });
+        console.log(imgs);
         const csrftoken = getCookie('csrftoken');
-        $.ajax({
+        jQuery.ajax({
             headers: {
                 'Accept' : 'application/json',
                 'Content-Type' : 'application/json',
@@ -64,14 +70,15 @@ document.getElementById("change-profile-data").addEventListener("click", functio
             url: "/api/v1/users/" + id + "/",
             type: "PATCH",
             data: JSON.stringify({
-                "first_name": $("#first_name").val(),
-                "last_name": $("#last_name").val(),
-                "date_of_birth": $("#date-picker").val(),
-                "gender": $("#selectGender option:checked").val(),
-                "orientation": $("#selectOrientation option:checked").val(),
-                "location": $("#location").val(),
-                "info": $("#textArea").val(),
-                "tags": tag_names
+                "first_name": jQuery("#first_name").val(),
+                "last_name": jQuery("#last_name").val(),
+                "date_of_birth": jQuery("#date-picker").val(),
+                "gender": jQuery("#selectGender option:checked").val(),
+                "orientation": jQuery("#selectOrientation option:checked").val(),
+                "location": jQuery("#location").val(),
+                "info": jQuery("#textArea").val(),
+                "tags": tag_names,
+                "photos": imgs
             })
         })
 
