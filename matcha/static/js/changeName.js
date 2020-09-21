@@ -7,7 +7,7 @@ var _name = {
         
         this.first_name.style.display = "inline-block";
         this.last_name.style.display = "inline-block";
-        this.first_name.value = this.firstname.textContent;
+        this.first_name.value = this.firstname.textContent.trim();
         this.last_name.value = this.lastname.textContent;
 
         this.firstname.innerHTML = "";
@@ -17,7 +17,7 @@ var _name = {
         this.first_name.style.display = "none";
         this.last_name.style.display = "none";
 
-        this.firstname.innerHTML = this.first_name.value + " ";
-        this.lastname.innerHTML = this.last_name.value;
+        this.firstname.innerHTML = this.first_name.value.trim() + " ";
+        this.lastname.innerHTML = this.last_name.value.trim();
     }
 }

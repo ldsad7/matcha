@@ -11,12 +11,18 @@ function createDelBlock() {
                         align-items: center;`
     del_block.innerHTML = "x";
     del_block.addEventListener("click", function(e) {
+        const inp_btn = document.getElementById("image-input");
+        avatar.deleted_imgs.push(e.target.parentNode.querySelector("img"));
         e.target.parentNode.remove();
+        if (inp_btn.style.display == "none") {
+            inp_btn.style.display = "block";
+        }
     });
     return del_block;
 }
 
 var avatar = {
+    deleted_imgs: [],
     edit: function() {
         this.current = document.querySelector("figure img");
         this.del_btn = document.getElementById("del-avatar");
@@ -61,5 +67,28 @@ var avatar = {
                 document.querySelector("figure div").appendChild(e.target);
             });
         });
+        // this.deleted_imgs.forEach(img => {
+        //     let data = new FormData();
+        //     const id = parseInt($("#id").text());
+        //     const csrftoken = getCookie('csrftoken');
+
+        //     data.append("image", img);
+        //     data.append("user_id", id.toString());
+
+        //     let settings = {
+        //         "url": "/api/v1/user_photos/2",
+        //         "method": "DELETE",
+        //         "timeout": 0,
+        //         "headers": {
+        //             "X-CSRFToken": csrftoken,
+        //         },
+        //         "processData": false,
+        //         "mimeType": "multipart/form-data",
+        //         "contentType": false,
+        //         "data": data
+        //     };
+
+        //     $.ajax(settings);
+        // })
     }
 }
