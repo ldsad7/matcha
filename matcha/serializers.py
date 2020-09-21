@@ -65,7 +65,10 @@ class CommonSerializer(serializers.Serializer):
     def run_validation(self, data=None):
         if not data:
             raise_exception('Запрос', 'Некорректный запрос')
-        # print(f'data: {data}')
+        new_data = {}
+        for key, value in data.items():
+            new_data[key] = value
+        data = new_data
         model_fields = self.model_fields
         # print(f'model_fields: {model_fields}')
         diff = set(data) - set(model_fields)
@@ -356,7 +359,7 @@ class UserTagReadSerializer(CommonSerializer):
 class UserPhotoSerializer(CommonSerializer):
     id = serializers.IntegerField(read_only=True)
     title = serializers.CharField(required=False, allow_blank=True, max_length=32)
-    image = serializers.ImageField(required=True)
+    image = serializers.ImageField(required=False)
     main = serializers.BooleanField(required=False, default=False)
     user_id = serializers.IntegerField(required=True)
     created = serializers.DateTimeField(required=False)
