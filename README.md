@@ -64,3 +64,5 @@ https://www.maxmind.com/en/accounts/394283/geoip/downloads.
 Из разархивированных папок нужно взять файлы с расширением `.mmdb`
 и поместить их в отдельную папку,
 на которую и должен указывать GEOIP_PATH.
+
+Команда для запуска celery (должен работать redis на порту 6379): `celery -A tasks worker`
