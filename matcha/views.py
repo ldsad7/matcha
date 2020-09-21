@@ -32,6 +32,8 @@ def common_list(request, model, model_serializer, model_read_serializer):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        pass
     else:
         raise ValueError("Invalid request")
 
@@ -115,8 +117,7 @@ def tag_detail(request, id):
     return common_detail(request, Tag, TagSerializer, TagSerializer, id)
 
 
-@api_view(['GET'])
-def user_liking(request, id):
+def liking(id):
     """
     returns those users that liked current user
     """
@@ -126,11 +127,18 @@ def user_liking(request, id):
         user_connect.user_1
         for user_connect in UsersConnect.objects_.filter(user_2_id=user.id)
     ]
-    return Response(UserReadSerializer(users, many=True).data)
+    data = UserReadSerializer(users, many=True).data
+    for user in data:
+        user['liked_back'] = bool(UsersConnect.objects_.filter(user_1_id=id, user_2_id=user['id']))
+    return data
 
 
 @api_view(['GET'])
-def user_liked(request, id):
+def user_liking(request, id):
+    return Response(liking(id))
+
+
+def liked(id):
     """
     returns those users whom current user likes
     """
@@ -140,7 +148,12 @@ def user_liked(request, id):
         user_connect.user_2
         for user_connect in UsersConnect.objects_.filter(user_1_id=user.id)
     ]
-    return Response(UserReadSerializer(users, many=True).data)
+    return UserReadSerializer(users, many=True).data
+
+
+@api_view(['GET'])
+def user_liked(request, id):
+    return Response(liked(id))
 
 
 @api_view(['GET', 'POST'])
@@ -222,9 +235,10 @@ def profile(request):
 def connections(request):
     template = loader.get_template('connections.html')
     context = {
-        'users': UserReadSerializer(User.objects.all(), many=True).data,
+        'users': liking(request.user.id),
         'user': request.user
     }
+    # UserReadSerializer(User.objects.all(), many=True).data,
     return HttpResponse(template.render(context, request))
 
 

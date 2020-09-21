@@ -111,6 +111,9 @@ DATABASES = {
     }
 }
 
+# see https://github.com/maxtepkeev/architect/issues/38
+CONN_MAX_AGE = None
+
 ####################################
 # REST
 ####################################

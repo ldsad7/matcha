@@ -21,7 +21,7 @@
                 <div id="name">
                     <span>{{ user.first_name }} {{ user.last_name }}</span>
                 </div>
-                <div id="rating">Рейтинг: <span>420&#9733;</span></div>
+                <div id="rating">Рейтинг: <span>{{ user.rating }}&#9733;</span></div>
                 <div>
                     {% if user.tags %}
                     <section class="interests">
@@ -38,10 +38,12 @@
                 </div>
             </section>
 
-            <section class="buttons-sec">
-                <button style="background-color: rgb(199, 69, 69);">Ignore</button>
-                <button>Like</button>
-            </section>
+            {% if not user.liked_back %}
+                <section class="buttons-sec">
+                    <button style="background-color: rgb(199, 69, 69);">Ignore</button>
+                    <button>Like</button>
+                </section>
+            {% endif %}
         </section>
     {% endfor %}
 </div>
