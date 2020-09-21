@@ -2,7 +2,26 @@
 
 <div class="center">
     {% for user in users %}
+        <script>
+            function check_click(e) {
+                console.log(e.target.id);
+                if (e.target.id === "btn-report" || e.target.id === "btn-report" || e.target.id === "more-actions-btn") {
+                    console.log('re');
+                } else {
+                    console.log('ne');
+                }
+            }
+            function focus_actions(e) { e.target.parentNode.querySelector('.buttons').classList.toggle('visible'); document.addEventListener("click", check_click(e)) }
+        </script>
         <section class="user-profile user-profile-short">
+            <div id="more-actions">
+                <span id="more-actions-span"></span>
+                <button id="more-actions-btn" onclick="focus_actions(event)"></button>
+                <div class="buttons">
+                    <button id="btn-report">report user</button>
+                    <button id="btn-block">block user</button>
+                </div>
+            </div>
             <figure>
                 <div>
                     {% if user.photos %}
@@ -28,8 +47,10 @@
                         <div id="history" class="short-history">Инфо: {{ user.info }}</div>
                     {% endif %}
                 </div>
+                {% if user.tags %}
                 <section class="interests">
                     <div id="tags">
+                        
                         <p class="white">Интересы: </p>
                         {% for tag in user.tags %}
                             <div class="tag">
@@ -38,6 +59,7 @@
                         {% endfor %}
                     </div>
                 </section>
+                {% endif %}
             </section>
             <section class="images">
                 <div class="img-area">
