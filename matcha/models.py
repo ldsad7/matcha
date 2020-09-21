@@ -6,7 +6,8 @@ from django.contrib.auth.models import AbstractUser
 from model_utils import Choices
 from django.utils.translation import ugettext_lazy as _
 from .common import get_by_model_and_id, get_thumb
-from .managers import TagManager, UsersConnectManager, UserTagManager, UserPhotoManager, UserManager, UsersFakeManager
+from .managers import TagManager, UsersConnectManager, UserTagManager, UserPhotoManager, UserManager, UsersFakeManager, \
+    UsersBlackListManager
 
 
 class ManagedModel:
@@ -198,3 +199,24 @@ class UsersFake(ManagedModel, TimeStampedModel, GetById):
         verbose_name_plural = "Fake-коннекты пользователей"
         unique_together = ('user_1', 'user_2')
 
+
+class UsersBlackList(ManagedModel, TimeStampedModel, GetById):
+    """
+    Connection means that user_1 blacklisted user_2
+    """
+
+    user_1 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 1", on_delete=models.CASCADE,
+        related_name='user_blacklist_1_set'
+    )
+    user_2 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 2", on_delete=models.CASCADE,
+        related_name='user_blacklist_2_set'
+    )
+
+    objects_ = UsersBlackListManager()
+
+    class Meta:
+        verbose_name = "BlackList-коннект пользователей"
+        verbose_name_plural = "BlackList-коннекты пользователей"
+        unique_together = ('user_1', 'user_2')

@@ -9,12 +9,12 @@ from django.contrib.gis.geoip2 import GeoIP2
 
 from .models import (
     Tag, User, UserTag, UserPhoto, UsersConnect,
-    UsersFake)
+    UsersFake, UsersBlackList)
 from .serializers import (
     TagSerializer, UserSerializer, UserPhotoSerializer, UserReadSerializer,
     UsersConnectSerializer, UsersConnectReadSerializer, UserTagSerializer, UserTagReadSerializer,
     UserPhotoReadSerializer,
-    UsersFakeSerializer, UsersFakeReadSerializer)
+    UsersFakeSerializer, UsersFakeReadSerializer, UsersBlackListSerializer, UsersBlackListReadSerializer)
 from .filters import filter_age, filter_rating, filter_location, filter_tags
 
 from django.template import loader
@@ -205,7 +205,9 @@ def users_connects_list(request):
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def users_connects_detail(request, id):
-    return common_detail(request, UsersConnect, UsersConnectSerializer, UsersConnectReadSerializer, id)
+    return common_detail(
+        request, UsersConnect, UsersConnectSerializer, UsersConnectReadSerializer, id
+    )
 
 
 @api_view(['GET', 'POST'])
@@ -216,6 +218,20 @@ def users_fakes_list(request):
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def users_fakes_detail(request, id):
     return common_detail(request, UsersFake, UsersFakeSerializer, UsersFakeReadSerializer, id)
+
+
+@api_view(['GET', 'POST'])
+def users_blacklists_list(request):
+    return common_list(
+        request, UsersBlackList, UsersBlackListSerializer, UsersBlackListReadSerializer
+    )
+
+
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+def users_blacklists_detail(request, id):
+    return common_detail(
+        request, UsersBlackList, UsersBlackListSerializer, UsersBlackListReadSerializer, id
+    )
 
 
 # Additional functions

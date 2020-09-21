@@ -33,11 +33,9 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         change_user_data = true;
         cancel_btn.style.display = "inline-block";
     } else {
-        const id = parseInt($("#id").text());
         const tag_names = [...$(".tag span")].map(el => { return el.textContent });
 
         const images_src = [...$(".for-push")];
-
         const csrftoken = getCookie('csrftoken');
         $.ajax({
             headers: {
@@ -45,7 +43,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
                 'Content-Type' : 'application/json',
                 'X-CSRFToken': csrftoken
             },
-            url: "/api/v1/users/" + id + "/",
+            url: "/api/v1/users/" + user_id + "/",
             type: "PATCH",
             data: JSON.stringify({
                 "first_name": $("#first_name").val(),
@@ -68,7 +66,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
                 data.append("image", imageInput, "tmp.jpg");
             }
         });
-        data.append("user_id", id.toString());
+        data.append("user_id", user_id.toString());
         let settings = {
             "url": "/api/v1/user_photos/",
             "method": "DELETE",
