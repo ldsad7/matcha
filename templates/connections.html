@@ -11,6 +11,46 @@
 
 {% block body_scripts %}
     {{ block.super }}
+    <script>
+        let user_ids = [];
+        let users_connect_ids = [];
+        {% for user in users %}
+            user_ids.push({{ user.id }});
+            users_connect_ids.push({{ user.users_connect_id }});
+        {% endfor %}
+        const csrftoken = getCookie('csrftoken');
+        for (let i = 0; i < {{ users|length }}; i++) {
+            document.getElementById("like-button-" + i).addEventListener("click", function (e) {
+                let type = "";
+                let url = "";
+                let prev_text = $(this).text();
+                if (prev_text === "Like") {
+                    $(this).text("Ignore");
+                    $(this).css("background-color", "rgb(199, 69, 69)");
+                    type = "POST";
+                    url = "/api/v1/user_connects/";
+                } else {
+                    $(this).text("Like");
+                    $(this).css("background-color", "#99c4d8");
+                    type = "DELETE";
+                    url = "/api/v1/user_connects/" + users_connect_ids[i];
+                }
+
+                $.ajax({
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    url: url,
+                    type: type,
+                    data: JSON.stringify({
+                        "user_1_id": {{ user.id }},
+                        "user_2_id": user_ids[i]
+                    })
+                })
+            });
+        }
+    </script>
 {% endblock %}
 
 </html>

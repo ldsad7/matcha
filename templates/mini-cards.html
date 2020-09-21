@@ -38,13 +38,12 @@
                 </div>
             </section>
 
-
             <section class="buttons-sec">
                 {% if user.liked_back %}
-                    // ADD button to the chat with this person
-                    <button style="background-color: rgb(199, 69, 69);">Ignore</button>
+{#                    ADD button to the chat with this person#}
+                    <button id="like-button-{{ forloop.counter0 }}" style="background-color: rgb(199, 69, 69);">Ignore</button>
                 {% else %}
-                    <button>Like</button>
+                    <button id="like-button-{{ forloop.counter0 }}" style="background-color: #99c4d8;">Like</button>
                 {% endif %}
             </section>
         </section>
