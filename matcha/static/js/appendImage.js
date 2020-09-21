@@ -3,7 +3,7 @@ var image = {
         var output = document.getElementById('output');
         const div = document.createElement("div");
 
-        if (document.querySelectorAll(".img-area div div img").length < 4) {
+        if (document.querySelectorAll(".img-area div div img").length < 3) {
             let tmp = document.createElement("img");
             tmp.setAttribute("id", "output");
             tmp.style.display = "none";
@@ -43,7 +43,8 @@ var image = {
     },
     edit: function() {
         this.input = document.getElementById("image-input");
-        this.input.style.display = "inline-block";
+        if (document.querySelectorAll(".img-area div div img").length < 4)
+            this.input.style.display = "inline-block";
     },
     submit: function() {
         this.input.style.display = "none";

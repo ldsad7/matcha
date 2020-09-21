@@ -1,4 +1,4 @@
-var orientation = {
+var orientat = {
     edit: function() {
         this.changeOrientation = document.getElementById("selectOrientation");
         this.span = document.getElementById("orientation-data");
