@@ -1,4 +1,5 @@
 import string
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor
@@ -264,7 +265,7 @@ class UserSerializer(CommonSerializer):
 
 class UserReadSerializer(CommonSerializer):
     id = serializers.IntegerField(read_only=True)
-    last_login = serializers.DateTimeField(required=False, allow_null=True)
+    last_login = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False, allow_null=True)
     username = serializers.CharField(required=False, max_length=150)
     is_superuser = serializers.BooleanField(required=False, default=False)
     first_name = serializers.CharField(required=False, allow_blank=True, max_length=30, default='')
@@ -284,6 +285,15 @@ class UserReadSerializer(CommonSerializer):
     rating = serializers.FloatField(required=False, default=0.0)
     tags = serializers.SerializerMethodField()
     photos = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_last_login(instance: User):
+        if instance.last_login:
+            if datetime.now() - timedelta(minutes=5) < instance.last_login:
+                return 'online'
+            else:
+                return instance.last_login
+        return 'offline'
 
     @staticmethod
     def get_tags(instance: User):
