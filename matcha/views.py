@@ -158,15 +158,19 @@ def user_photos_list(request):
     if request.method == 'POST':
         uuid1 = uuid.uuid1()
         file_name = f'.{settings.MEDIA_URL}{UserPhoto.image.field.upload_to}tmp_{request.data["user_id"]}_{uuid1}.jpg'
-        file = request.data['image'].file.read()
-        request.data['image'] = f'tmp_{request.data["user_id"]}_{uuid1}.jpg'
+        image = request.data.get('image')
+        if image:
+            file = image.file.read()
+            request.data['image'] = f'tmp_{request.data["user_id"]}_{uuid1}.jpg'
         serializer = UserPhotoSerializer(data=request.data)
         if serializer.is_valid():
-            with open(file_name, 'wb') as f:
-                f.write(file)
+            if image:
+                with open(file_name, 'wb') as f:
+                    f.write(file)
             serializer.save()
             serialized_data = serializer.data
-            serialized_data['image'] = serialized_data['image'].replace('/media/', '/media/images/')
+            if image:
+                serialized_data['image'] = serialized_data['image'].replace('/media/', '/media/images/')
             return Response(serialized_data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return common_list(request, UserPhoto, UserPhotoSerializer, UserPhotoReadSerializer)
