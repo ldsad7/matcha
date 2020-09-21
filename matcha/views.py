@@ -9,12 +9,12 @@ from django.contrib.gis.geoip2 import GeoIP2
 
 from .models import (
     Tag, User, UserTag, UserPhoto, UsersConnect,
-)
+    UsersFake)
 from .serializers import (
     TagSerializer, UserSerializer, UserPhotoSerializer, UserReadSerializer,
     UsersConnectSerializer, UsersConnectReadSerializer, UserTagSerializer, UserTagReadSerializer,
-    UserPhotoReadSerializer
-)
+    UserPhotoReadSerializer,
+    UsersFakeSerializer, UsersFakeReadSerializer)
 from .filters import filter_age, filter_rating, filter_location, filter_tags
 
 from django.template import loader
@@ -197,12 +197,25 @@ def user_photos_detail(request, id):
 
 @api_view(['GET', 'POST'])
 def users_connects_list(request):
-    return common_list(request, UsersConnect, UsersConnectSerializer, UsersConnectReadSerializer)
+    return sorted(
+        common_list(request, UsersConnect, UsersConnectSerializer, UsersConnectReadSerializer),
+        key=lambda elem: elem['created']
+    )[::-1]
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def users_connects_detail(request, id):
     return common_detail(request, UsersConnect, UsersConnectSerializer, UsersConnectReadSerializer, id)
+
+
+@api_view(['GET', 'POST'])
+def users_fakes_list(request):
+    return common_list(request, UsersFake, UsersFakeSerializer, UsersFakeReadSerializer)
+
+
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+def users_fakes_detail(request, id):
+    return common_detail(request, UsersFake, UsersFakeSerializer, UsersFakeReadSerializer, id)
 
 
 # Additional functions

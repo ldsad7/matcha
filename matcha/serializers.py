@@ -12,8 +12,8 @@ from rest_framework.fields import (
 )
 
 from .models import (
-    Tag, User, UserTag, UserPhoto, UsersConnect
-)
+    Tag, User, UserTag, UserPhoto, UsersConnect,
+    UsersFake)
 
 
 def raise_exception(field, text):
@@ -251,6 +251,7 @@ class UserSerializer(CommonSerializer):
     orientation = serializers.CharField(required=False, max_length=32, default=User.UNKNOWN)
     latitude = serializers.FloatField(required=False, default=0.0)
     longitude = serializers.FloatField(required=False, default=0.0)
+    fake_accusations = serializers.IntegerField(required=False, default=0)
     tags = serializers.ListField(required=False, default=[])
     photos = serializers.ListField(required=False, default=[])
 
@@ -286,6 +287,7 @@ class UserReadSerializer(CommonSerializer):
     orientation = serializers.CharField(required=False, max_length=32, default=User.UNKNOWN)
     latitude = serializers.FloatField(required=False, default=0.0)
     longitude = serializers.FloatField(required=False, default=0.0)
+    fake_accusations = serializers.IntegerField(required=False, default=0)
     rating = serializers.FloatField(required=False, default=0.0)
     tags = serializers.SerializerMethodField()
     photos = serializers.SerializerMethodField()
@@ -438,3 +440,43 @@ class UsersConnectReadSerializer(CommonSerializer):
     @property
     def main_model(self):
         return UsersConnect
+
+
+class UsersFakeSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    user_1_id = serializers.IntegerField(required=True)
+    user_2_id = serializers.IntegerField(required=True)
+    created = serializers.DateTimeField(required=False)
+    modified = serializers.DateTimeField(required=False)
+
+    @property
+    def model(self):
+        return UsersFakeSerializer
+
+    @property
+    def main_model(self):
+        return UsersFake
+
+
+class UsersFakeReadSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    user_1 = serializers.SerializerMethodField()
+    user_2 = serializers.SerializerMethodField()
+    created = serializers.DateTimeField(required=False)
+    modified = serializers.DateTimeField(required=False)
+
+    @staticmethod
+    def get_user_1(instance: UsersFake):
+        return UserReadSerializer(instance.user_1).data
+
+    @staticmethod
+    def get_user_2(instance: UsersFake):
+        return UserReadSerializer(instance.user_2).data
+
+    @property
+    def model(self):
+        return UsersFakeReadSerializer
+
+    @property
+    def main_model(self):
+        return UsersFake

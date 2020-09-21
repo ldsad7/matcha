@@ -195,6 +195,13 @@ class UsersConnectManager(CommonManager):
         return UsersConnect
 
 
+class UsersFakeManager(CommonManager):
+    @property
+    def model(self):
+        from .models import UsersFake
+        return UsersFake
+
+
 class UserPhotoManager(CommonManager):
     @property
     def model(self):
