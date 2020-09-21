@@ -1,11 +1,12 @@
 import string
 
+from django.conf import settings
 from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, ErrorDetail
 from rest_framework.fields import (
     CharField, IntegerField, DateTimeField, FloatField, BooleanField,
-    empty
+    ImageField, empty
 )
 
 from .models import (
@@ -80,6 +81,8 @@ class CommonSerializer(serializers.Serializer):
             model_field = self.get_field(field)
             required = self.get_model_field_attr(model_field, 'required')
             read_only = self.get_model_field_attr(model_field, 'read_only')
+            allow_null = self.get_model_field_attr(model_field, 'allow_null')
+            allow_blank = self.get_model_field_attr(model_field, 'allow_blank')
             if field in data:
                 value = data[field]
                 if field == 'username':
@@ -90,13 +93,11 @@ class CommonSerializer(serializers.Serializer):
                     unique_together_dict[field] = value
                 if read_only:
                     raise_exception(field, 'Это поле read_only')
-                allow_null = self.get_model_field_attr(model_field, 'allow_null')
                 if not allow_null and value is None:
                     raise_exception(field, 'Это поле не может быть нулевым')
                 if isinstance(model_field, CharField):
                     if not isinstance(value, str):
                         raise_exception(field, 'Значение не соответствует типу поля')
-                    allow_blank = self.get_model_field_attr(model_field, 'allow_blank')
                     if not allow_blank and not value:
                         raise_exception(field, 'Это поле не может быть пустым')
                     max_length = self.get_model_field_attr(model_field, 'max_length')
@@ -105,6 +106,8 @@ class CommonSerializer(serializers.Serializer):
                     min_length = self.get_model_field_attr(model_field, 'min_length')
                     if min_length is not None and len(value) < min_length:
                         raise_exception(field, f'Это поле не может быть длиной менее {min_length}')
+                    if allow_blank:
+                        data[field] = value
                 elif isinstance(model_field, DateTimeField):
                     if not isinstance(value, str):
                         raise_exception(field, 'Значение не соответствует типу поля')
@@ -120,6 +123,8 @@ class CommonSerializer(serializers.Serializer):
                             data[field] = float(value)
                         except ValueError:
                             raise_exception(field, 'Значение не соответствует типу поля')
+                elif isinstance(model_field, ImageField):
+                    pass
                 elif isinstance(model_field, BooleanField):
                     if not isinstance(value, bool):
                         try:
@@ -131,9 +136,15 @@ class CommonSerializer(serializers.Serializer):
                 if isinstance(obj, ForwardManyToOneDescriptor):
                     if not obj.field.remote_field.model.objects.filter(id=value):
                         raise_exception(field, 'Не существует такого значения в базе')
+                if allow_null and not value:
+                    data[field] = None
             elif required:
                 raise_exception(field, 'Это поле должно обязательно присутствовать в запросе')
             else:
+                if allow_null:
+                    data[field] = None
+                if allow_blank:
+                    data[field] = ''
                 default = self.get_model_field_attr(model_field, 'default')
                 if default is not None and default != empty:
                     data[field] = default
@@ -270,6 +281,7 @@ class UserReadSerializer(CommonSerializer):
     orientation = serializers.CharField(required=False, max_length=32, default=User.UNKNOWN)
     latitude = serializers.FloatField(required=False, default=0.0)
     longitude = serializers.FloatField(required=False, default=0.0)
+    rating = serializers.FloatField(required=False, default=0.0)
     tags = serializers.SerializerMethodField()
     photos = serializers.SerializerMethodField()
 
@@ -334,7 +346,7 @@ class UserPhotoSerializer(CommonSerializer):
     id = serializers.IntegerField(read_only=True)
     title = serializers.CharField(required=False, allow_blank=True, max_length=32)
     image = serializers.ImageField(required=True)
-    main = serializers.BooleanField(required=False)
+    main = serializers.BooleanField(required=False, default=False)
     user_id = serializers.IntegerField(required=True)
     created = serializers.DateTimeField(required=False)
     modified = serializers.DateTimeField(required=False)
@@ -351,8 +363,8 @@ class UserPhotoSerializer(CommonSerializer):
 class UserPhotoReadSerializer(CommonSerializer):
     id = serializers.IntegerField(read_only=True)
     title = serializers.CharField(required=False, allow_blank=True, max_length=32)
-    image = serializers.ImageField(required=True)
-    main = serializers.BooleanField(required=False)
+    image = serializers.SerializerMethodField()
+    main = serializers.BooleanField(required=False, default=False)
     user = serializers.SerializerMethodField()
     created = serializers.DateTimeField(required=False)
     modified = serializers.DateTimeField(required=False)
@@ -360,6 +372,10 @@ class UserPhotoReadSerializer(CommonSerializer):
     @staticmethod
     def get_user(instance: UserPhoto):
         return instance.user.id
+
+    # @staticmethod
+    def get_image(self, instance: UserPhoto):
+        return f'{settings.MEDIA_URL}{self.main_model.image.field.upload_to}{instance.image}'
 
     @property
     def model(self):

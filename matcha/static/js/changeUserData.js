@@ -75,29 +75,29 @@ document.getElementById("change-profile-data").addEventListener("click", functio
             })
         })
 
+        let data = new FormData();
+        console.log($('#imageInput')[0].files.length);
         images_src.forEach(elem => {
             let imageInput = $('#imageInput').length ? $('#imageInput')[0].files[0] : null;
             if (imageInput) {
-                var data = new FormData();
                 data.append("image", imageInput, "tmp.jpg");
-                // imageInput.name
-                data.append("user", id.toString());
-                let settings = {
-                    "url": "/api/v1/user_photos/",
-                    "method": "POST",
-                    "timeout": 0,
-                    "headers": {
-                        // "Content-Type" : 'multipart/form-data',
-                        "X-CSRFToken": csrftoken,
-                    },
-                    "processData": false,
-                    "mimeType": "multipart/form-data",
-                    "contentType": false,
-                    "data": data
-                };
-                $.ajax(settings);
             }
         });
+        data.append("user_id", id.toString());
+        let settings = {
+            "url": "/api/v1/user_photos/",
+            "method": "POST",
+            "timeout": 0,
+            "headers": {
+                // "Content-Type" : 'multipart/form-data',
+                "X-CSRFToken": csrftoken,
+            },
+            "processData": false,
+            "mimeType": "multipart/form-data",
+            "contentType": false,
+            "data": data
+        };
+        $.ajax(settings);
 
         hist.submit();
         tags.submit();

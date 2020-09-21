@@ -214,7 +214,7 @@
                 success: function(data) {
                     $("[data_id='result']").remove();
                     let html_str = '<div class="center" data_id="result">';
-                    for (let user of data.results)
+                    for (let user of data)
                     {
                         html_str += `
                         <section class="user-profile user-profile-short">
@@ -296,6 +296,7 @@
                         </section>`
                     }
                     html_str += '</div>';
+                    console.log(html_str);
                     $("div.center").append(html_str);
                 }
             })

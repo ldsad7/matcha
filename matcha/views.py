@@ -1,4 +1,7 @@
+import uuid
+
 import requests
+from django.conf import settings
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -93,6 +96,8 @@ def user_detail(request, id):
             obj.delete()
 
         for tag_name in new_tags - user_tags:
+            if not tag_name:
+                continue
             if not Tag.objects_.filter(name=tag_name):
                 Tag(name=tag_name).save()
             tag_obj = Tag.objects_.filter(name=tag_name)[0]
@@ -150,6 +155,20 @@ def user_tags_detail(request, id):
 
 @api_view(['GET', 'POST'])
 def user_photos_list(request):
+    if request.method == 'POST':
+        uuid1 = uuid.uuid1()
+        file_name = f'.{settings.MEDIA_URL}{UserPhoto.image.field.upload_to}tmp_{request.data["user_id"]}_{uuid1}.jpg'
+        file = request.data['image'].file.read()
+        request.data['image'] = f'tmp_{request.data["user_id"]}_{uuid1}.jpg'
+        serializer = UserPhotoSerializer(data=request.data)
+        if serializer.is_valid():
+            with open(file_name, 'wb') as f:
+                f.write(file)
+            serializer.save()
+            serialized_data = serializer.data
+            serialized_data['image'] = serialized_data['image'].replace('/media/', '/media/images/')
+            return Response(serialized_data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return common_list(request, UserPhoto, UserPhotoSerializer, UserPhotoReadSerializer)
 
 
@@ -173,25 +192,37 @@ def users_connects_detail(request, id):
 
 def index(request):
     template = loader.get_template('index.html')
-    context = {'users': UserReadSerializer(User.objects.all(), many=True).data}
+    context = {
+        'users': UserReadSerializer(User.objects.all(), many=True).data,
+        'user': request.user
+    }
     return HttpResponse(template.render(context, request))
 
 
 def search(request):
     template = loader.get_template('search.html')
-    context = {'users': UserReadSerializer(User.objects.all(), many=True).data}
+    context = {
+        'users': UserReadSerializer(User.objects.all(), many=True).data,
+        'user': request.user
+    }
     return HttpResponse(template.render(context, request))
 
 
 def profile(request):
     template = loader.get_template('profile.html')
     context = UserReadSerializer(request.user).data
+    context['user'] = request.user
     return HttpResponse(template.render(context, request))
+
 
 def connections(request):
     template = loader.get_template('connections.html')
-    context = {'users': UserReadSerializer(User.objects.all(), many=True).data}
+    context = {
+        'users': UserReadSerializer(User.objects.all(), many=True).data,
+        'user': request.user
+    }
     return HttpResponse(template.render(context, request))
+
 
 def get_locations(request):
     return JsonResponse(requests.get(
