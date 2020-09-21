@@ -32,8 +32,6 @@ def common_list(request, model, model_serializer, model_read_serializer):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'DELETE':
-        pass
     else:
         raise ValueError("Invalid request")
 

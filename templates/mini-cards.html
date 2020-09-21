@@ -38,12 +38,15 @@
                 </div>
             </section>
 
-            {% if not user.liked_back %}
-                <section class="buttons-sec">
+
+            <section class="buttons-sec">
+                {% if user.liked_back %}
+                    // ADD button to the chat with this person
                     <button style="background-color: rgb(199, 69, 69);">Ignore</button>
+                {% else %}
                     <button>Like</button>
-                </section>
-            {% endif %}
+                {% endif %}
+            </section>
         </section>
     {% endfor %}
 </div>
