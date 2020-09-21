@@ -33,7 +33,6 @@
                     <div id="connection">{{ last_login }}</div>
                 </figure>
                 <figcaption>
-                    <span id="id" style="display: none;">{{ id }}</span>
                     <div id="username">{{ username }}</div>
                     <div id="rating">Рейтинг: <span>{{ rating }}&#9733;</span></div>
                     <div id="name">
@@ -126,7 +125,9 @@
     <script src="{% static 'js/changeOrientation.js' %}"></script>
     <script src="{% static 'js/changeName.js' %}"></script>
     <script src="{% static 'js/changeLocation.js' %}"></script>
+
     <script src="{% static 'js/changeUserData.js' %}"></script>
+
     <script src="{% static 'js/changeTags.js' %}"></script>
     <!-- endif -->
     {{ block.super }}
