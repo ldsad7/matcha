@@ -1,6 +1,7 @@
 import string
 from datetime import datetime, timedelta
 
+import pytz
 from django.conf import settings
 from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor
 from rest_framework import serializers
@@ -289,7 +290,7 @@ class UserReadSerializer(CommonSerializer):
     @staticmethod
     def get_last_login(instance: User):
         if instance.last_login:
-            if datetime.now() - timedelta(minutes=5) < instance.last_login:
+            if datetime.now().replace(tzinfo=pytz.UTC) - timedelta(minutes=5) < instance.last_login.replace(tzinfo=pytz.UTC):
                 return 'online'
             else:
                 return instance.last_login
