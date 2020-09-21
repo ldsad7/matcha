@@ -13,7 +13,7 @@ from rest_framework.fields import (
 
 from .models import (
     Tag, User, UserTag, UserPhoto, UsersConnect,
-    UsersFake)
+    UsersFake, UsersBlackList)
 
 
 def raise_exception(field, text):
@@ -480,3 +480,43 @@ class UsersFakeReadSerializer(CommonSerializer):
     @property
     def main_model(self):
         return UsersFake
+
+
+class UsersBlackListSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    user_1_id = serializers.IntegerField(required=True)
+    user_2_id = serializers.IntegerField(required=True)
+    created = serializers.DateTimeField(required=False)
+    modified = serializers.DateTimeField(required=False)
+
+    @property
+    def model(self):
+        return UsersBlackListSerializer
+
+    @property
+    def main_model(self):
+        return UsersBlackList
+
+
+class UsersBlackListReadSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    user_1 = serializers.SerializerMethodField()
+    user_2 = serializers.SerializerMethodField()
+    created = serializers.DateTimeField(required=False)
+    modified = serializers.DateTimeField(required=False)
+
+    @staticmethod
+    def get_user_1(instance: UsersFake):
+        return UserReadSerializer(instance.user_1).data
+
+    @staticmethod
+    def get_user_2(instance: UsersFake):
+        return UserReadSerializer(instance.user_2).data
+
+    @property
+    def model(self):
+        return UsersBlackListReadSerializer
+
+    @property
+    def main_model(self):
+        return UsersBlackList
