@@ -6,8 +6,8 @@ django-model-utils==3.2.0
 ## MySQL
 PyMySQL==0.9.3
 cryptography==3.1
-## Redis
-redis==3.5.3
+# ## Redis
+# redis==3.5.3
 
 # Swagger
 drf_yasg==1.16.1
@@ -36,6 +36,3 @@ geoip2==4.0.2
 
 # Debug
 django-debug-toolbar==2.2
-
-# Celery
-celery==4.4.7
