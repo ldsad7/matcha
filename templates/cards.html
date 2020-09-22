@@ -7,9 +7,21 @@
                 }
             });
             const focus_actions = (e) => e.target.parentNode.querySelector('.buttons').classList.toggle('visible');
+            function check_actions(e, elem) {
+                let targ_id = e.target.id;
+                console.log(targ_id);
+                if (targ_id === 'act-like' || targ_id === 'act-dislike') {
+                    if (targ_id === 'act-like') {
+                        elem.classList.add("animate__backOutRight");
+                    } else {
+                        elem.classList.add("animate__backOutLeft");
+                    }
+                    setTimeout(() => {elem.remove()}, 600);
+                }
+            }
         </script>
     {% for user in users %}
-        <section class="user-profile user-profile-short">
+        <section class="user-profile user-profile-short animate__animated" onclick="check_actions(event, this);">
             <div id="more-actions">
                 <button id="more-actions-btn" onclick="focus_actions(event)"></button>
                 <span id="more-actions-span"></span>
@@ -69,8 +81,8 @@
                 </label>
             </section>
             <section id="buttons-card">
-                <button type="button" class="btn btn-outline-danger btn-lg"><i class="fa fa-thumbs-down"></i></button>
-                <button type="button" class="btn btn-outline-success btn-lg"><i class="fa fa-thumbs-up"></i></button>
+                <button type="button" id="act-dislike" class="btn btn-outline-danger btn-lg"><i id="act-dislike" class="fa fa-thumbs-down"></i></button>
+                <button type="button" id="act-like" class="btn btn-outline-success btn-lg"><i id="act-like" class="fa fa-thumbs-up"></i></button>
             </section>
         </section>
     {% endfor %}
