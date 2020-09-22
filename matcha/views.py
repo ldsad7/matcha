@@ -9,16 +9,17 @@ from django.contrib.gis.geoip2 import GeoIP2
 
 from .models import (
     Tag, User, UserTag, UserPhoto, UsersConnect,
-    UsersFake, UsersBlackList)
+    UsersFake, UsersBlackList, Notification)
 from .serializers import (
     TagSerializer, UserSerializer, UserPhotoSerializer, UserReadSerializer,
     UsersConnectSerializer, UsersConnectReadSerializer, UserTagSerializer, UserTagReadSerializer,
     UserPhotoReadSerializer,
-    UsersFakeSerializer, UsersFakeReadSerializer, UsersBlackListSerializer, UsersBlackListReadSerializer)
+    UsersFakeSerializer, UsersFakeReadSerializer, UsersBlackListSerializer, UsersBlackListReadSerializer,
+    NotificationSerializer, NotificationReadSerializer)
 from .filters import filter_age, filter_rating, filter_location, filter_tags
 
 from django.template import loader
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 
 MINUS = '-'
 
@@ -246,6 +247,18 @@ def users_blacklists_detail(request, id):
     )
 
 
+@api_view(['GET', 'POST'])
+def notifications_list(request):
+    return common_list(request, Notification, NotificationSerializer, NotificationReadSerializer)
+
+
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+def notifications_detail(request, id):
+    return common_detail(
+        request, Notification, NotificationSerializer, NotificationReadSerializer, id
+    )
+
+
 # Additional functions
 
 
@@ -270,6 +283,17 @@ def search(request):
 def profile(request):
     template = loader.get_template('profile.html')
     context = UserReadSerializer(request.user).data
+    context['user'] = request.user
+    return HttpResponse(template.render(context, request))
+
+
+def user_profile(request, id):
+    template = loader.get_template('user_profile.html')
+    user = User.objects_.get(id=id)
+    if user is not None:
+        context = UserReadSerializer(user).data
+    else:
+        raise Http404(f"Пользователя с данным id ({id}) не существует в базе")
     context['user'] = request.user
     return HttpResponse(template.render(context, request))
 

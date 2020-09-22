@@ -1,4 +1,8 @@
-from matcha.models import UsersConnect
+import json
+
+from django.http import Http404
+
+from matcha.models import UsersConnect, Notification
 
 
 class CustomMiddleware:
@@ -9,13 +13,45 @@ class CustomMiddleware:
     def __call__(self, request):
         # Code to be executed for each request before
         # the view (and later middleware) are called.
-        print(f'request.method: {request.method}')
-        print(f'request.path: {request.path}')
-        print(f'request.user: {request.user.id}')
 
-        if request.method == 'DELETE':
-            id_ = request.path.split('/')[-2]
-            print(f'{id_}, {UsersConnect.objects_.filter(id=id_)}')
+        method = request.method
+        path = request.path
+        user_1_id = request.user.id
+        body = request.body.decode()
+        if body:
+            body = json.loads(body)
+        referer = request.headers.get('Referer')
+
+        if path.startswith('/api/v1/user_connects/'):
+            if method == 'DELETE':
+                Notification(
+                    user_1_id=user_1_id,
+                    user_2_id=UsersConnect.objects_.get(id=path.split('/')[-2]).user_2.id,
+                    type=Notification.IGNORE
+                ).save()
+            elif method == 'POST':
+                if referer is not None and referer.endswith('/connections'):
+                    type_ = Notification.LIKE_BACK
+                else:
+                    type_ = Notification.LIKE
+                Notification(
+                    user_1_id=user_1_id,
+                    user_2_id=body['user_2_id'],
+                    type=type_
+                ).save()
+        elif path.startswith('/profiles/'):
+            user_2_id = path.split('/')[-2]
+            try:
+                user_2_id = int(user_2_id)
+            except ValueError:
+                raise Http404(f"Пользователя с данным id ({user_2_id}) не существует в базе")
+            if user_1_id != user_2_id:
+                if method == 'GET':
+                    Notification(
+                        user_1_id=user_1_id,
+                        user_2_id=path.split('/')[-2],
+                        type=Notification.PROFILE
+                    ).save()
 
         response = self.get_response(request)
 

@@ -7,7 +7,7 @@ from model_utils import Choices
 from django.utils.translation import ugettext_lazy as _
 from .common import get_by_model_and_id, get_thumb
 from .managers import TagManager, UsersConnectManager, UserTagManager, UserPhotoManager, UserManager, UsersFakeManager, \
-    UsersBlackListManager
+    UsersBlackListManager, NotificationManager
 
 
 class ManagedModel:
@@ -220,3 +220,34 @@ class UsersBlackList(ManagedModel, TimeStampedModel, GetById):
         verbose_name = "BlackList-коннект пользователей"
         verbose_name_plural = "BlackList-коннекты пользователей"
         unique_together = ('user_1', 'user_2')
+
+
+class Notification(ManagedModel, TimeStampedModel, GetById):
+    """
+    Connection means that user_1 made smth to user_2
+    """
+
+    LIKE = 'лайк'
+    PROFILE = 'просмотр профиля'
+    MESSAGE = 'сообщение'
+    LIKE_BACK = 'лайк в ответ'
+    IGNORE = 'разрывание коннекта'
+    TYPES = Choices(
+        (LIKE, "like"), (PROFILE, "profile"), (MESSAGE, "message"), (LIKE_BACK, "like back"),
+        (IGNORE, "ignore")
+    )
+    type = models.CharField(_('тип'), max_length=32, choices=TYPES)
+    user_1 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 1", on_delete=models.CASCADE,
+        related_name='user_notification_1_set'
+    )
+    user_2 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 2", on_delete=models.CASCADE,
+        related_name='user_notification_2_set'
+    )
+
+    objects_ = NotificationManager()
+
+    class Meta:
+        verbose_name = "Notification-коннект пользователей"
+        verbose_name_plural = "Notification-коннекты пользователей"

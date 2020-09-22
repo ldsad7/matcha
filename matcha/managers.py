@@ -221,3 +221,10 @@ class UserManager(CommonManager):
     def model(self):
         from .models import User
         return User
+
+
+class NotificationManager(CommonManager):
+    @property
+    def model(self):
+        from .models import Notification
+        return Notification
