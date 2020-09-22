@@ -67,6 +67,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'dating_site.middlewares.CustomMiddleware',
 ]
 
 ROOT_URLCONF = 'dating_site.urls'

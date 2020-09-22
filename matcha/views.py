@@ -20,10 +20,22 @@ from .filters import filter_age, filter_rating, filter_location, filter_tags
 from django.template import loader
 from django.http import HttpResponse, JsonResponse
 
+MINUS = '-'
 
-def common_list(request, model, model_serializer, model_read_serializer):
+
+def order_by(objs, field):
+    starts_with_minus = field.startswith(MINUS)
+    objs = sorted(objs, key=lambda elem: elem[field.strip(MINUS)])
+    if starts_with_minus:
+        objs = objs[::-1]
+    return objs
+
+
+def common_list(request, model, model_serializer, model_read_serializer, order_by_field=None):
     if request.method == 'GET':
         objs = model.objects_.all()
+        if order_by_field is not None:
+            objs = order_by(objs, order_by_field)
         serializer = model_read_serializer(objs, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
@@ -197,10 +209,10 @@ def user_photos_detail(request, id):
 
 @api_view(['GET', 'POST'])
 def users_connects_list(request):
-    return sorted(
-        common_list(request, UsersConnect, UsersConnectSerializer, UsersConnectReadSerializer),
-        key=lambda elem: elem['created']
-    )[::-1]
+    return common_list(
+        request, UsersConnect, UsersConnectSerializer, UsersConnectReadSerializer,
+        order_by_field='-created'
+    )
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])

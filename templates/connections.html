@@ -47,7 +47,9 @@
                         "user_1_id": {{ user.id }},
                         "user_2_id": user_ids[i]
                     })
-                })
+                }).done(function(data) {
+                    users_connect_ids[i] = data["id"];
+                });
             });
         }
     </script>
