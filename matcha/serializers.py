@@ -403,7 +403,7 @@ class UserPhotoReadSerializer(CommonSerializer):
 
 
 class UsersConnectSerializer(CommonSerializer):
-    id = serializers.IntegerField(required=False, read_only=False)
+    id = serializers.IntegerField(read_only=True)
     user_1_id = serializers.IntegerField(required=True)
     user_2_id = serializers.IntegerField(required=True)
     created = serializers.DateTimeField(required=False)

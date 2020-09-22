@@ -25,7 +25,7 @@ MINUS = '-'
 
 def order_by(objs, field):
     starts_with_minus = field.startswith(MINUS)
-    objs = sorted(objs, key=lambda elem: elem[field.strip(MINUS)])
+    objs = sorted(objs, key=lambda elem: getattr(elem, field.strip(MINUS)))
     if starts_with_minus:
         objs = objs[::-1]
     return objs
