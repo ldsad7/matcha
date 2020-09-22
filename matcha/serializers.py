@@ -520,11 +520,11 @@ class UsersBlackListReadSerializer(CommonSerializer):
     modified = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
 
     @staticmethod
-    def get_user_1(instance: UsersFake):
+    def get_user_1(instance: UsersBlackList):
         return UserReadSerializer(instance.user_1).data
 
     @staticmethod
-    def get_user_2(instance: UsersFake):
+    def get_user_2(instance: UsersBlackList):
         return UserReadSerializer(instance.user_2).data
 
     @property
@@ -562,11 +562,11 @@ class NotificationReadSerializer(CommonSerializer):
     modified = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
 
     @staticmethod
-    def get_user_1(instance: UsersFake):
+    def get_user_1(instance: Notification):
         return UserReadSerializer(instance.user_1).data
 
     @staticmethod
-    def get_user_2(instance: UsersFake):
+    def get_user_2(instance: Notification):
         return UserReadSerializer(instance.user_2).data
 
     @property

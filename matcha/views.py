@@ -16,7 +16,7 @@ from .serializers import (
     UserPhotoReadSerializer,
     UsersFakeSerializer, UsersFakeReadSerializer, UsersBlackListSerializer, UsersBlackListReadSerializer,
     NotificationSerializer, NotificationReadSerializer)
-from .filters import filter_age, filter_rating, filter_location, filter_tags
+from .filters import filter_age, filter_rating, filter_location, filter_tags, filter_timestamp
 
 from django.template import loader
 from django.http import HttpResponse, JsonResponse, Http404
@@ -249,6 +249,18 @@ def users_blacklists_detail(request, id):
 
 @api_view(['GET', 'POST'])
 def notifications_list(request):
+    if request.method == 'GET':
+        objs = Notification.objects_.all()
+        for query_param, value in request.query_params.items():
+            if query_param == 'created':
+                try:
+                    value = int(value)
+                except ValueError:
+                    raise Http404(f"В базе нет notification-а с данным id ({value})")
+                objs = filter_timestamp(objs, value)
+        objs = order_by(objs, '-created')
+        serializer = NotificationReadSerializer(objs, many=True)
+        return Response(serializer.data)
     return common_list(request, Notification, NotificationSerializer, NotificationReadSerializer)
 
 
