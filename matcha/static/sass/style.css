@@ -395,15 +395,19 @@ a:link {
   color: #c4c2c2;
 }
 
-.user-profile #connection::after {
-  content: "";
+.user-profile #connection::before {
+  content: " ";
   border-radius: 50%;
-  background-color: green;
   position: absolute;
+  background-color: green;
   width: 8px;
   height: 8px;
   top: 6px;
   left: calc(50% - 30px);
+}
+
+.user-profile #connection.red::before {
+  background-color: red;
 }
 
 .user-profile .buttons div {

@@ -311,15 +311,18 @@ a:link
         // tac
         font-size: 14px
         color: #c4c2c2
-        &::after
-            content: ""
+        &::before
+            content: " "
             border-radius: 50%
-            background-color: green
             position: absolute
+            background-color: green
             width: 8px
             height: 8px
             top: 6px
             left: calc(50% - 30px)
+    #connection.red::before
+        background-color: red
+        
             // animation: notification 5s infinite
 
 
