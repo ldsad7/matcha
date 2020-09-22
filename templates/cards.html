@@ -1,22 +1,19 @@
 {% load static %}
 
 <div class="center">
-    {% for user in users %}
         <script>
-            function check_click(e) {
-                console.log(e.target.id);
-                if (e.target.id === "btn-report" || e.target.id === "btn-report" || e.target.id === "more-actions-btn") {
-                    console.log('re');
-                } else {
-                    console.log('ne');
+            document.addEventListener("click", (e) => {
+                if (!(e.target.id === "btn-report" || e.target.id === "btn-block" || e.target.id === "more-actions-btn")) {
+                    document.querySelectorAll(".buttons").forEach(el => {el.classList.remove("visible")});
                 }
-            }
-            function focus_actions(e) { e.target.parentNode.querySelector('.buttons').classList.toggle('visible'); document.addEventListener("click", check_click(e)) }
+            });
+            const focus_actions = (e) => e.target.parentNode.querySelector('.buttons').classList.toggle('visible');
         </script>
+    {% for user in users %}
         <section class="user-profile user-profile-short">
             <div id="more-actions">
-                <span id="more-actions-span"></span>
                 <button id="more-actions-btn" onclick="focus_actions(event)"></button>
+                <span id="more-actions-span"></span>
                 <div class="buttons">
                     <button id="btn-report">report user</button>
                     <button id="btn-block">block user</button>

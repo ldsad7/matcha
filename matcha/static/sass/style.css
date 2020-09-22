@@ -1145,7 +1145,6 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
   height: 0;
   width: 0;
   border: none;
-  cursor: pointer;
 }
 
 #more-actions #more-actions-span {
@@ -1156,9 +1155,13 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
   height: 7px;
   border-radius: 50%;
   background-color: #e2e2e2;
+  -webkit-transition: .5s ease;
+  transition: .5s ease;
 }
 
 #more-actions #more-actions-span::after, #more-actions #more-actions-span::before {
+  -webkit-transition: .5s ease;
+  transition: .5s ease;
   content: "";
   position: absolute;
   width: 7px;
@@ -1180,10 +1183,30 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
   position: absolute;
   top: -3px;
   right: -3px;
+  cursor: pointer;
   border: none;
   background: none;
   width: 20px;
   height: 35px;
+  z-index: 999;
+}
+
+#more-actions #more-actions-btn:focus {
+  outline: 0;
+  border: none;
+  display: inline-block;
+}
+
+#more-actions #more-actions-btn:focus ~ #more-actions-span {
+  top: 10px;
+}
+
+#more-actions #more-actions-btn:focus ~ #more-actions-span::before {
+  top: 0px;
+}
+
+#more-actions #more-actions-btn:focus ~ #more-actions-span::after {
+  top: 0px;
 }
 
 #more-actions .buttons {
