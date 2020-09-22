@@ -1,22 +1,30 @@
 {% load static %}
-
 <div class="center">
-    {% for user in users %}
         <script>
-            function check_click(e) {
-                console.log(e.target.id);
-                if (e.target.id === "btn-report" || e.target.id === "btn-report" || e.target.id === "more-actions-btn") {
-                    console.log('re');
-                } else {
-                    console.log('ne');
+            document.addEventListener("click", (e) => {
+                if (!(e.target.id === "btn-report" || e.target.id === "btn-block" || e.target.id === "more-actions-btn")) {
+                    document.querySelectorAll(".buttons").forEach(el => {el.classList.remove("visible")});
+                }
+            });
+            const focus_actions = (e) => e.target.parentNode.querySelector('.buttons').classList.toggle('visible');
+            function check_actions(e, elem) {
+                let targ_id = e.target.id;
+                console.log(targ_id);
+                if (targ_id === 'act-like' || targ_id === 'act-dislike') {
+                    if (targ_id === 'act-like') {
+                        elem.classList.add("animate__backOutRight");
+                    } else {
+                        elem.classList.add("animate__backOutLeft");
+                    }
+                    setTimeout(() => {elem.remove()}, 600);
                 }
             }
-            function focus_actions(e) { e.target.parentNode.querySelector('.buttons').classList.toggle('visible'); document.addEventListener("click", check_click(e)) }
         </script>
-        <section class="user-profile user-profile-short">
+    {% for user in users %}
+        <section class="user-profile user-profile-short animate__animated" onclick="check_actions(event, this);">
             <div id="more-actions">
-                <span id="more-actions-span"></span>
                 <button id="more-actions-btn" onclick="focus_actions(event)"></button>
+                <span id="more-actions-span"></span>
                 <div class="buttons">
                     <button id="btn-report">report user</button>
                     <button id="btn-block">block user</button>
@@ -33,7 +41,7 @@
                 <div class="not-here-pls" id="del-avatar" style="display: none;">
                     <span class="not-here-pls">&#10008;</span>
                 </div>
-                <div id="connection">{{ user.last_login }}</div>
+                <div id="connection" class="{% if user.last_login != 'online' %}red{% endif %}">{{ user.last_login }}</div>
             </figure>
             <section class="user-data">
                 <div id="username"><span>{{ user.username }}</span></div>
@@ -71,6 +79,10 @@
                 <label style="display: none;" for="imageInput" class="not-here-pls" id="image-input">
                     <svg version="1.1" id="Capa_1" class="not-here-pls" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 477.863 477.863" style="enable-background:new 0 0 477.863 477.863;" xml:space="preserve"><g><g><path d="M409.598,153.596h-85.333c-9.426,0-17.067,7.641-17.067,17.067s7.641,17.067,17.067,17.067h85.333c9.426,0,17.067,7.641,17.067,17.067v221.867c0,9.426-7.641,17.067-17.067,17.067H68.265c-9.426,0-17.067-7.641-17.067-17.067V204.796c0-9.426,7.641-17.067,17.067-17.067h85.333c9.426,0,17.067-7.641,17.067-17.067s-7.641-17.067-17.067-17.067H68.265c-28.277,0-51.2,22.923-51.2,51.2v221.867c0,28.277,22.923,51.2,51.2,51.2h341.333c28.277,0,51.2-22.923,51.2-51.2V204.796C460.798,176.519,437.875,153.596,409.598,153.596z"/></g></g><g><g><path d="M336.331,90.33L250.998,4.997c-6.664-6.663-17.468-6.663-24.132,0L141.532,90.33c-6.548,6.78-6.36,17.584,0.42,24.132c6.614,6.388,17.099,6.388,23.713,0l56.201-56.201V341.33c0,9.426,7.641,17.067,17.067,17.067s17.067-7.641,17.067-17.067V58.262l56.201,56.201c6.78,6.548,17.584,6.36,24.132-0.42C342.719,107.429,342.719,96.944,336.331,90.33z"/></g></g></svg>
                 </label>
+            </section>
+            <section id="buttons-card">
+                <button type="button" id="act-dislike" class="btn btn-outline-danger btn-lg"><i id="act-dislike" class="fa fa-thumbs-down"></i></button>
+                <button type="button" id="act-like" class="btn btn-outline-success btn-lg"><i id="act-like" class="fa fa-thumbs-up"></i></button>
             </section>
         </section>
     {% endfor %}

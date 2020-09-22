@@ -181,7 +181,7 @@ a:link {
   background-color: #cbcbcb;
 }
 
-.navbar {
+.nav-bar {
   width: 60px;
   z-index: 6;
   height: 100%;
@@ -200,7 +200,7 @@ a:link {
           flex-direction: column;
 }
 
-.navbar .navbar_info {
+.nav-bar .nav-bar_info {
   height: 100%;
   position: absolute;
   width: 80px;
@@ -219,48 +219,50 @@ a:link {
           flex-direction: column;
 }
 
-.navbar .navbar_info span {
+.nav-bar .nav-bar_info span {
   font-family: 'Red Rose', cursive;
   text-transform: uppercase;
   color: #e2e2e2;
   margin-top: 45px;
 }
 
-.navbar .navbar_info span:nth-child(1) {
+.nav-bar .nav-bar_info span:nth-child(1) {
   margin-top: 30px;
 }
 
-.navbar:hover .navbar_info {
+.nav-bar:hover .nav-bar_info {
   left: 60px;
   opacity: 1;
 }
 
-.navbar_elem {
+.nav-bar_elem {
   padding-top: 20px;
   fill: #e2e2e2;
   -webkit-transition: .3s ease;
   transition: .3s ease;
 }
 
-.navbar_elem:hover svg {
+.nav-bar_elem:hover svg {
   fill: pink;
   -webkit-filter: drop-shadow(4px 2px 2px #e44fd5);
           filter: drop-shadow(4px 2px 2px #e44fd5);
 }
 
-.navbar #search {
+.nav-bar #search {
   width: 40px;
   height: 40px;
 }
 
-.navbar #settings {
+.nav-bar #settings {
   width: 40px;
   height: 40px;
+  margin-top: 9px;
 }
 
-.navbar #connection {
+.nav-bar #connection {
   width: 40px;
   height: 40px;
+  margin-top: 25px;
 }
 
 .content {
@@ -395,21 +397,24 @@ a:link {
   color: #c4c2c2;
 }
 
-.user-profile #connection::after {
-  content: "";
+.user-profile #connection::before {
+  content: " ";
   border-radius: 50%;
-  background-color: green;
   position: absolute;
+  background-color: green;
   width: 8px;
   height: 8px;
   top: 6px;
   left: calc(50% - 30px);
 }
 
+.user-profile #connection.red::before {
+  background-color: red;
+}
+
 .user-profile .buttons div {
   cursor: pointer;
   padding: 25px 50px;
-  /* z-index: 5; */
   border-radius: 40px;
   text-transform: uppercase;
   font-size: 18px;
@@ -779,16 +784,16 @@ a:link {
         -ms-flex-pack: center;
             justify-content: center;
   }
-  .navbar {
+  .nav-bar {
     display: none;
   }
-  .navbar-active {
+  .nav-bar-active {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
     top: 50px;
   }
-  .navbar-active .navbar_info {
+  .nav-bar-active .nav-bar_info {
     left: 60px;
     opacity: 1;
   }
@@ -1145,7 +1150,6 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
   height: 0;
   width: 0;
   border: none;
-  cursor: pointer;
 }
 
 #more-actions #more-actions-span {
@@ -1156,9 +1160,13 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
   height: 7px;
   border-radius: 50%;
   background-color: #e2e2e2;
+  -webkit-transition: .5s ease;
+  transition: .5s ease;
 }
 
 #more-actions #more-actions-span::after, #more-actions #more-actions-span::before {
+  -webkit-transition: .5s ease;
+  transition: .5s ease;
   content: "";
   position: absolute;
   width: 7px;
@@ -1180,10 +1188,30 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
   position: absolute;
   top: -3px;
   right: -3px;
+  cursor: pointer;
   border: none;
   background: none;
   width: 20px;
   height: 35px;
+  z-index: 999;
+}
+
+#more-actions #more-actions-btn:focus {
+  outline: 0;
+  border: none;
+  display: inline-block;
+}
+
+#more-actions #more-actions-btn:focus ~ #more-actions-span {
+  top: 10px;
+}
+
+#more-actions #more-actions-btn:focus ~ #more-actions-span::before {
+  top: 0px;
+}
+
+#more-actions #more-actions-btn:focus ~ #more-actions-span::after {
+  top: 0px;
 }
 
 #more-actions .buttons {
@@ -1196,4 +1224,14 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
 
 #more-actions .visible {
   display: inline-block;
+}
+
+#buttons-card {
+  margin-top: 10px;
+  width: 100%;
+  text-align: center;
+}
+
+#buttons-card button {
+  width: 100px;
 }

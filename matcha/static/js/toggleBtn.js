@@ -1,14 +1,14 @@
-var navbar = document.querySelector(".navbar");
+var navbar = document.querySelector(".nav-bar");
 var toggle = document.querySelector(".toggle");
 if (toggle) {
     document.addEventListener("click", function(e) {
-        if (navbar.classList.contains("navbar-active")) {
+        if (navbar.classList.contains("nav-bar-active")) {
             if (e.target !== navbar && !navbar.contains(e.target) && !toggle.contains(e.target) && toggle !== e.target) {
-                navbar.classList.remove("navbar-active");
+                navbar.classList.remove("nav-bar-active");
             }
         }
     });
     document.querySelector(".toggle").addEventListener("click", function(e) {
-        navbar.classList.toggle("navbar-active");
+        navbar.classList.toggle("nav-bar-active");
     });
 }
