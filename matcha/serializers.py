@@ -13,8 +13,8 @@ from rest_framework.fields import (
 )
 
 from .models import (
-    Tag, User, UserTag, UserPhoto, UsersConnect,
-    UsersFake, UsersBlackList, Notification)
+    Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification
+)
 
 
 def raise_exception(field, text):
@@ -260,7 +260,6 @@ class UserSerializer(CommonSerializer):
     orientation = serializers.CharField(required=False, max_length=32, default=User.UNKNOWN)
     latitude = serializers.FloatField(required=False, default=0.0)
     longitude = serializers.FloatField(required=False, default=0.0)
-    fake_accusations = serializers.IntegerField(required=False, default=0)
     tags = serializers.ListField(required=False, default=[])
     photos = serializers.ListField(required=False, default=[])
 
@@ -296,10 +295,14 @@ class UserReadSerializer(CommonSerializer):
     orientation = serializers.CharField(required=False, max_length=32, default=User.UNKNOWN)
     latitude = serializers.FloatField(required=False, default=0.0)
     longitude = serializers.FloatField(required=False, default=0.0)
-    fake_accusations = serializers.IntegerField(required=False, default=0)
+    fake_accusations = serializers.SerializerMethodField()  # serializers.IntegerField(required=False, default=0)
     rating = serializers.FloatField(required=False, default=0.0)
     tags = serializers.SerializerMethodField()
     photos = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_fake_accusations(instance: User):
+        return len(UsersFake.objects_.filter(user_2_id=instance.id))
 
     @staticmethod
     def get_last_login(instance: User):
@@ -418,8 +421,9 @@ class UserPhotoReadSerializer(CommonSerializer):
 
 class UsersConnectSerializer(CommonSerializer):
     id = serializers.IntegerField(read_only=True)
-    user_1_id = serializers.IntegerField(required=True)
-    user_2_id = serializers.IntegerField(required=True)
+    user_1_id = serializers.IntegerField(required=False)
+    user_2_id = serializers.IntegerField(required=False)
+    type = serializers.CharField(required=False, max_length=32)
     created = serializers.DateTimeField(required=False)
     modified = serializers.DateTimeField(required=False)
 
@@ -436,6 +440,7 @@ class UsersConnectReadSerializer(CommonSerializer):
     id = serializers.IntegerField(read_only=True)
     user_1 = serializers.SerializerMethodField()
     user_2 = serializers.SerializerMethodField()
+    type = serializers.CharField(required=True, max_length=32)
     created = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
     modified = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
 

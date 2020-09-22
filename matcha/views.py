@@ -140,9 +140,11 @@ def liking(id):
     ]
     data = UserReadSerializer(users, many=True).data
     for user in data:
-        user_connects = UsersConnect.objects_.filter(user_1_id=id, user_2_id=user['id'])
-        user['liked_back'] = bool(user_connects)
+        user_connects = UsersConnect.objects_.filter(
+            user_1_id=id, user_2_id=user['id']
+        )
         if user_connects:
+            user['liked_back'] = user_connects[0].type == UsersConnect.PLUS
             user['users_connect_id'] = user_connects[0].id
     return data
 

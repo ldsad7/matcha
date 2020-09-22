@@ -6,8 +6,10 @@ from django.contrib.auth.models import AbstractUser
 from model_utils import Choices
 from django.utils.translation import ugettext_lazy as _
 from .common import get_by_model_and_id, get_thumb
-from .managers import TagManager, UsersConnectManager, UserTagManager, UserPhotoManager, UserManager, UsersFakeManager, \
-    UsersBlackListManager, NotificationManager
+from .managers import (
+    TagManager, UsersConnectManager, UserTagManager, UserPhotoManager, UserManager,
+    UsersFakeManager, UsersBlackListManager, NotificationManager
+)
 
 
 class ManagedModel:
@@ -66,7 +68,6 @@ class User(ManagedModel, AbstractUser, GetById):
     profile_activated = models.BooleanField(_('профиль активирован'), blank=False, null=False, default=False)
     latitude = models.DecimalField(_('широта'), max_digits=8, decimal_places=6, default=0.0)
     longitude = models.DecimalField(_('долгота'), max_digits=9, decimal_places=6, default=0.0)
-    fake_accusations = models.IntegerField(_('количество обвинения в фейковости'), default=0)
 
     objects_ = UserManager()
 
@@ -161,6 +162,12 @@ class UsersConnect(ManagedModel, TimeStampedModel, GetById):
     Connection means that user_1 likes user_2
     """
 
+    PLUS = 'плюс'
+    MINUS = 'минус'
+    TYPES = Choices(
+        (PLUS, "plus"), (MINUS, "minus")
+    )
+    type = models.CharField(_('тип'), max_length=32, choices=TYPES, default=PLUS)
     user_1 = models.ForeignKey(
         User, blank=False, null=False, verbose_name="Пользователь 1", on_delete=models.CASCADE,
         related_name='user_1_set'
