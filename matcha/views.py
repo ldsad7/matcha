@@ -5,7 +5,6 @@ from django.conf import settings
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.contrib.gis.geoip2 import GeoIP2
 
 from .models import (
     Tag, User, UserTag, UserPhoto, UsersConnect,
@@ -92,18 +91,6 @@ def user_detail(request, id):
     if request.method in ['PUT', 'PATCH']:
         user_tags = {user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=request.user.id)}
         new_tags = {tag.strip().strip('#') for tag in request.data.get('tags') if tag.strip().strip('#')}
-
-        # x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        # if x_forwarded_for:
-        #     ip = x_forwarded_for.split(',')[0]
-        # else:
-        #     ip = request.META.get('REMOTE_ADDR')
-        # g = GeoIP2()
-        # ip = '205.186.163.125'
-        # print(g.country(ip))
-        # print(g.city(ip))
-        # print(g.lat_lon(ip))
-
         tag_ids = [obj.id for obj in Tag.objects_.filter(name__in=user_tags - new_tags)]
         for obj in UserTag.objects_.filter(tag_id__in=tag_ids):
             obj.delete()
@@ -276,10 +263,22 @@ def notifications_detail(request, id):
 # Additional functions
 
 
+def exclude(objs, ids):
+    return [obj for obj in objs if obj['id'] not in ids]
+
+
 def index(request):
     template = loader.get_template('index.html')
+    user_id = request.user.id
+    ids = {user_id}
+    ids |= {obj.user_2_id for obj in UsersConnect.objects_.filter(user_1_id=user_id)}
+    ids |= {obj.user_1_id for obj in UsersConnect.objects_.filter(user_2_id=user_id, type=UsersConnect.MINUS)}
+    ids |= {obj.user_2_id for obj in UsersBlackList.objects_.filter(user_1_id=user_id)}
+    ids |= {obj.user_1_id for obj in UsersBlackList.objects_.filter(user_2_id=user_id)}
+    ids |= {obj.user_2_id for obj in UsersFake.objects_.filter(user_1_id=user_id)}
+    ids |= {obj.user_1_id for obj in UsersFake.objects_.filter(user_2_id=user_id)}
     context = {
-        'users': UserReadSerializer(User.objects.all(), many=True).data,
+        'users': exclude(UserReadSerializer(User.objects_.all(), many=True).data, ids),
         'user': request.user
     }
     return HttpResponse(template.render(context, request))

@@ -68,7 +68,8 @@ class User(ManagedModel, AbstractUser, GetById):
     profile_activated = models.BooleanField(_('профиль активирован'), blank=False, null=False, default=False)
     latitude = models.DecimalField(_('широта'), max_digits=8, decimal_places=6, default=0.0)
     longitude = models.DecimalField(_('долгота'), max_digits=9, decimal_places=6, default=0.0)
-
+    country = models.CharField(_('страна'), max_length=64, blank=False, null=True)
+    city = models.CharField(_('город'), max_length=64, blank=False, null=True)
     objects_ = UserManager()
 
     @property

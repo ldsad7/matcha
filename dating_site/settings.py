@@ -188,7 +188,7 @@ CHANNEL_LAYERS = {
 # GeoIP
 ####################################
 
-# GEOIP_PATH = '/goinfre/tsimonis/geoip/'
+GEOIP_PATH = 'geoip/'
 
 ####################################
 # Debug

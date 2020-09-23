@@ -3,6 +3,7 @@ from datetime import datetime
 
 import pytz
 from django.http import Http404
+from django.contrib.gis.geoip2 import GeoIP2
 
 from matcha.models import UsersConnect, Notification, User
 
@@ -25,7 +26,18 @@ class CustomMiddleware:
                 body = json.loads(body)
             except Exception:
                 pass
+
             user_obj = User.objects_.get(id=user_1_id)
+            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+            if x_forwarded_for:
+                ip = x_forwarded_for.split(',')[0]
+            else:
+                ip = request.META.get('REMOTE_ADDR')
+            g = GeoIP2()
+            ip = '205.186.163.125'  # TODO: REPLACE HARDCODE LATER
+            user_obj.country = g.country(ip)['country_name']
+            user_obj.city = g.city(ip)['city']
+            user_obj.latitude, user_obj.longitude = g.lat_lon(ip)
             user_obj.last_login = datetime.now().replace(tzinfo=pytz.UTC)
             user_obj.save()
 

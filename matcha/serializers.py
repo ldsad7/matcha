@@ -260,6 +260,8 @@ class UserSerializer(CommonSerializer):
     orientation = serializers.CharField(required=False, max_length=32, default=User.UNKNOWN)
     latitude = serializers.FloatField(required=False, default=0.0)
     longitude = serializers.FloatField(required=False, default=0.0)
+    country = serializers.CharField(required=False, max_length=64, allow_blank=False, allow_null=True)
+    city = serializers.CharField(required=False, max_length=64, allow_blank=False, allow_null=True)
     tags = serializers.ListField(required=False, default=[])
     photos = serializers.ListField(required=False, default=[])
 
@@ -295,6 +297,8 @@ class UserReadSerializer(CommonSerializer):
     orientation = serializers.CharField(required=False, max_length=32, default=User.UNKNOWN)
     latitude = serializers.FloatField(required=False, default=0.0)
     longitude = serializers.FloatField(required=False, default=0.0)
+    country = serializers.CharField(required=False, max_length=64, allow_blank=False, allow_null=True)
+    city = serializers.CharField(required=False, max_length=64, allow_blank=False, allow_null=True)
     fake_accusations = serializers.SerializerMethodField()  # serializers.IntegerField(required=False, default=0)
     rating = serializers.FloatField(required=False, default=0.0)
     tags = serializers.SerializerMethodField()
