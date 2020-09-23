@@ -1,5 +1,6 @@
 import uuid
 
+import mpu
 import requests
 from django.conf import settings
 from rest_framework import status
@@ -267,19 +268,69 @@ def exclude(objs, ids):
     return [obj for obj in objs if obj['id'] not in ids]
 
 
+def ignore_false_users(objs, user_id):
+    """
+    Removes blocked, faked, already (dis)liked users and himself from a list
+    """
+    ignored_ids = {user_id}
+    ignored_ids |= {obj.user_2_id for obj in UsersConnect.objects_.filter(user_1_id=user_id)}
+    ignored_ids |= {obj.user_1_id for obj in UsersConnect.objects_.filter(user_2_id=user_id, type=UsersConnect.MINUS)}
+    ignored_ids |= {obj.user_2_id for obj in UsersBlackList.objects_.filter(user_1_id=user_id)}
+    ignored_ids |= {obj.user_1_id for obj in UsersBlackList.objects_.filter(user_2_id=user_id)}
+    ignored_ids |= {obj.user_2_id for obj in UsersFake.objects_.filter(user_1_id=user_id)}
+    ignored_ids |= {obj.user_1_id for obj in UsersFake.objects_.filter(user_2_id=user_id)}
+    users = exclude(UserReadSerializer(objs, many=True).data, ignored_ids)
+    return users
+
+
+def ignore_by_orientation_and_gender(users, user):
+    if user.gender != User.UNKNOWN and user.orientation != User.UNKNOWN:
+        if user.orientation == User.HETERO:
+            users = [
+                inner_user for inner_user in users if inner_user['gender'] not in [user.gender, User.UNKNOWN]
+            ]
+        elif user.orientation == User.HOMO:
+            users = [
+                inner_user for inner_user in users if inner_user['gender'] == user.gender
+            ]
+        elif user.orientation == User.BI:
+            users = [
+                inner_user for inner_user in users if inner_user['gender'] != User.UNKNOWN
+            ]
+    return users
+
+
+def order_by_rating(users, user):
+    user_tags = set([user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=user.id)])
+    max_rating = 0.0
+    max_distance = 0.0
+    for inner_user in users:
+        max_rating = max(inner_user['rating'], max_rating)
+        inner_user['distance'] = mpu.haversine_distance(
+            (user.latitude, user.longitude), (inner_user['latitude'], inner_user['longitude'])
+        )
+        max_distance = max(inner_user['distance'], max_distance)
+        inner_user['tag_names'] = set(
+            [user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=inner_user['id'])]
+        )
+    for inner_user in users:
+        inner_user['score'] = \
+            0.33 * inner_user['rating'] / max_rating + \
+            0.33 * len(user_tags & inner_user['tag_names']) / len(user_tags | inner_user['tag_names']) + \
+            0.33 * (1 - inner_user['distance'] / max_distance)
+    return sorted(users, key=lambda elem: -elem['score'])
+
+
 def index(request):
     template = loader.get_template('index.html')
-    user_id = request.user.id
-    ids = {user_id}
-    ids |= {obj.user_2_id for obj in UsersConnect.objects_.filter(user_1_id=user_id)}
-    ids |= {obj.user_1_id for obj in UsersConnect.objects_.filter(user_2_id=user_id, type=UsersConnect.MINUS)}
-    ids |= {obj.user_2_id for obj in UsersBlackList.objects_.filter(user_1_id=user_id)}
-    ids |= {obj.user_1_id for obj in UsersBlackList.objects_.filter(user_2_id=user_id)}
-    ids |= {obj.user_2_id for obj in UsersFake.objects_.filter(user_1_id=user_id)}
-    ids |= {obj.user_1_id for obj in UsersFake.objects_.filter(user_2_id=user_id)}
+    user = User.objects_.get(id=request.user.id)
+    users = User.objects_.all()
+    users = ignore_false_users(users, user.id)
+    users = ignore_by_orientation_and_gender(users, user)
+    users = order_by_rating(users, user)
     context = {
-        'users': exclude(UserReadSerializer(User.objects_.all(), many=True).data, ids),
-        'user': request.user
+        'users': users,
+        'user': user
     }
     return HttpResponse(template.render(context, request))
 
