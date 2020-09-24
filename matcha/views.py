@@ -315,9 +315,9 @@ def order_by_rating(users, user):
         )
     for inner_user in users:
         inner_user['score'] = \
-            0.33 * inner_user['rating'] / max_rating + \
-            0.33 * len(user_tags & inner_user['tag_names']) / len(user_tags | inner_user['tag_names']) + \
-            0.33 * (1 - inner_user['distance'] / max_distance)
+            0.33 * inner_user['rating'] / (max_rating + 0.01) + \
+            0.33 * len(user_tags & inner_user['tag_names']) / (len(user_tags | inner_user['tag_names']) + 0.1) + \
+            0.33 * (1 - inner_user['distance'] / (max_distance + 0.01))
     return sorted(users, key=lambda elem: -elem['score'])
 
 
