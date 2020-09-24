@@ -131,9 +131,19 @@ def liking(id):
         user_connects = UsersConnect.objects_.filter(
             user_1_id=id, user_2_id=user['id']
         )
-        if user_connects:
-            user['liked_back'] = user_connects[0].type == UsersConnect.PLUS
-            user['users_connect_id'] = user_connects[0].id
+        if not user_connects:
+            UsersConnect(
+                user_1_id=id,
+                user_2_id=user['id'],
+                type=UsersConnect.MINUS
+            ).save()
+            user_connects = UsersConnect.objects_.filter(
+                user_1_id=id, user_2_id=user['id']
+            )
+
+        user['liked_back'] = user_connects[0].type == UsersConnect.PLUS
+        user['users_connect_id'] = user_connects[0].id
+
     return data
 
 
