@@ -2,15 +2,16 @@
 <div class="center">
         <script>
             document.addEventListener("click", (e) => {
-                if (!(e.target.id === "btn-report" || e.target.id === "btn-block" || e.target.id === "more-actions-btn")) {
+                if (!(e.target.id.startsWith("btn-report") || e.target.id.startsWith("btn-block") || e.target.id === "more-actions-btn")) {
                     document.querySelectorAll(".buttons").forEach(el => {el.classList.remove("visible")});
                 }
             });
             const focus_actions = (e) => e.target.parentNode.querySelector('.buttons').classList.toggle('visible');
             function check_actions(e, elem) {
                 let targ_id = e.target.id;
-                if (targ_id === 'act-like' || targ_id === 'act-dislike') {
-                    if (targ_id === 'act-like') {
+                console.log(targ_id);
+                if (targ_id.startsWith('act-like-') || targ_id.startsWith('act-dislike-')) {
+                    if (targ_id.startsWith('act-like-')) {
                         elem.classList.add("animate__backOutRight");
                     } else {
                         elem.classList.add("animate__backOutLeft");
@@ -25,8 +26,8 @@
                 <button id="more-actions-btn" onclick="focus_actions(event)"></button>
                 <span id="more-actions-span"></span>
                 <div class="buttons">
-                    <button id="btn-report">report user</button>
-                    <button id="btn-block">block user</button>
+                    <button id="btn-report-{{ forloop.counter0 }}">report user</button>
+                    <button id="btn-block-{{ forloop.counter0 }}">block user</button>
                 </div>
             </div>
             <figure>
@@ -80,8 +81,8 @@
             </section>
             <!-- {% if user.is_authenticated %} -->
             <section id="buttons-card">
-                <button type="button" id="act-dislike" class="btn btn-outline-danger btn-lg"><i id="act-dislike" class="fa fa-thumbs-down"></i></button>
-                <button type="button" id="act-like" class="btn btn-outline-success btn-lg"><i id="act-like" class="fa fa-thumbs-up"></i></button>
+                <button type="button" id="act-dislike-{{ forloop.counter0 }}" class="btn btn-outline-danger btn-lg"><i id="act-dislike" class="fa fa-thumbs-down"></i></button>
+                <button type="button" id="act-like-{{ forloop.counter0 }}" class="btn btn-outline-success btn-lg"><i id="act-like" class="fa fa-thumbs-up"></i></button>
             </section>
             <!-- {% endif %} -->
         </section>

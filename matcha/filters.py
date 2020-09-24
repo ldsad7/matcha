@@ -1,3 +1,4 @@
+import calendar
 from datetime import date
 
 from .models import User, UserTag, Tag
@@ -46,6 +47,10 @@ def filter_tags(queryset, value, model):
     ids = {obj.id for obj in queryset}
     user_ids = ids & set(user_ids)
     return model.objects_.filter(id__in=user_ids)
+
+
+def filter_timestamp(queryset, value):
+    return [obj for obj in queryset if calendar.timegm(obj.created.utctimetuple()) >= value]
 
 
 # class UserFilter(filters.FilterSet):

@@ -5,20 +5,20 @@ from django.conf import settings
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.contrib.gis.geoip2 import GeoIP2
 
 from .models import (
     Tag, User, UserTag, UserPhoto, UsersConnect,
-    UsersFake, UsersBlackList)
+    UsersFake, UsersBlackList, Notification)
 from .serializers import (
     TagSerializer, UserSerializer, UserPhotoSerializer, UserReadSerializer,
     UsersConnectSerializer, UsersConnectReadSerializer, UserTagSerializer, UserTagReadSerializer,
     UserPhotoReadSerializer,
-    UsersFakeSerializer, UsersFakeReadSerializer, UsersBlackListSerializer, UsersBlackListReadSerializer)
-from .filters import filter_age, filter_rating, filter_location, filter_tags
+    UsersFakeSerializer, UsersFakeReadSerializer, UsersBlackListSerializer, UsersBlackListReadSerializer,
+    NotificationSerializer, NotificationReadSerializer)
+from .filters import filter_age, filter_rating, filter_location, filter_tags, filter_timestamp
 
 from django.template import loader
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 
 MINUS = '-'
 
@@ -91,18 +91,6 @@ def user_detail(request, id):
     if request.method in ['PUT', 'PATCH']:
         user_tags = {user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=request.user.id)}
         new_tags = {tag.strip().strip('#') for tag in request.data.get('tags') if tag.strip().strip('#')}
-
-        # x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        # if x_forwarded_for:
-        #     ip = x_forwarded_for.split(',')[0]
-        # else:
-        #     ip = request.META.get('REMOTE_ADDR')
-        # g = GeoIP2()
-        # ip = '205.186.163.125'
-        # print(g.country(ip))
-        # print(g.city(ip))
-        # print(g.lat_lon(ip))
-
         tag_ids = [obj.id for obj in Tag.objects_.filter(name__in=user_tags - new_tags)]
         for obj in UserTag.objects_.filter(tag_id__in=tag_ids):
             obj.delete()
@@ -139,9 +127,11 @@ def liking(id):
     ]
     data = UserReadSerializer(users, many=True).data
     for user in data:
-        user_connects = UsersConnect.objects_.filter(user_1_id=id, user_2_id=user['id'])
-        user['liked_back'] = bool(user_connects)
+        user_connects = UsersConnect.objects_.filter(
+            user_1_id=id, user_2_id=user['id']
+        )
         if user_connects:
+            user['liked_back'] = user_connects[0].type == UsersConnect.PLUS
             user['users_connect_id'] = user_connects[0].id
     return data
 
@@ -246,13 +236,49 @@ def users_blacklists_detail(request, id):
     )
 
 
+@api_view(['GET', 'POST'])
+def notifications_list(request):
+    if request.method == 'GET':
+        objs = Notification.objects_.all()
+        for query_param, value in request.query_params.items():
+            if query_param == 'created':
+                try:
+                    value = int(value)
+                except ValueError:
+                    raise Http404(f"В базе нет notification-а с данным id ({value})")
+                objs = filter_timestamp(objs, value)
+        objs = order_by(objs, '-created')
+        serializer = NotificationReadSerializer(objs, many=True)
+        return Response(serializer.data)
+    return common_list(request, Notification, NotificationSerializer, NotificationReadSerializer)
+
+
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+def notifications_detail(request, id):
+    return common_detail(
+        request, Notification, NotificationSerializer, NotificationReadSerializer, id
+    )
+
+
 # Additional functions
+
+
+def exclude(objs, ids):
+    return [obj for obj in objs if obj['id'] not in ids]
 
 
 def index(request):
     template = loader.get_template('index.html')
+    user_id = request.user.id
+    ids = {user_id}
+    ids |= {obj.user_2_id for obj in UsersConnect.objects_.filter(user_1_id=user_id)}
+    ids |= {obj.user_1_id for obj in UsersConnect.objects_.filter(user_2_id=user_id, type=UsersConnect.MINUS)}
+    ids |= {obj.user_2_id for obj in UsersBlackList.objects_.filter(user_1_id=user_id)}
+    ids |= {obj.user_1_id for obj in UsersBlackList.objects_.filter(user_2_id=user_id)}
+    ids |= {obj.user_2_id for obj in UsersFake.objects_.filter(user_1_id=user_id)}
+    ids |= {obj.user_1_id for obj in UsersFake.objects_.filter(user_2_id=user_id)}
     context = {
-        'users': UserReadSerializer(User.objects.all(), many=True).data,
+        'users': exclude(UserReadSerializer(User.objects_.all(), many=True).data, ids),
         'user': request.user
     }
     return HttpResponse(template.render(context, request))
@@ -270,6 +296,17 @@ def search(request):
 def profile(request):
     template = loader.get_template('profile.html')
     context = UserReadSerializer(request.user).data
+    context['user'] = request.user
+    return HttpResponse(template.render(context, request))
+
+
+def user_profile(request, id):
+    template = loader.get_template('user_profile.html')
+    user = User.objects_.get(id=id)
+    if user is not None:
+        context = UserReadSerializer(user).data
+    else:
+        raise Http404(f"Пользователя с данным id ({id}) не существует в базе")
     context['user'] = request.user
     return HttpResponse(template.render(context, request))
 

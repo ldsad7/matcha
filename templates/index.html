@@ -27,6 +27,81 @@
             console.log("here");
         }
     </script>
+    <script>
+        let user_ids = [];
+        {% for user in users %}
+            user_ids.push({{ user.id }});
+        {% endfor %}
+        const csrftoken = getCookie('csrftoken');
+        for (let i = 0; i < {{ users|length }}; i++) {
+            document.getElementById("act-like-" + i).addEventListener("click", function (e) {
+                if (user_ids[i] !== {{ user.id }}) {
+                    $.ajax({
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        url: "/api/v1/user_connects/",
+                        type: "POST",
+                        data: JSON.stringify({
+                            "user_1_id": {{ user.id }},
+                            "user_2_id": user_ids[i],
+                            "type": 'плюс'
+                        })
+                    });
+                }
+            });
+            document.getElementById("act-dislike-" + i).addEventListener("click", function (e) {
+                if (user_ids[i] !== {{ user.id }}) {
+                    $.ajax({
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        url: "/api/v1/user_connects/",
+                        type: "POST",
+                        data: JSON.stringify({
+                            "user_1_id": {{ user.id }},
+                            "user_2_id": user_ids[i],
+                            "type": 'минус'
+                        })
+                    });
+                }
+            });
+            document.getElementById("btn-report-" + i).addEventListener("click", function (e) {
+                if (user_ids[i] !== {{ user.id }}) {
+                    $.ajax({
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        url: "/api/v1/user_fakes/",
+                        type: "POST",
+                        data: JSON.stringify({
+                            "user_1_id": {{ user.id }},
+                            "user_2_id": user_ids[i]
+                        })
+                    });
+                }
+            });
+            document.getElementById("btn-block-" + i).addEventListener("click", function (e) {
+                if (user_ids[i] !== {{ user.id }}) {
+                    $.ajax({
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        url: "/api/v1/user_blacklists/",
+                        type: "POST",
+                        data: JSON.stringify({
+                            "user_1_id": {{ user.id }},
+                            "user_2_id": user_ids[i]
+                        })
+                    });
+                }
+            });
+        }
+    </script>
 {% endblock %}
 
 </html>

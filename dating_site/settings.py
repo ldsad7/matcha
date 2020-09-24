@@ -17,7 +17,6 @@ LANGUAGE_CODE = 'ru-RU'
 TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_L10N = True
-CONN_MAX_AGE = None
 
 ####################################
 # Application definition
@@ -64,10 +63,10 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'dating_site.middlewares.CustomMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'dating_site.middlewares.CustomMiddleware',
 ]
 
 ROOT_URLCONF = 'dating_site.urls'
@@ -189,7 +188,7 @@ CHANNEL_LAYERS = {
 # GeoIP
 ####################################
 
-# GEOIP_PATH = '/goinfre/tsimonis/geoip/'
+GEOIP_PATH = 'geoip/'
 
 ####################################
 # Debug
