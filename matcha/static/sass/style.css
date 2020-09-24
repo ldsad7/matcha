@@ -772,10 +772,6 @@ a:link {
   .user-profile figure div {
     width: auto;
   }
-  .user-profile figure div img {
-    max-width: 70%;
-    max-height: 350px;
-  }
   .user-profile .img-area {
     display: -webkit-box;
     display: -ms-flexbox;
@@ -1106,6 +1102,7 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
 .user-card-mini {
   min-height: 100px;
   padding-bottom: 25px;
+  padding-left: 10px;
   margin-top: 30px;
   margin-bottom: 0px;
 }
