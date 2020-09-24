@@ -330,8 +330,7 @@ def index(request):
         users = ignore_by_orientation_and_gender(users, user)
         users = order_by_rating(users, user)
     context = {
-        'users': users,
-        'user': request.user
+        'users': users
     }
     return HttpResponse(template.render(context, request))
 
@@ -339,8 +338,7 @@ def index(request):
 def search(request):
     template = loader.get_template('search.html')
     context = {
-        'users': UserReadSerializer(User.objects.all(), many=True).data,
-        'user': request.user
+        'users': UserReadSerializer(User.objects.all(), many=True).data
     }
     return HttpResponse(template.render(context, request))
 
@@ -348,7 +346,6 @@ def search(request):
 def profile(request):
     template = loader.get_template('profile.html')
     context = UserReadSerializer(request.user).data
-    context['user'] = request.user
     return HttpResponse(template.render(context, request))
 
 
@@ -359,15 +356,13 @@ def user_profile(request, id):
         context = UserReadSerializer(user).data
     else:
         raise Http404(f"Пользователя с данным id ({id}) не существует в базе")
-    context['user'] = request.user
     return HttpResponse(template.render(context, request))
 
 
 def connections(request):
     template = loader.get_template('connections.html')
     context = {
-        'users': liking(request.user.id),
-        'user': request.user
+        'users': liking(request.user.id)
     }
     # UserReadSerializer(User.objects.all(), many=True).data,
     return HttpResponse(template.render(context, request))

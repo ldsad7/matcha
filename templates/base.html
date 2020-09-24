@@ -25,7 +25,7 @@
     {% endblock %}
     {% block body_scripts %}
         <script>
-            user_id = {{ user.id }};
+            user_id = {{ global_user.id }};
         </script>
         <script src="{% static 'js/toggleBtn.js' %}"></script>
         <script src="{% static 'js/getNotifications.js' %}"></script>
