@@ -39,7 +39,7 @@ class CustomMiddleware:
             user_obj.country = g.country(ip)['country_name']
             user_obj.city = g.city(ip)['city']
             user_obj.latitude, user_obj.longitude = g.lat_lon(ip)
-            user_obj.last_login = datetime.now().replace(tzinfo=pytz.UTC)
+            user_obj.last_login = datetime.utcnow()
             user_obj.save()
 
             if path.startswith('/api/v1/user_connects/'):

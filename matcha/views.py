@@ -250,7 +250,7 @@ def users_blacklists_detail(request, id):
 @api_view(['GET', 'POST'])
 def notifications_list(request):
     if request.method == 'GET':
-        objs = Notification.objects_.all()
+        objs = Notification.objects_.filter(user_2_id=request.user.id)
         for query_param, value in request.query_params.items():
             if query_param == 'created':
                 try:
