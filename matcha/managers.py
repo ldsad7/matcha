@@ -3,7 +3,6 @@ import datetime
 from django.db import connection
 from django.db.models.fields.related import ForeignKey
 
-CURSOR = connection.cursor()
 NL = '\n'
 ISO_SEP = ' '
 MODIFIED = 'modified'
@@ -72,7 +71,8 @@ class CommonManager:
                     WHERE id={c.id};
                 """
         print(f'delete query: {query}')
-        CURSOR.execute(query)
+        with connection.cursor() as cursor:
+            cursor.execute(query)
 
     def all(self):
         query = f"""
@@ -80,13 +80,14 @@ class CommonManager:
                     FROM {self.db_table};
                 """
         print(f'all query: {query}')
-        CURSOR.execute(query)
-        objects = []
-        for row in CURSOR.fetchall():
-            c = self.model()
-            for key, value in zip(self.fields, row):
-                setattr(c, key, value)
-            objects.append(c)
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            objects = []
+            for row in cursor.fetchall():
+                c = self.model()
+                for key, value in zip(self.fields, row):
+                    setattr(c, key, value)
+                objects.append(c)
         return objects
 
     def get(self, *, id):
@@ -96,13 +97,14 @@ class CommonManager:
                     WHERE id={id};
                 """
         print(f'get query: {query}')
-        CURSOR.execute(query)
-        objects = []
-        for row in CURSOR.fetchall():
-            c = self.model()
-            for key, value in zip(self.fields, row):
-                setattr(c, key, value)
-            objects.append(c)
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            objects = []
+            for row in cursor.fetchall():
+                c = self.model()
+                for key, value in zip(self.fields, row):
+                    setattr(c, key, value)
+                objects.append(c)
         return None if not objects else objects[0]
 
     def update(self, c):
@@ -115,7 +117,8 @@ class CommonManager:
                     WHERE id={c.id};
                 """
         print(f'update query: {query}')
-        CURSOR.execute(query)
+        with connection.cursor() as cursor:
+            cursor.execute(query)
 
     def insert(self, c):
         query = f"""
@@ -124,8 +127,9 @@ class CommonManager:
                     VALUES ({','.join(self.field_values(c, self.fields_without_id))});
                 """
         print(f'insert query: {query}')
-        CURSOR.execute(query)
-        setattr(c, 'id', CURSOR.lastrowid)
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            setattr(c, 'id', cursor.lastrowid)
         c.save()
 
     def filter(self, *args, **kwargs):
@@ -157,20 +161,21 @@ class CommonManager:
                 where_condition = f"{key}='{value}'"
             if where_condition:
                 where_conditions.append(where_condition)
-        if where_conditions:
-            query = f"""
-                SELECT {','.join(self.fields)}
-                FROM {self.db_table}
-                WHERE {' AND '.join(where_conditions)}
-            """
-            print(f'filter query: {query}')
-            CURSOR.execute(query)
-        objects = []
-        for row in CURSOR.fetchall():
-            c = self.model()
-            for key, value in zip(self.fields, row):
-                setattr(c, key, value)
-            objects.append(c)
+        with connection.cursor() as cursor:
+            if where_conditions:
+                query = f"""
+                    SELECT {','.join(self.fields)}
+                    FROM {self.db_table}
+                    WHERE {' AND '.join(where_conditions)}
+                """
+                print(f'filter query: {query}')
+                cursor.execute(query)
+            objects = []
+            for row in cursor.fetchall():
+                c = self.model()
+                for key, value in zip(self.fields, row):
+                    setattr(c, key, value)
+                objects.append(c)
         return objects
 
 
