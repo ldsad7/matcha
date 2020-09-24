@@ -311,7 +311,7 @@ class UserReadSerializer(CommonSerializer):
     @staticmethod
     def get_last_login(instance: User):
         if instance.last_login:
-            if datetime.now().replace(tzinfo=pytz.UTC) - timedelta(minutes=5) < \
+            if datetime.utcnow().replace(tzinfo=pytz.UTC) - timedelta(minutes=5) < \
                     instance.last_login.replace(tzinfo=pytz.UTC):
                 return 'online'
             else:
