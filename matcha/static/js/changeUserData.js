@@ -80,7 +80,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
             "contentType": false,
             "data": data
         };
-        // $.ajax(settings);
+        $.ajax(settings);
 
         hist.submit();
         tags.submit();
