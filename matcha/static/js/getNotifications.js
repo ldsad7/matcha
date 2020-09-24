@@ -1,5 +1,3 @@
-const datalist = document.getElementById("locat");
-
 notif_data = [];
 
 function clearNotifList() {
