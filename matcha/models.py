@@ -66,8 +66,8 @@ class User(ManagedModel, AbstractUser, GetById):
     info = models.CharField(_('краткое описание'), max_length=4096, blank=True, null=False)
     location = models.CharField(_('местоположение'), max_length=512, blank=True, null=False)
     profile_activated = models.BooleanField(_('профиль активирован'), blank=False, null=False, default=False)
-    latitude = models.DecimalField(_('широта'), max_digits=8, decimal_places=6, default=0.0)
-    longitude = models.DecimalField(_('долгота'), max_digits=9, decimal_places=6, default=0.0)
+    latitude = models.FloatField(_('широта'), default=0.0)
+    longitude = models.FloatField(_('долгота'), default=0.0)
     country = models.CharField(_('страна'), max_length=64, blank=False, null=True)
     city = models.CharField(_('город'), max_length=64, blank=False, null=True)
     objects_ = UserManager()
@@ -80,10 +80,18 @@ class User(ManagedModel, AbstractUser, GetById):
 
     @property
     def rating(self):
-        """
-        TODO: write this function
-        """
-        return 1.
+        rating = \
+            len(UsersConnect.objects_.filter(user_2_id=self.id, type=UsersConnect.PLUS)) - \
+            len(UsersConnect.objects_.filter(user_2_id=self.id, type=UsersConnect.MINUS)) - \
+            len(UsersBlackList.objects_.filter(user_2_id=self.id)) - \
+            len(UsersFake.objects_.filter(user_2_id=self.id)) + \
+            10 * int(self.profile_activated) + \
+            5 * (len(UserPhoto.objects_.filter(user_id=self.id)) > 3) + \
+            5 * (len(UserTag.objects_.filter(user_id=self.id)) > 3) + \
+            len(UsersConnect.objects_.filter(user_1_id=self.id))
+        if rating < 0:
+            return 0.0
+        return rating
 
     def save(self, *args, **kwargs):
         was_empty_field = False
