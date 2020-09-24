@@ -323,14 +323,15 @@ def order_by_rating(users, user):
 
 def index(request):
     template = loader.get_template('index.html')
-    user = User.objects_.get(id=request.user.id)
     users = User.objects_.all()
-    users = ignore_false_users(users, user.id)
-    users = ignore_by_orientation_and_gender(users, user)
-    users = order_by_rating(users, user)
+    if request.user.id is not None:
+        user = User.objects_.get(id=request.user.id)
+        users = ignore_false_users(users, user.id)
+        users = ignore_by_orientation_and_gender(users, user)
+        users = order_by_rating(users, user)
     context = {
         'users': users,
-        'user': user
+        'user': request.user
     }
     return HttpResponse(template.render(context, request))
 
