@@ -33,6 +33,7 @@ class CustomMiddleware:
                 ip = x_forwarded_for.split(',')[0]
             else:
                 ip = request.META.get('REMOTE_ADDR')
+            print(f'ip: {ip}')
             g = GeoIP2()
             ip = '205.186.163.125'  # TODO: REPLACE HARDCODE LATER
             user_obj.country = g.country(ip)['country_name']

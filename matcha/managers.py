@@ -162,6 +162,7 @@ class CommonManager:
             if where_condition:
                 where_conditions.append(where_condition)
         with connection.cursor() as cursor:
+            objects = []
             if where_conditions:
                 query = f"""
                     SELECT {','.join(self.fields)}
@@ -170,12 +171,11 @@ class CommonManager:
                 """
                 print(f'filter query: {query}')
                 cursor.execute(query)
-            objects = []
-            for row in cursor.fetchall():
-                c = self.model()
-                for key, value in zip(self.fields, row):
-                    setattr(c, key, value)
-                objects.append(c)
+                for row in cursor.fetchall():
+                    c = self.model()
+                    for key, value in zip(self.fields, row):
+                        setattr(c, key, value)
+                    objects.append(c)
         return objects
 
 
