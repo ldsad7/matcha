@@ -69,7 +69,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         data.append("user_id", user_id.toString());
         let settings = {
             "url": "/api/v1/user_photos/",
-            "method": "DELETE",
+            "method": "POST",
             "timeout": 0,
             "headers": {
                 // "Content-Type" : 'multipart/form-data',
