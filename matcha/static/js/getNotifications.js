@@ -28,7 +28,7 @@ function changeNotifList() {
 function getNotifications(e) {
     setInterval(() => {
         changeNotifList();
-    }, 2000);
+    }, 10000);
 }
 
 getNotifications();
