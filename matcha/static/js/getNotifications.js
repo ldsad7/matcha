@@ -6,22 +6,21 @@ function clearNotifList() {
     });
 }
 
+const appendNotif = (text) => {
+    const newNotif = document.createElement("a");
+    newNotif.setAttribute("href", "#");
+    newNotif.innerHTML = `<span class='notif_elem'>${text}</span>`
+    newNotif.addEventListener("mouseenter", function(e) {setTimeout(() => this.remove(), 5000)});
+    document.getElementById("notif_list").appendChild(newNotif);
+}
+
 function changeNotifList() {
-    SendRequest("get", "/api/v1/notifications", "&created=" + (Math.floor(+new Date() / 1000) - 10), function(e) {
+    SendRequest("get", "/api/v1/notifications", "created=" + (Math.floor(+new Date() / 1000) - 10), function(e) {
         const result = JSON.parse(e.response);
-        console.log(result);
-        // if (result != notif_data)
-        // {
-        //     clearNotifList();
-        //     if (result["result"]["locations"]) {
-        //         result["result"]["locations"].forEach(obj => {
-        //             const name = obj["names"]["1"];
-        //             const newEl = document.createElement("option");
-        //             newEl.setAttribute("value", name);
-        //             datalist.appendChild(newEl);
-        //         });
-        //     }
-        // }
+        result.forEach(el => {
+            const { type } = el;
+            appendNotif(type);
+        });
     });
 }
 
