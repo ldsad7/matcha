@@ -1,7 +1,7 @@
-import calendar
 from datetime import date
+import pytz
 
-from .models import User, UserTag, Tag
+from .models import UserTag, Tag
 from .exceptions import IncorrectArgument
 
 
@@ -50,7 +50,9 @@ def filter_tags(queryset, value, model):
 
 
 def filter_timestamp(queryset, value):
-    return [obj for obj in queryset if calendar.timegm(obj.created.utctimetuple()) >= value]
+    return [
+        obj for obj in queryset if obj.created.replace(tzinfo=pytz.UTC).timestamp() >= value
+    ]
 
 
 # class UserFilter(filters.FilterSet):
