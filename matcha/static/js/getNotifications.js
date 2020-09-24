@@ -7,7 +7,7 @@ function clearNotifList() {
 }
 
 function changeNotifList() {
-    SendRequest("get", "/api/v1/notifications", "&created=" + +new Date(), function(e) {
+    SendRequest("get", "/api/v1/notifications", "&created=" + (+new Date() - 10), function(e) {
         const result = JSON.parse(e.response);
         console.log(result);
         // if (result != notif_data)
