@@ -298,17 +298,16 @@ a:link
         position: relative
         font-size: 14px
         color: #c4c2c2
-        &::before
-            content: " "
+        span:nth-child(1)
             border-radius: 50%
-            position: absolute
+            display: inline-block
             background-color: green
             width: 8px
             height: 8px
+            margin-right: 5px
             top: 6px
-            left: calc(50% - 30px)
-    #connection.red::before
-        background-color: red
+            &.red
+                background-color: red
         
     .buttons
         div

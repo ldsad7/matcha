@@ -43,7 +43,7 @@
                 <div class="not-here-pls" id="del-avatar" style="display: none;">
                     <span class="not-here-pls">&#10008;</span>
                 </div>
-                <div id="connection" class="{% if user.last_login != 'online' %}red{% endif %}">{{ user.last_login }}</div>
+                <div id="connection"><span class="{% if user.last_login != 'online' %}red{% endif %}"></span><span class="connect-date">{% if user.last_login == 'offline' %}{{ user.last_login }}{% else %}{{ user.last_login|date:'mdY h:m:s' }}{% endif %}</span></div>
             </figure>
             <section class="user-data">
                 <div id="username"><span>{{ user.username }}</span></div>
