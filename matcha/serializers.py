@@ -574,11 +574,11 @@ class NotificationReadSerializer(CommonSerializer):
 
     @staticmethod
     def get_user_1(instance: Notification):
-        return UserReadSerializer(instance.user_1).data
+        return instance.user_1.id
 
     @staticmethod
     def get_user_2(instance: Notification):
-        return UserReadSerializer(instance.user_2).data
+        return instance.user_2.id
 
     @property
     def model(self):

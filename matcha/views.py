@@ -155,10 +155,8 @@ def user_liking(request, id):
 @api_view(['PATCH'])
 def read_notifications(request):
     ids = request.data.get('ids')
-    print(f'ids: {ids}')
     if ids is not None:
         notifications = Notification.objects_.filter(id__in=ids.split(','), user_2_id=request.user.id)
-        print(f'notifications: {notifications}')
         for notification in notifications:
             notification.was_read = True
             notification.save()
