@@ -8,14 +8,14 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import (
-    Tag, User, UserTag, UserPhoto, UsersConnect,
-    UsersFake, UsersBlackList, Notification)
+    Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification
+)
 from .serializers import (
-    TagSerializer, UserSerializer, UserPhotoSerializer, UserReadSerializer,
-    UsersConnectSerializer, UsersConnectReadSerializer, UserTagSerializer, UserTagReadSerializer,
-    UserPhotoReadSerializer,
+    TagSerializer, UserSerializer, UserPhotoSerializer, UserReadSerializer, UsersConnectSerializer,
+    UsersConnectReadSerializer, UserTagSerializer, UserTagReadSerializer, UserPhotoReadSerializer,
     UsersFakeSerializer, UsersFakeReadSerializer, UsersBlackListSerializer, UsersBlackListReadSerializer,
-    NotificationSerializer, NotificationReadSerializer)
+    NotificationSerializer, NotificationReadSerializer
+)
 from .filters import filter_age, filter_rating, filter_location, filter_tags, filter_timestamp
 
 from django.template import loader
@@ -152,6 +152,20 @@ def user_liking(request, id):
     return Response(liking(id))
 
 
+@api_view(['PATCH'])
+def read_notifications(request):
+    ids = request.data.get('ids')
+    print(f'ids: {ids}')
+    if ids is not None:
+        notifications = Notification.objects_.filter(id__in=ids.split(','), user_2_id=request.user.id)
+        print(f'notifications: {notifications}')
+        for notification in notifications:
+            notification.was_read = True
+            notification.save()
+        return Response({'result': 'OK'})
+    return Response({'result': 'FAIL'})
+
+
 def liked(id):
     """
     returns those users whom current user likes
@@ -250,7 +264,7 @@ def users_blacklists_detail(request, id):
 @api_view(['GET', 'POST'])
 def notifications_list(request):
     if request.method == 'GET':
-        objs = Notification.objects_.filter(user_2_id=request.user.id)
+        objs = Notification.objects_.filter(user_2_id=request.user.id, was_read=0)
         for query_param, value in request.query_params.items():
             if query_param == 'created':
                 try:

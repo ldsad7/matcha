@@ -550,6 +550,7 @@ class NotificationSerializer(CommonSerializer):
     type = serializers.CharField(required=True, max_length=32)
     user_1_id = serializers.IntegerField(required=True)
     user_2_id = serializers.IntegerField(required=True)
+    was_read = serializers.BooleanField(required=False, default=False)
     created = serializers.DateTimeField(required=False)
     modified = serializers.DateTimeField(required=False)
 
@@ -567,6 +568,7 @@ class NotificationReadSerializer(CommonSerializer):
     type = serializers.CharField(required=True, max_length=32)
     user_1 = serializers.SerializerMethodField()
     user_2 = serializers.SerializerMethodField()
+    was_read = serializers.BooleanField(required=False, default=False)
     created = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
     modified = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
 
