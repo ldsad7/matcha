@@ -28,6 +28,20 @@
         }
     </script>
     <script>
+        document.querySelectorAll(".user-profile-short").forEach(el => {
+            connect = el.querySelector("#connection .connect-date");
+            _date = connect.textContent;
+            if (_date === "online" || _date === "offline") {
+
+            } else {
+                _date = moment(_date, "MMDDYYYY hh:mm:ss").fromNow();
+                _date = _date === "Invalid date" ? "offline" : _date;
+                connect.textContent = _date;
+            }
+        });
+    </script>
+    {% if global_user.id %}
+    <script>
         let user_ids = [];
         {% for user in users %}
             user_ids.push({{ user.id }});
@@ -102,6 +116,7 @@
             });
         }
     </script>
+    {% endif %}
 {% endblock %}
 
 </html>
