@@ -261,6 +261,7 @@ class Notification(ManagedModel, TimeStampedModel, GetById):
         User, blank=False, null=False, verbose_name="Пользователь 2", on_delete=models.CASCADE,
         related_name='user_notification_2_set'
     )
+    was_read = models.BooleanField(_('оповещение прочитано'), blank=False, null=False, default=False)
 
     objects_ = NotificationManager()
 

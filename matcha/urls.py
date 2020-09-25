@@ -28,6 +28,7 @@ urlpatterns = [
     path('user_tags/', views.user_tags_list, name='user_tags'),
     path('user_tags/<int:id>/', views.user_tags_detail, name='user_tags'),
     path('notifications/', views.notifications_list, name='notifications'),
+    path('notifications/read/', views.read_notifications, name='notifications'),
     path('notifications/<int:id>/', views.notifications_detail, name='notifications'),
     path('user_photos/', views.user_photos_list, name='user_photos'),
     path('user_photos/<int:id>/', views.user_photos_detail, name='user_photos'),
