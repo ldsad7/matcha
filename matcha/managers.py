@@ -233,3 +233,10 @@ class NotificationManager(CommonManager):
     def model(self):
         from .models import Notification
         return Notification
+
+
+class MessageManager(CommonManager):
+    @property
+    def model(self):
+        from .models import Message
+        return Message

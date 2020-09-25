@@ -8,13 +8,13 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import (
-    Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification
+    Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification, Message
 )
 from .serializers import (
     TagSerializer, UserSerializer, UserPhotoSerializer, UserReadSerializer, UsersConnectSerializer,
     UsersConnectReadSerializer, UserTagSerializer, UserTagReadSerializer, UserPhotoReadSerializer,
     UsersFakeSerializer, UsersFakeReadSerializer, UsersBlackListSerializer, UsersBlackListReadSerializer,
-    NotificationSerializer, NotificationReadSerializer
+    NotificationSerializer, NotificationReadSerializer, MessageSerializer, MessageReadSerializer
 )
 from .filters import filter_age, filter_rating, filter_location, filter_tags, filter_timestamp
 
@@ -283,7 +283,19 @@ def notifications_detail(request, id):
     )
 
 
+@api_view(['GET', 'POST'])
+def messages_list(request):
+    return common_list(request, Message, MessageSerializer, MessageReadSerializer)
+
+
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+def messages_detail(request, id):
+    return common_detail(request, Message, MessageSerializer, MessageReadSerializer, id)
+
+
+####################################
 # Additional functions
+####################################
 
 
 def exclude(objs, ids):
