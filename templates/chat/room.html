@@ -20,11 +20,14 @@
             color: #a1a1a1;
             font-size: 8px;
         }
+        p {
+            margin-bottom: 0;
+        }
     </style>
     <section style="display: flex; justify-content: center;">
         <div>
             <!-- <textarea style="padding: 10px;" id="chat-log" cols="100" rows="20"></textarea><br> -->
-            <section id="messages" style="display: flex; flex-direction: column; min-width: 500px;">
+            <section id="messages" style="display: flex; flex-direction: column; min-width: 500px; height: calc(100% - 130px); margin-bottom: 100px;">
                 <div class="message">
                     <p class="data-message"></p>
                 </div>
@@ -32,8 +35,6 @@
             <section class="messageInput" style="position: fixed; bottom: 0px; left: 10%;">
                 <input style="margin-top: 5px;" id="chat-message-input" type="text" size="100"><br>
                 <input style="margin-top: 5px;" id="chat-message-submit" type="button" value="Send">
-                <input type="checkbox" id="toggleBlock" onclick="toggleBlock()">
-                <p style="display: inline-block;">change site</p>
             </section>
         </div>
     </section>
@@ -97,6 +98,7 @@
                     messagesArea.appendChild(newBlockMessage);
                 }
             }
+            window.scrollTo(0,document.body.scrollHeight);
         };
 
         chatSocket.onclose = function(e) {
