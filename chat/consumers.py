@@ -9,15 +9,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
 
-        first_username, second_username = self.room_name.split('_')
+        first_user_id, second_user_id = self.room_name.split('_')
         try:
-            user_1 = User.objects_.filter(username=first_username)[0]
+            user_1 = User.objects_.get(id=first_user_id)
         except Exception:
-            raise Http404(f"Пользователя с данным username ({first_username}) не существует в базе")
+            raise Http404(f"Пользователя с данным id ({first_user_id}) не существует в базе")
         try:
-            user_2 = User.objects_.filter(username=second_username)[0]
+            user_2 = User.objects_.get(id=second_user_id)
         except Exception:
-            raise Http404(f"Пользователя с данным username ({second_username}) не существует в базе")
+            raise Http404(f"Пользователя с данным id ({second_user_id}) не существует в базе")
         if user_1.username < user_2.username:
             self.user_1_id, self.user_2_id = user_1.id, user_2.id
             self.type = Message.TO_1_2
