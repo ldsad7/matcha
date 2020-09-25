@@ -24,17 +24,22 @@
             margin-bottom: 0;
         }
     </style>
-    <section style="display: flex; justify-content: center;">
-        <div>
-            <!-- <textarea style="padding: 10px;" id="chat-log" cols="100" rows="20"></textarea><br> -->
-            <section id="messages" style="display: flex; flex-direction: column; min-width: 500px; height: calc(100% - 130px); margin-bottom: 100px;">
+    <section id="chat-room">
+        <div style="width: 100%; display: flex; justify-content: center;">
+            <section id="messages">
                 <div class="message">
                     <p class="data-message"></p>
                 </div>
             </section>
-            <section class="messageInput" style="position: fixed; bottom: 0px; left: 10%;">
-                <input style="margin-top: 5px;" id="chat-message-input" type="text" size="100"><br>
-                <input style="margin-top: 5px;" id="chat-message-submit" type="button" value="Send">
+            <section class="messageInput">
+                <div style="width: 100%; display: flex; align-items: center; justify-content: center;">
+                    <label for="inp" class="inp">
+                        <input type="text" id="chat-message-input" placeholder="&nbsp;">
+                        <span class="label">input here</span>
+                        <span class="focus-bg"></span>
+                      </label>
+                    <input id="chat-message-submit" type="button" value="Send">
+                </div>
             </section>
         </div>
     </section>
@@ -70,6 +75,8 @@
 
         chatSocket.onmessage = function(e) {
             const { message } = JSON.parse(e.data);
+            if (!message)
+                return;
             const messagesArea = document.getElementById("messages");
             let newMessage = document.createElement("p");
             const blocksMessages = document.querySelectorAll(".block-message");
