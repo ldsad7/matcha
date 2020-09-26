@@ -9,7 +9,7 @@ $block-bg: #1d1d1d
 
 *
     margin: 0
-    padding: 0
+    padding: 0 
     font-family: 'Roboto', sans-serif
 
 .mt-20
@@ -59,9 +59,8 @@ a:link
             display: flex
             .notif_elem
                 opacity: 1
-        &::after
+        span
             position: absolute
-            content: ""
             z-index: 2
             top: 10px
             left: 15px
@@ -952,8 +951,26 @@ section#chat-room
             margin-left: 4px
             &:hover
                 box-shadow: inset 0 -10px 0 $primary
-                
-    
+
+#chats-area
+    .card-chat
+        padding: 5px
+        background: rgba(0, 0, 0, .3)
+        width: 100%
+        display: flex
+        font-size: larger
+        .avatar
+            border-radius: 50%
+            width: 40px
+            height: 40px
+        &-info
+            margin-left: 10px
+            width: 80%
+            display: flex
+            align-items: center
+            justify-content: space-between
+
+
 @media screen and ( max-width: 780px )
     section#chat-room
         section#messages
