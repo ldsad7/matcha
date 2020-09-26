@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 import pytz
 from django.conf import settings
 from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor
-from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, ErrorDetail
 from rest_framework.fields import (
@@ -13,7 +12,7 @@ from rest_framework.fields import (
 )
 
 from .models import (
-    Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification
+    Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification, Message
 )
 
 
@@ -100,7 +99,7 @@ class CommonSerializer(serializers.Serializer):
             if field in data:
                 value = data[field]
                 if field == 'username':
-                    diff = set(value) - set(string.digits + string.ascii_letters + '@.+-_')
+                    diff = set(value) - set(string.digits + string.ascii_letters + '@.+-')
                     if diff:
                         raise_exception(field, f'Это поле содержит недопустимые символы: {", ".join(diff)}')
                 if field in unique_together:
@@ -587,3 +586,53 @@ class NotificationReadSerializer(CommonSerializer):
     @property
     def main_model(self):
         return Notification
+
+
+class MessageSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    type = serializers.CharField(required=True, max_length=32)
+    user_1_id = serializers.IntegerField(required=True)
+    user_2_id = serializers.IntegerField(required=True)
+    message = serializers.CharField(required=True, max_length=256)
+    created = serializers.DateTimeField(required=False)
+    modified = serializers.DateTimeField(required=False)
+
+    @property
+    def model(self):
+        return MessageSerializer
+
+    @property
+    def main_model(self):
+        return Message
+
+
+class MessageReadSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    type = serializers.CharField(required=True, max_length=32)
+    user_1 = serializers.SerializerMethodField()
+    user_2 = serializers.SerializerMethodField()
+    message = serializers.CharField(required=True, max_length=256)
+    created = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+    modified = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+
+    @staticmethod
+    def get_user_1(instance: Message):
+        return {
+            'id': instance.user_1.id,
+            'username': instance.user_1.username
+        }
+
+    @staticmethod
+    def get_user_2(instance: Message):
+        return {
+            'id': instance.user_2.id,
+            'username': instance.user_2.username
+        }
+
+    @property
+    def model(self):
+        return MessageReadSerializer
+
+    @property
+    def main_model(self):
+        return Message

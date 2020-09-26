@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from .common import get_by_model_and_id, get_thumb
 from .managers import (
     TagManager, UsersConnectManager, UserTagManager, UserPhotoManager, UserManager,
-    UsersFakeManager, UsersBlackListManager, NotificationManager
+    UsersFakeManager, UsersBlackListManager, NotificationManager, MessageManager
 )
 
 
@@ -268,3 +268,29 @@ class Notification(ManagedModel, TimeStampedModel, GetById):
     class Meta:
         verbose_name = "Notification-коннект пользователей"
         verbose_name_plural = "Notification-коннекты пользователей"
+
+
+class Message(ManagedModel, TimeStampedModel, GetById):
+    """
+    user_1's username << user_2's username
+    """
+
+    TO_1_2 = '1 -> 2'
+    TO_2_1 = '2 -> 1'
+    TYPES = Choices((TO_1_2, '1 -> 2'), (TO_2_1, '2 -> 1'))
+    type = models.CharField(_('тип'), max_length=32, choices=TYPES)
+    user_1 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 1", on_delete=models.CASCADE,
+        related_name='user_message_1_set'
+    )
+    user_2 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 2", on_delete=models.CASCADE,
+        related_name='user_message_2_set'
+    )
+    message = models.CharField(_('сообщение'), max_length=256, blank=False, null=False)
+
+    objects_ = MessageManager()
+
+    class Meta:
+        verbose_name = "Message-коннект пользователей"
+        verbose_name_plural = "Message-коннекты пользователей"

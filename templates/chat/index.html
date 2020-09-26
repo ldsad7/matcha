@@ -17,7 +17,7 @@
     <script>
         {% for user in users %}
             document.getElementById("room-name-{{ forloop.counter0 }}").addEventListener("click", function (e) {
-                let roomName = ["{{ global_user.username }}", "{{ user.username }}"].sort().join('_');
+                let roomName = ["{{ global_user.id }}", "{{ user.id }}"].sort().join('_');
                 window.location.pathname = '/chat/' + roomName + '/';
             });
         {% endfor %}

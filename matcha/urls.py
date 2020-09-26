@@ -32,6 +32,8 @@ urlpatterns = [
     path('notifications/<int:id>/', views.notifications_detail, name='notifications'),
     path('user_photos/', views.user_photos_list, name='user_photos'),
     path('user_photos/<int:id>/', views.user_photos_detail, name='user_photos'),
+    path('messages/', views.messages_list, name='messages'),
+    path('messages/<int:id>/', views.messages_detail, name='messages'),
 
     path('location/', views.get_locations, name='location'),
 ]
