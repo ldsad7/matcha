@@ -1,25 +1,47 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block title %}Чаты{% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <div style="display: flex; justify-content: center; flex-direction: column;">
-        <div style="display: flex; justify-content: center; margin-top: 15px;">
-            {% for user in users %}
-                <button id="room-name-{{ forloop.counter0 }}" style="padding:10px;">{{ user.username }}</button>
-            {% endfor %}
-        </div>
+    <div class="center">
+        <div style="display: flex; width: 80%; justify-content: center; flex-direction: column;">
+            <div id="chats-area" style="display: flex; flex-direction: column; justify-content: center; margin-top: 15px;">
+                {% for user in users %}
+                <a id="room-name-{{ forloop.counter0 }}" class="card-chat">
+                    {% if user.photos %}
+                    <img src="{{ user.photos.0.image }}" class="avatar"  alt="default profile picture">
+                    {% else %}
+                    <img src="{% static 'img/default.png' %}" class="avatar" alt="default profile picture">
+                    {% endif %}
+                    <div class="card-chat-info">
+                        <div class="card-chat-user">
+                            {{ user.username }}
+                        </div>
+                        <span class="unread-counter">{{ forloop.counter0 }}</div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
     </div>
 {% endblock %}
 
 {% block body_scripts %}
     <script>
         {% for user in users %}
-            document.getElementById("room-name-{{ forloop.counter0 }}").addEventListener("click", function (e) {
-                let roomName = ["{{ global_user.id }}", "{{ user.id }}"].sort().join('_');
-                window.location.pathname = '/chat/' + roomName + '/';
-            });
+            document.getElementById("room-name-{{ forloop.counter0 }}").setAttribute("href", ["{{ global_user.id }}", "{{ user.id }}"].sort().join('_'));
         {% endfor %}
+        // sort chats
+        // const sort_by_unread = (a, b) => {
+        //     return ~~a.querySelector(".unread-counter").textContent > ~~b.querySelector(".unread-counter").textContent;
+        // }
+        // var list = [...document.querySelectorAll(".card-chat")];
+        // list.sort(sort_by_unread);
+        // for (let i = 0, len = list.length; i < len; i++) {
+        //     list[i].parentNode.appendChild(list[i]);
+        // }
     </script>
 {% endblock %}
