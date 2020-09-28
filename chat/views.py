@@ -25,12 +25,12 @@ def room(request, room_name):
     ), key=lambda elem: elem.created)
     if request.user.id == first_user_id:
         try:
-            interlocutor = User.objects_.get(id=second_user_id).username
+            interlocutor = UserReadSerializer(User.objects_.get(id=second_user_id)).data
         except Exception:
             raise Http404(f"Пользователя с данным id ({second_user_id}) не существует в базе")
     elif request.user.id == second_user_id:
         try:
-            interlocutor = User.objects_.get(id=first_user_id).username
+            interlocutor = UserReadSerializer(User.objects_.get(id=first_user_id)).data
         except Exception:
             raise Http404(f"Пользователя с данным id ({first_user_id}) не существует в базе")
     else:

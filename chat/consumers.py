@@ -5,6 +5,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from django.http import Http404
 
 from matcha.models import User, Message, Notification
+from matcha.serializers import MessageReadSerializer
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -58,16 +59,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             type_ = Message.TO_2_1
             user_1_id, user_2_id = self.user_2_id, self.user_1_id
             sender_id = self.user_2_id
-        # Send message to room group
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': message,
-                'sender_id': sender_id
-            }
-        )
-        Message(
+        message_obj = Message(
             user_1_id=self.user_1_id,
             user_2_id=self.user_2_id,
             message=message,
@@ -81,6 +73,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 type=Notification.MESSAGE
             ).save()
             self.last_message = curr_datetime
+        # Send message to room group
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'message': message,
+                'sender_id': sender_id,
+                'message_obj': MessageReadSerializer(message_obj).data
+            }
+        )
 
     async def chat_message(self, event):
         """

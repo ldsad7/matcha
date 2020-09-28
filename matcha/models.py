@@ -15,9 +15,9 @@ from .managers import (
 class ManagedModel:
     def save(self, **kwargs):
         if self.id is not None:
-            self.objects_.update(self)
+            return self.objects_.update(self)
         else:
-            self.objects_.insert(self)
+            return self.objects_.insert(self)
 
     def delete(self, **kwargs):
         self.objects_.delete(self)
