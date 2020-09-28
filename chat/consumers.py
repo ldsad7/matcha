@@ -25,7 +25,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_group_name = 'chat_%s' % self.room_name
 
         self.last_message = datetime.utcnow() - timedelta(minutes=5)
-        self.type = Message.TO_1_2
 
         # Join room group
         await self.channel_layer.group_add(
@@ -54,16 +53,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if text_data_json['global_user_id'] == self.user_1_id:
             type_ = Message.TO_1_2
             user_1_id, user_2_id = self.user_1_id, self.user_2_id
+            sender_id = self.user_1_id
         else:
             type_ = Message.TO_2_1
             user_1_id, user_2_id = self.user_2_id, self.user_1_id
-        self.type = type_
+            sender_id = self.user_2_id
         # Send message to room group
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type': 'chat_message',
-                'message': message
+                'message': message,
+                'sender_id': sender_id
             }
         )
         Message(
@@ -81,16 +82,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
             ).save()
             self.last_message = curr_datetime
 
-    # Receive message from room group
     async def chat_message(self, event):
+        """
+        Receive message from room group
+        """
         message = event['message']
+        sender_id = event['sender_id']
 
-        if self.type == Message.TO_1_2:
-            user_id = self.user_1_id
-        else:
-            user_id = self.user_2_id
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
             'message': message,
-            'sender_id': user_id
+            'sender_id': sender_id
         }))
