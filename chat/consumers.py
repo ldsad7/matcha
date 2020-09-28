@@ -9,7 +9,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
 
-        first_user_id, second_user_id = self.room_name.split('_')
+        first_user_id, second_user_id = list(map(int, self.room_name.split('_')))
         try:
             user_1 = User.objects_.get(id=first_user_id)
         except Exception:
@@ -18,12 +18,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             user_2 = User.objects_.get(id=second_user_id)
         except Exception:
             raise Http404(f"Пользователя с данным id ({second_user_id}) не существует в базе")
-        if user_1.username < user_2.username:
-            self.user_1_id, self.user_2_id = user_1.id, user_2.id
-            self.type = Message.TO_1_2
-        else:
-            self.user_1_id, self.user_2_id = user_2.id, user_1.id
-            self.type = Message.TO_2_1
+        self.user_1_id, self.user_2_id = user_1.id, user_2.id
 
         self.room_group_name = 'chat_%s' % self.room_name
 
@@ -59,11 +54,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'message': message
             }
         )
+        if text_data_json['global_user_id'] == self.user_1_id:
+            type_ = Message.TO_1_2
+        else:
+            type_ = Message.TO_2_1
         Message(
             user_1_id=self.user_1_id,
             user_2_id=self.user_2_id,
             message=message,
-            type=self.type
+            type=type_
         ).save()
 
     # Receive message from room group

@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ room_name|json_script:"room-name" }}{% endblock %}
-
-
+{% block title %}Чат{% endblock %}
 
 {% block content %}
     {{ block.super }}
@@ -30,6 +28,26 @@
                 <div class="message">
                     <p class="data-message"></p>
                 </div>
+                {% for message in messages %}
+                    <div class="block-message">
+                        <p class="from">
+                            {% if global_user.id == message.user_1.id %}
+                                {% if message.type == "1 -> 2" %}
+                                    you
+                                {% else %}
+                                    {{ message.user_2.username }}
+                                {% endif %}
+                            {% else %}
+                                {% if message.type == "1 -> 2" %}
+                                    {{ message.user_1.username }}
+                                {% else %}
+                                    you
+                                {% endif %}
+                            {% endif %}:
+                        </p>
+                        <p class="data-message">{{ message.message }}</p>
+                    </div>
+                {% endfor %}
             </section>
             <section class="messageInput">
                 <div style="width: 100%; display: flex; align-items: center; justify-content: center;">
@@ -123,9 +141,11 @@
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
-                'message': message
+                'message': message,
+                'global_user_id': {{ global_user.id }}
             }));
             messageInputDom.value = '';
         };
     </script>
+
 {% endblock %}

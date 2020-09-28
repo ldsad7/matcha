@@ -8,23 +8,23 @@
     {{ block.super }}
     <div class="center">
         <div style="display: flex; width: 80%; justify-content: center; flex-direction: column;">
-            <div id="chats-area" style="display: flex; flex-direction: column; justify-content: center; margin-top: 15px;">
-                {% for user in users %}
-                <a id="room-name-{{ forloop.counter0 }}" class="card-chat">
-                    {% if user.photos %}
-                    <img src="{{ user.photos.0.image }}" class="avatar"  alt="default profile picture">
-                    {% else %}
-                    <img src="{% static 'img/default.png' %}" class="avatar" alt="default profile picture">
-                    {% endif %}
-                    <div class="card-chat-info">
-                        <div class="card-chat-user">
-                            {{ user.username }}
-                        </div>
-                        <span class="unread-counter">{{ forloop.counter0 }}</div>
+            {% for user in users %}
+                <div id="chats-area" style="display: flex; flex-direction: column; justify-content: center; margin-top: 15px;">
+                    <a id="room-name-{{ forloop.counter0 }}" class="card-chat">
+                        {% if user.photos %}
+                        <img src="{{ user.photos.0.image }}" class="avatar"  alt="default profile picture">
+                        {% else %}
+                        <img src="{% static 'img/default.png' %}" class="avatar" alt="default profile picture">
+                        {% endif %}
+                        <div class="card-chat-info">
+                            <div class="card-chat-user">
+                                {{ user.username }}
+                            </div>
+                            <span class="unread-counter">{{ forloop.counter0 }}</span>
                         </div>
                     </a>
-                    {% endfor %}
                 </div>
+            {% endfor %}
             </div>
     </div>
 {% endblock %}
