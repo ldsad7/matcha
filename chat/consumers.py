@@ -25,6 +25,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_group_name = 'chat_%s' % self.room_name
 
         self.last_message = datetime.utcnow() - timedelta(minutes=5)
+        self.type = Message.TO_1_2
 
         # Join room group
         await self.channel_layer.group_add(
@@ -64,6 +65,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         else:
             type_ = Message.TO_2_1
             user_1_id, user_2_id = self.user_2_id, self.user_1_id
+        self.type = type_
         Message(
             user_1_id=self.user_1_id,
             user_2_id=self.user_2_id,
@@ -83,7 +85,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         message = event['message']
 
+        if self.type == Message.TO_1_2:
+            user_id = self.user_1_id
+        else:
+            user_id = self.user_2_id
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
-            'message': message
+            'message': message,
+            'sender_id': user_id
         }))
