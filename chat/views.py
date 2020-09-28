@@ -28,6 +28,13 @@ def room(request, room_name):
             interlocutor = User.objects_.get(id=first_user_id).username
         except Exception:
             raise Http404(f"Пользователя с данным id ({first_user_id}) не существует в базе")
+    elif request.user.id == second_user_id:
+        try:
+            interlocutor = User.objects_.get(id=second_user_id).username
+        except Exception:
+            raise Http404(f"Пользователя с данным id ({second_user_id}) не существует в базе")
+    else:
+        raise Http404(f"Вы не имеете доступа к данному чату")
     context = {
         'room_name': room_name,
         'messages': messages,
