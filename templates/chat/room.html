@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block title %}Чат{% endblock %}
 
 {% block content %}
@@ -23,6 +25,20 @@
         }
     </style>
     <section id="chat-room">
+
+        <a href="/profiles/{{ interlocutor.id }}" class="chat-user-info">
+            <div style="display: flex; align-items: center;">
+                {% if interlocutor.photos %}
+                    <img src="{{ interlocutor.photos.0.image }}" class="avatar"  alt="default profile picture">
+                {% else %}
+                    <img src="{% static 'img/default.png' %}" class="avatar" alt="default profile picture">
+                {% endif %}
+                <div style="display: flex; width: 80%;  justify-content: center;" >
+                    <span class="username">{{ interlocutor.username }}</span>
+                </div>
+            </div>
+        </a>
+
         <div style="width: 100%; display: flex; justify-content: center;">
             <section id="messages">
                 <div class="message">
@@ -118,7 +134,7 @@
                 if (lastMessageBlock && isLastMessageFromEnemy) {
                     lastMessageBlock.appendChild(newMessage);
                 } else {
-                    let newBlockMessage = createBlockMessage("{{ interlocutor }} :");
+                    let newBlockMessage = createBlockMessage("{{ interlocutor.username }} :");
 
                     newBlockMessage.appendChild(newMessage);
                     messagesArea.appendChild(newBlockMessage);
