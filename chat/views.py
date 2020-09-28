@@ -18,14 +18,10 @@ def index(request):
 
 
 def room(request, room_name):
-    first_user_id, second_user_id = room_name.split('_')
-    if str(request.user.id) == first_user_id:
-        type_ = Message.TO_1_2
-    else:
-        type_ = Message.TO_2_1
+    first_user_id, second_user_id = list(map(int, room_name.split('_')))
     messages = sorted(Message.objects_.filter(
-        user_1_id=first_user_id, user_2_id=second_user_id, type=type_
-    ), key=lambda elem: elem['created'])[::-1]
+        user_1_id=first_user_id, user_2_id=second_user_id
+    ), key=lambda elem: elem.created)
     context = {
         'room_name': room_name,
         'messages': messages
