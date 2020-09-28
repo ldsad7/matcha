@@ -51,6 +51,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
 
+        if text_data_json['global_user_id'] == self.user_1_id:
+            type_ = Message.TO_1_2
+            user_1_id, user_2_id = self.user_1_id, self.user_2_id
+        else:
+            type_ = Message.TO_2_1
+            user_1_id, user_2_id = self.user_2_id, self.user_1_id
+        self.type = type_
         # Send message to room group
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -59,13 +66,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'message': message
             }
         )
-        if text_data_json['global_user_id'] == self.user_1_id:
-            type_ = Message.TO_1_2
-            user_1_id, user_2_id = self.user_1_id, self.user_2_id
-        else:
-            type_ = Message.TO_2_1
-            user_1_id, user_2_id = self.user_2_id, self.user_1_id
-        self.type = type_
         Message(
             user_1_id=self.user_1_id,
             user_2_id=self.user_2_id,
