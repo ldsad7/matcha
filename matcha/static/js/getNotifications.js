@@ -2,6 +2,8 @@ _intervalNotification = 5; // seconds
 
 _idsNotifs = []
 
+const csrftoken = getCookie('csrftoken');
+
 function clearNotifList() {
     document.querySelectorAll("#notif_list a").forEach(el => {
         el.remove();
@@ -18,9 +20,18 @@ const appendNotif = (text, id, href) => {
         setTimeout(() => {
             _idTimeout = setTimeout(
                 () => {
-                    const index = _idsNotifs.indexOf(this.id);
+                    console.log(this.id);
+                    console.log(_idsNotifs);
+                    const index = _idsNotifs.indexOf(+this.id);
+                    console.log(index);
                     if (index > -1) {
                         _idsNotifs.splice(index, 1);
+                        if (_idsNotifs.length < 1) {
+                            document.querySelector("span.circle").style.display = "none";
+                        }
+                        if (_idsNotifs.length < 2) {
+                            document.getElementById("read-all").style.display = "none";
+                        }
                         this.classList.add("animate__fadeOutTopRight");
                         $.ajax({
                             headers: {
@@ -58,6 +69,12 @@ function changeNotifList() {
                 }
             }
         });
+        if (_idsNotifs.length) {
+            document.querySelector("span.circle").style.display = "block";
+        }
+        if (_idsNotifs.length > 1) {
+            document.getElementById("read-all").style.display = "block";
+        }
     });
 }
 
@@ -86,5 +103,7 @@ document.getElementById("read-all").addEventListener("click", function(e) {
             "ids": _idsNotifs.join(",")
         })
     })
-    this.remove();
+    this.style.display = "none";
+    _idsNotifs = [];
+    document.querySelector("span.circle").style.display = "none";
 });

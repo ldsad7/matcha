@@ -31,9 +31,7 @@
         document.querySelectorAll(".user-profile-short").forEach(el => {
             connect = el.querySelector("#connection .connect-date");
             _date = connect.textContent;
-            if (_date === "online" || _date === "offline") {
-
-            } else {
+            if (_date !== "online" && _date !== "offline") {
                 _date = moment(_date, "MMDDYYYY hh:mm:ss").fromNow();
                 _date = _date === "Invalid date" ? "offline" : _date;
                 connect.textContent = _date;
