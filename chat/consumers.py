@@ -1,8 +1,10 @@
 import json
+from datetime import datetime, timedelta
+
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.http import Http404
 
-from matcha.models import User, Message
+from matcha.models import User, Message, Notification
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -21,6 +23,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.user_1_id, self.user_2_id = user_1.id, user_2.id
 
         self.room_group_name = 'chat_%s' % self.room_name
+
+        self.last_message = datetime.utcnow() - timedelta(minutes=5)
 
         # Join room group
         await self.channel_layer.group_add(
@@ -56,14 +60,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
         if text_data_json['global_user_id'] == self.user_1_id:
             type_ = Message.TO_1_2
+            user_1_id, user_2_id = self.user_1_id, self.user_2_id
         else:
             type_ = Message.TO_2_1
+            user_1_id, user_2_id = self.user_2_id, self.user_1_id
         Message(
             user_1_id=self.user_1_id,
             user_2_id=self.user_2_id,
             message=message,
             type=type_
         ).save()
+        curr_datetime = datetime.utcnow()
+        if curr_datetime - self.last_message > timedelta(seconds=5):
+            Notification(
+                user_1_id=user_1_id,
+                user_2_id=user_2_id,
+                type=Notification.MESSAGE
+            ).save()
+            self.last_message = curr_datetime
 
     # Receive message from room group
     async def chat_message(self, event):
