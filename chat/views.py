@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import render
 
 from matcha.models import UsersConnect, User, Message
@@ -22,8 +23,14 @@ def room(request, room_name):
     messages = sorted(Message.objects_.filter(
         user_1_id=first_user_id, user_2_id=second_user_id
     ), key=lambda elem: elem.created)
+    if request.user.id == first_user_id:
+        try:
+            interlocutor = User.objects_.get(id=first_user_id).username
+        except Exception:
+            raise Http404(f"Пользователя с данным id ({first_user_id}) не существует в базе")
     context = {
         'room_name': room_name,
-        'messages': messages
+        'messages': messages,
+        'interlocutor': interlocutor
     }
     return render(request, 'chat/room.html', context)
