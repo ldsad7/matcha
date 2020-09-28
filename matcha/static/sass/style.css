@@ -1267,7 +1267,7 @@ section#chat-room .messageInput {
   background-color: rgba(48, 49, 51, 0.8);
   position: fixed;
   bottom: 0px;
-  padding: 5%;
+  padding: 3px 5% 5% 5%;
 }
 
 section#chat-room .messageInput .inp {
@@ -1410,9 +1410,14 @@ section#chat-room .messageInput #chat-message-submit:hover {
   margin-bottom: 5px;
 }
 
+.aqua-border {
+  border-color: aqua !important;
+}
+
 @media screen and (max-width: 780px) {
   section#chat-room section#messages {
     min-width: 90%;
+    margin-bottom: 130px;
   }
   section#chat-room .messageInput {
     height: 120px;

@@ -29,7 +29,7 @@
                     <p class="data-message"></p>
                 </div>
                 {% for message in messages %}
-                    <div class="block-message">
+                    <div class="block-message {% if global_user.id == message.user_1.id %}{% if message.type == '1 -> 2' %}aqua-border{% endif %}{% else %}{% if message.type != '1 -> 2' %}aqua-border{% endif %}{% endif %}">
                         <p class="from">
                             {% if global_user.id == message.user_1.id %}
                                 {% if message.type == "1 -> 2" %}
@@ -67,7 +67,7 @@
 {% block body_scripts %}
     <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
-
+        window.scrollTo(0,document.body.scrollHeight);
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
@@ -76,25 +76,26 @@
             + '/'
         );
 
-        const userId = 1;
-        let messageFromId = 1;
+        const userId = {{ global_user.id }};
+        messageFromId = 1;
 
         function createBlockMessage(from) {
             let newBlockMessage = document.createElement("div");
 
+            if (from !== "you:") {newBlockMessage.classList.add("aqua-border")}
             newBlockMessage.innerHTML = `<p class="from">${from}</p>`
             newBlockMessage.classList.add("block-message");
             return newBlockMessage;
         }
 
-        function toggleBlock() {
-            messageFromId *= -1;
-        }
-
         chatSocket.onmessage = function(e) {
-            const { message } = JSON.parse(e.data);
+            const res = JSON.parse(e.data);
+            const { message, sender_id } = res;
             if (!message)
                 return;
+            console.log(res);
+            console.log(sender_id);
+            messageFromId = sender_id;
             const messagesArea = document.getElementById("messages");
             let newMessage = document.createElement("p");
             const blocksMessages = document.querySelectorAll(".block-message");
@@ -102,12 +103,12 @@
             let isLastMessageFromEnemy = false;
 
             if (lastMessageBlock) {
-                isLastMessageFromEnemy = lastMessageBlock.querySelector(".from").innerHTML == "you:" ? false : true;
+                isLastMessageFromEnemy = lastMessageBlock.querySelector(".from").innerText == "you :" ? false : true;
             }
             newMessage.classList.add("data-message");
             newMessage.innerHTML = message;
             if ((isLastMessageFromEnemy || !(lastMessageBlock)) && messageFromId == userId) {
-                let newBlockMessage = createBlockMessage("you:");
+                let newBlockMessage = createBlockMessage("you :");
 
                 newBlockMessage.appendChild(newMessage);
                 messagesArea.appendChild(newBlockMessage);
@@ -117,7 +118,7 @@
                 if (lastMessageBlock && isLastMessageFromEnemy) {
                     lastMessageBlock.appendChild(newMessage);
                 } else {
-                    let newBlockMessage = createBlockMessage("enemy:");
+                    let newBlockMessage = createBlockMessage("{{ interlocutor }} :");
 
                     newBlockMessage.appendChild(newMessage);
                     messagesArea.appendChild(newBlockMessage);
@@ -126,9 +127,9 @@
             window.scrollTo(0,document.body.scrollHeight);
         };
 
-        chatSocket.onclose = function(e) {
-            console.error('Chat socket closed unexpectedly');
-        };
+        // chatSocket.onclose = function(e) {
+        //     console.error('Chat socket closed unexpectedly');
+        // };
 
         document.querySelector('#chat-message-input').focus();
         document.querySelector('#chat-message-input').onkeyup = function(e) {
@@ -140,11 +141,13 @@
         document.querySelector('#chat-message-submit').onclick = function(e) {
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
-            chatSocket.send(JSON.stringify({
-                'message': message,
-                'global_user_id': {{ global_user.id }}
-            }));
-            messageInputDom.value = '';
+            if (message) {
+                chatSocket.send(JSON.stringify({
+                    'message': message,
+                    'global_user_id': {{ global_user.id }}
+                }));
+                messageInputDom.value = '';
+            }
         };
     </script>
 
