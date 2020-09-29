@@ -1,6 +1,6 @@
 $bg-col: #303133
 $section-col: #262729
-$header-height: 50px
+$header-height: 55px
 $primary: #0077FF
 $dark: #fff
 $navbar-width: 60px
@@ -44,6 +44,8 @@ a:link
     width: 100%
     height: $header-height
     display: flex
+    z-index: 10
+    background: rgba(38, 39, 41, 1)
     flex-direction: row-reverse
     #notif
         position: relative
@@ -106,10 +108,12 @@ span.circle
 
 .toggle
     display: none
+    z-index: 18
     span
         position: relative
         display: inline-block
         width: 20px
+        z-index: 17
         height: 4px
         margin-top: 20px
         border-radius: 2px
@@ -123,6 +127,7 @@ span.circle
         &::after, &::before
             content: ""
             display: inline-block
+            z-index: 17
             position: absolute
             width: 20px
             height: 4px
@@ -132,7 +137,7 @@ span.circle
 
 .nav-bar
     width: $navbar-width
-    z-index: 6
+    z-index: 14
     height: 100%
     top: 0
     position: fixed
@@ -869,6 +874,7 @@ section#chat-room
     .chat-user-info
         position: fixed
         top: 0
+        z-index: 12
         min-width: 20%
         margin: 0 auto
         padding: 5px 10px
