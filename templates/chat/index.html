@@ -9,7 +9,7 @@
     <div class="center">
         <div style="display: flex; width: 80%; justify-content: center; flex-direction: column;">
             {% for user in users %}
-                <div id="chats-area" style="display: flex; flex-direction: column; justify-content: center; margin-top: 15px;">
+                <div id="chats-area">
                     <a id="room-name-{{ forloop.counter0 }}" class="card-chat">
                         {% if user.photos %}
                             <img src="{{ user.photos.0.image }}" class="avatar"  alt="default profile picture">

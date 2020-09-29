@@ -25,7 +25,6 @@
         }
     </style>
     <section id="chat-room">
-
         <a href="/profiles/{{ interlocutor.id }}" class="chat-user-info">
             <div style="display: flex; align-items: center;">
                 {% if interlocutor.photos %}
@@ -39,31 +38,11 @@
             </div>
         </a>
 
-        <div style="width: 100%; display: flex; justify-content: center;">
+        <div class="messages-section-parent">
             <section id="messages">
                 <div class="message">
                     <p class="data-message"></p>
                 </div>
-                {% for message in messages %}
-                    <div class="block-message {% if global_user.id == message.user_1.id %}{% if message.type == '1 -> 2' %}aqua-border{% endif %}{% else %}{% if message.type != '1 -> 2' %}aqua-border{% endif %}{% endif %}">
-                        <p class="from">
-                            {% if global_user.id == message.user_1.id %}
-                                {% if message.type == "1 -> 2" %}
-                                    you
-                                {% else %}
-                                    {{ message.user_2.username }}
-                                {% endif %}
-                            {% else %}
-                                {% if message.type == "1 -> 2" %}
-                                    {{ message.user_1.username }}
-                                {% else %}
-                                    you
-                                {% endif %}
-                            {% endif %}:
-                        </p>
-                        <p class="data-message">{{ message.message }}</p>
-                    </div>
-                {% endfor %}
             </section>
             <section class="messageInput">
                 <div style="width: 100%; display: flex; align-items: center; justify-content: center;">
@@ -92,28 +71,81 @@
             + '/'
         );
 
+        const getCurrentMonthName = () => {
+            ["января", "февраля", "марта", "апреля", "мая", "июня",
+                "июля", "августа", "сентября", "октября", "ноября", "декабря"
+                ][new Date().getMonth()];
+        }
+
         const userId = {{ global_user.id }};
         messageFromId = 1;
 
-        function createBlockMessage(from) {
+        function createBlockMessage({from, created}) {
             let newBlockMessage = document.createElement("div");
 
-            if (from !== "you:") {newBlockMessage.classList.add("aqua-border")}
+            if (from !== "you :") {newBlockMessage.classList.add("aqua-border")}
             newBlockMessage.innerHTML = `<p class="from">${from}</p>`
             newBlockMessage.classList.add("block-message");
             return newBlockMessage;
         }
 
-        chatSocket.onmessage = function(e) {
-            const res = JSON.parse(e.data);
-            const { message, sender_id } = res;
+        function createBlockDate({day, month}) {
+            let newBlockMessage = document.createElement("div");
+
+            newBlockMessage.classList.add("date-block");
+            newBlockMessage.innerHTML = `<span class="day">${day}</span> ${month}`
+
+            return newBlockMessage;
+        }
+
+        let newMes = {};
+        const messages = [];
+
+        Date.prototype.timeNow = function () {
+            return ((this.getHours() < 10)?"0":"") + this.getHours() +":"+ ((this.getMinutes() < 10)?"0":"") + this.getMinutes() +":"+ ((this.getSeconds() < 10)?"0":"") + this.getSeconds();
+        }
+
+        {% for message in messages %}
+            {% if message.message %}
+                newMes = {};
+                newMes.sender_id = {% if global_user.id == message.user_1.id %}
+                                    {% if message.type == "1 -> 2" %}
+                                        {{ global_user.id }}
+                                    {% else %}
+                                        {{ message.user_2.id }}
+                                    {% endif %}
+                                {% else %}
+                                    {% if message.type == "1 -> 2" %}
+                                        {{ message.user_1.id }}
+                                    {% else %}
+                                        {{ global_user.id }}
+                                    {% endif %}
+                                {% endif %};
+                newMes.message = "{{ message.message }}";
+                newMes.created = {};
+                newMes.created.day = "{{ message.created|date:'d' }}";
+                newMes.created.month = "{{ message.created }}".split(" ")[1];
+                newMes.created.time = "{{ message.created|date:'h:i:s' }}";
+                messages.push(newMes);
+            {% endif %}
+        {% endfor %}
+
+        function appendMessage(e) {
+            const { message, sender_id } = e;
+            let { created } = e;
+            if (!created) {
+                created = {};
+                created.day = new Date().getDate();
+                created.month = getCurrentMonthName();
+                created.time = new Date().timeNow();
+            }
             if (!message)
                 return;
-            console.log(res);
-            console.log(sender_id);
             messageFromId = sender_id;
             const messagesArea = document.getElementById("messages");
             let newMessage = document.createElement("p");
+            const blocksDate = document.querySelectorAll(".date-block .day");
+            const lastDate = [...blocksDate][blocksDate.length - 1];
             const blocksMessages = document.querySelectorAll(".block-message");
             const lastMessageBlock = [...blocksMessages][blocksMessages.length - 1];
             let isLastMessageFromEnemy = false;
@@ -121,10 +153,22 @@
             if (lastMessageBlock) {
                 isLastMessageFromEnemy = lastMessageBlock.querySelector(".from").innerText == "you :" ? false : true;
             }
+            if (!lastDate) {
+                if (created) {
+                    messagesArea.appendChild(createBlockDate({day: created.day, month: created.month}));
+                }
+                else {
+                    messagesArea.appendChild(createBlockDate({day: new Date().getDate(), month: getCurrentMonthName()}));
+                }
+            } else if (lastDate.textContent != created.day) {
+                console.log(lastDate);
+                console.log(created.day);
+                messagesArea.appendChild(createBlockDate({day: created.day, month: created.month}));
+            }
             newMessage.classList.add("data-message");
-            newMessage.innerHTML = message;
+            newMessage.innerHTML = `<span>${message}</span><span class="message-date">${created.time}</span>`;
             if ((isLastMessageFromEnemy || !(lastMessageBlock)) && messageFromId == userId) {
-                let newBlockMessage = createBlockMessage("you :");
+                let newBlockMessage = createBlockMessage({from: "you :", created: created});
 
                 newBlockMessage.appendChild(newMessage);
                 messagesArea.appendChild(newBlockMessage);
@@ -134,18 +178,20 @@
                 if (lastMessageBlock && isLastMessageFromEnemy) {
                     lastMessageBlock.appendChild(newMessage);
                 } else {
-                    let newBlockMessage = createBlockMessage("{{ interlocutor.username }} :");
+                    let newBlockMessage = createBlockMessage({from: "{{ interlocutor.username }} :", created: created});
 
                     newBlockMessage.appendChild(newMessage);
                     messagesArea.appendChild(newBlockMessage);
                 }
             }
             window.scrollTo(0,document.body.scrollHeight);
-        };
+        }
 
-        // chatSocket.onclose = function(e) {
-        //     console.error('Chat socket closed unexpectedly');
-        // };
+        messages.forEach(mes => {
+            appendMessage(mes);
+        })
+
+        chatSocket.onmessage = (e) => {appendMessage(JSON.parse(e.data))};
 
         document.querySelector('#chat-message-input').focus();
         document.querySelector('#chat-message-input').onkeyup = function(e) {
