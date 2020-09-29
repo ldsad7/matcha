@@ -44,7 +44,7 @@
         {% for user in users %}
             user_ids.push({{ user.id }});
         {% endfor %}
-        const csrftoken = getCookie('csrftoken');
+        csrftoken = getCookie('csrftoken');
         for (let i = 0; i < {{ users|length }}; i++) {
             document.getElementById("act-like-" + i).addEventListener("click", function (e) {
                 if (user_ids[i] !== {{ global_user.id }}) {

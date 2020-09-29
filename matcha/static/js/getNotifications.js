@@ -2,7 +2,7 @@ _intervalNotification = 5; // seconds
 
 _idsNotifs = []
 
-const csrftoken = getCookie('csrftoken');
+csrftoken = getCookie('csrftoken');
 
 function clearNotifList() {
     document.querySelectorAll("#notif_list a").forEach(el => {

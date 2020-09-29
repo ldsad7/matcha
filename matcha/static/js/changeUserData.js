@@ -36,7 +36,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         const tag_names = [...$(".tag span")].map(el => { return el.textContent });
 
         const images_src = [...$(".for-push")];
-        const csrftoken = getCookie('csrftoken');
+        csrftoken = getCookie('csrftoken');
         $.ajax({
             headers: {
                 'Accept' : 'application/json',

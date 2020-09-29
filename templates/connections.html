@@ -18,7 +18,7 @@
             user_ids.push({{ user.id }});
             users_connect_ids.push({{ user.users_connect_id }});
         {% endfor %}
-        const csrftoken = getCookie('csrftoken');
+        csrftoken = getCookie('csrftoken');
         for (let i = 0; i < {{ users|length }}; i++) {
             document.getElementById("like-button-" + i).addEventListener("click", function (e) {
                 let prev_text = $(this).text();
