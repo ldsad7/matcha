@@ -66,7 +66,7 @@ function changeNotifList() {
                 _idsNotifs.push(id);
                 if (el.user_1 && type === 'сообщение') {
                     appendNotif(type, id, "/chat/" + [user_id, el.user_1].sort().join('_'));
-                } if (el.user_1) {
+                } else if (el.user_1) {
                     appendNotif(type, id, "/profiles/" + el.user_1);
                 } else {
                     appendNotif(type, id);
