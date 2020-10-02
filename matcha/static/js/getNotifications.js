@@ -55,7 +55,7 @@ const appendNotif = (text, id, href) => {
 }
 
 function changeNotifList() {
-    SendRequest("get", "/api/v1/notifications", "created=0", function(e) {
+    SendRequest("get", "/api/v1/notifications", "", function(e) {
         const result = JSON.parse(e.response);
         console.log(result);
         result.forEach(el => {
