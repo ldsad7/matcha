@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import pytz
 from django.conf import settings
 from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, ErrorDetail
 from rest_framework.fields import (
@@ -58,11 +59,11 @@ class CommonSerializer(serializers.Serializer):
 
     @staticmethod
     def get_modified(instance):
-        return instance.modified.replace(tzinfo=pytz.UTC)
+        return instance.modified.replace(tzinfo=pytz.UTC).astimezone(timezone.get_current_timezone())
 
     @staticmethod
     def get_created(instance):
-        return instance.created.replace(tzinfo=pytz.UTC)
+        return instance.created.replace(tzinfo=pytz.UTC).astimezone(timezone.get_current_timezone())
 
     def get_field(self, field):
         return self.model._declared_fields[field]
