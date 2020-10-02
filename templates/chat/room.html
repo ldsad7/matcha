@@ -72,7 +72,7 @@
         );
 
         const getCurrentMonthName = () => {
-            ["января", "февраля", "марта", "апреля", "мая", "июня",
+            return ["января", "февраля", "марта", "апреля", "мая", "июня",
                 "июля", "августа", "сентября", "октября", "ноября", "декабря"
                 ][new Date().getMonth()];
         }
@@ -139,6 +139,9 @@
                 created.month = getCurrentMonthName();
                 created.time = new Date().timeNow();
             }
+            if (!created.month) {
+                created.month = getCurrentMonthName();
+            }
             if (!message)
                 return;
             messageFromId = sender_id;
@@ -161,9 +164,12 @@
                     messagesArea.appendChild(createBlockDate({day: new Date().getDate(), month: getCurrentMonthName()}));
                 }
             } else if (lastDate.textContent != created.day) {
-                console.log(lastDate);
-                console.log(created.day);
-                messagesArea.appendChild(createBlockDate({day: created.day, month: created.month}));
+                if (created) {
+                    messagesArea.appendChild(createBlockDate({day: created.day, month: created.month}));
+                }
+                else {
+                    messagesArea.appendChild(createBlockDate({day: new Date().getDate(), month: getCurrentMonthName()}));
+                }
             }
             newMessage.classList.add("data-message");
             newMessage.innerHTML = `<span>${message}</span><span class="message-date">${created.time}</span>`;

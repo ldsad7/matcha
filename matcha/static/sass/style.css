@@ -284,7 +284,7 @@ span.circle {
 .user-profile {
   z-index: 5;
   position: relative;
-  margin-top: 80px;
+  margin-top: 20px;
   margin-left: 60px;
   padding: 20px;
   background-color: #1d1d1d;
@@ -650,6 +650,10 @@ span.circle {
   color: #e2e2e2;
   margin-left: 10px;
   margin-top: 5px;
+}
+
+.user-profile:first-of-type {
+  margin-top: 80px;
 }
 
 @-webkit-keyframes notification {

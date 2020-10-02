@@ -4,6 +4,8 @@ _idsNotifs = []
 
 csrftoken = getCookie('csrftoken');
 
+if (document.getElementById("read-all")) {
+
 function clearNotifList() {
     document.querySelectorAll("#notif_list a").forEach(el => {
         el.remove();
@@ -62,7 +64,9 @@ function changeNotifList() {
             const { type, id } = el;
             if (_idsNotifs.indexOf(id) === -1) {
                 _idsNotifs.push(id);
-                if (el.user_1) {
+                if (el.user_1 && type === 'сообщение') {
+                    appendNotif(type, id, "/chat/" + [user_id, el.user_1].sort().join('_'));
+                } if (el.user_1) {
                     appendNotif(type, id, "/profiles/" + el.user_1);
                 } else {
                     appendNotif(type, id);
@@ -107,3 +111,5 @@ document.getElementById("read-all").addEventListener("click", function(e) {
     _idsNotifs = [];
     document.querySelector("span.circle").style.display = "none";
 });
+
+}
