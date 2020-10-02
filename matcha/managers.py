@@ -19,7 +19,7 @@ class CommonManager:
         return value.isoformat(ISO_SEP)
 
     def get_current_datetime(self):
-        return datetime.datetime.today().isoformat(ISO_SEP)
+        return datetime.datetime.utcnow().isoformat(ISO_SEP)
 
     @property
     def fields(self):

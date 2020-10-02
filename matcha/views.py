@@ -3,6 +3,7 @@ import uuid
 import mpu
 import requests
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -369,6 +370,7 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 
+@login_required
 def search(request):
     template = loader.get_template('search.html')
     context = {
@@ -377,12 +379,14 @@ def search(request):
     return HttpResponse(template.render(context, request))
 
 
+@login_required
 def profile(request):
     template = loader.get_template('profile.html')
     context = UserReadSerializer(request.user).data
     return HttpResponse(template.render(context, request))
 
 
+@login_required
 def user_profile(request, id):
     template = loader.get_template('user_profile.html')
     user = User.objects_.get(id=id)
@@ -393,6 +397,7 @@ def user_profile(request, id):
     return HttpResponse(template.render(context, request))
 
 
+@login_required
 def connections(request):
     template = loader.get_template('connections.html')
     context = {
