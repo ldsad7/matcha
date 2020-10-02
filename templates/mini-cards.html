@@ -14,7 +14,7 @@
                 <div class="not-here-pls" id="del-avatar" style="display: none;">
                     <span class="not-here-pls">&#10008;</span>
                 </div>
-                <div id="connection">{{ user.last_login }}</div>
+                <div id="connection"><span class="{% if user.last_login != 'online' %}red{% endif %}"></span><span class="connect-date">{% if user.last_login == 'offline' %}{{ user.last_login }}{% else %}{{ user.last_login|date:'mdY h:m:s' }}{% endif %}</span></div>
             </figure>
             <section class="user-data">
                 <div id="username"><span>{{ user.username }}</span></div>
@@ -48,4 +48,15 @@
             </section>
         </section>
     {% endfor %}
+    <script>
+        document.querySelectorAll(".user-profile-short").forEach(el => {
+            connect = el.querySelector("#connection .connect-date");
+            _date = connect.textContent;
+            if (_date !== "online" && _date !== "offline") {
+                _date = moment(_date, "MMDDYYYY hh:mm:ss").fromNow();
+                _date = _date === "Invalid date" ? "offline" : _date;
+                connect.textContent = _date;
+            }
+        });
+    </script>
 </div>

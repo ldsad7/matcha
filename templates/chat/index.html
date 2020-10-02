@@ -31,6 +31,9 @@
 
 {% block body_scripts %}
     <script>
+        {% if global_user.id %}user_id = {{ global_user.id }}{% endif %};
+    </script>
+    <script>
         {% for user in users %}
             document.getElementById("room-name-{{ forloop.counter0 }}").setAttribute("href", ["{{ global_user.id }}", "{{ user.id }}"].sort().join('_'));
         {% endfor %}
@@ -45,4 +48,6 @@
         // }
     </script>
     <script src="{% static 'js/toggleBtn.js' %}"></script>
+    <script src="{% static 'js/getCookie.js' %}"></script>
+    <script src="{% static 'js/getNotifications.js' %}"></script>
 {% endblock %}

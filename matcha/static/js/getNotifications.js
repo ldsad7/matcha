@@ -4,6 +4,8 @@ _idsNotifs = []
 
 csrftoken = getCookie('csrftoken');
 
+if (document.getElementById("read-all")) {
+
 function clearNotifList() {
     document.querySelectorAll("#notif_list a").forEach(el => {
         el.remove();
@@ -55,14 +57,16 @@ const appendNotif = (text, id, href) => {
 }
 
 function changeNotifList() {
-    SendRequest("get", "/api/v1/notifications", "created=0", function(e) {
+    SendRequest("get", "/api/v1/notifications", "", function(e) {
         const result = JSON.parse(e.response);
         console.log(result);
         result.forEach(el => {
             const { type, id } = el;
             if (_idsNotifs.indexOf(id) === -1) {
                 _idsNotifs.push(id);
-                if (el.user_1) {
+                if (el.user_1 && type === 'сообщение') {
+                    appendNotif(type, id, "/chat/" + [user_id, el.user_1].sort().join('_'));
+                } if (el.user_1) {
                     appendNotif(type, id, "/profiles/" + el.user_1);
                 } else {
                     appendNotif(type, id);
@@ -107,3 +111,5 @@ document.getElementById("read-all").addEventListener("click", function(e) {
     _idsNotifs = [];
     document.querySelector("span.circle").style.display = "none";
 });
+
+}
