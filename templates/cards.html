@@ -22,16 +22,16 @@
         </script>
     {% for user in users %}
         <section class="user-profile user-profile-short animate__animated" onclick="check_actions(event, this);">
-            <div id="more-actions">
-                <button id="more-actions-btn" onclick="focus_actions(event)"></button>
-                <span id="more-actions-span"></span>
-                {% if global_user.is_authenticated %}
+            {% if global_user.is_authenticated %}
+                <div id="more-actions">
+                    <button id="more-actions-btn" onclick="focus_actions(event)"></button>
+                    <span id="more-actions-span"></span>
                     <div class="buttons">
                         <button id="btn-report-{{ forloop.counter0 }}">report user</button>
                         <button id="btn-block-{{ forloop.counter0 }}">block user</button>
                     </div>
-                {% endif %}
-            </div>
+                </div>
+            {% endif %}
             <figure>
                 <div>
                     {% if user.photos %}

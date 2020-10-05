@@ -64,6 +64,7 @@
         {% if global_user.id %}user_id = {{ global_user.id }}{% endif %};
     </script>
     <script>
+        // TODO: delete notifications about current chat page 
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
         window.scrollTo(0,document.body.scrollHeight);
         const chatSocket = new WebSocket(
