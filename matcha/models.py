@@ -6,23 +6,40 @@ from django.contrib.auth.models import AbstractUser
 from model_utils import Choices
 from django.utils.translation import ugettext_lazy as _
 from .common import get_by_model_and_id, get_thumb
+from .managers import TagManager, UsersConnectManager, UserTagManager, UserPhotoManager, UserManager
 
 
-class Tag(TimeStampedModel):
-    name = models.CharField(_('название'), max_length=32, blank=False, null=False)
+class ManagedModel:
+    def save(self, **kwargs):
+        if self.id is not None:
+            self.objects_.update(self)
+        else:
+            self.objects_.insert(self)
 
+    def delete(self, **kwargs):
+        self.objects_.delete(self)
+
+
+class GetById:
     def get_by_id(self, _id):
         return get_by_model_and_id(self, _id)
+
+
+class Tag(ManagedModel, TimeStampedModel, GetById):
+    name = models.CharField(_('название'), max_length=32, blank=False, null=False)
+    objects_ = TagManager()
 
     def __str__(self):
         return f"Tag {self.name}"
 
     class Meta:
+        db_table = 'matcha_tag'
         verbose_name = "Тег"
         verbose_name_plural = "Теги"
+        unique_together = ('name',)
 
 
-class User(AbstractUser):
+class User(ManagedModel, AbstractUser, GetById):
     UNKNOWN = "неизвестно"
 
     MAN = "мужской"
@@ -46,6 +63,10 @@ class User(AbstractUser):
     info = models.CharField(_('краткое описание'), max_length=4096, blank=True, null=False)
     location = models.CharField(_('местоположение'), max_length=512, blank=True, null=False)
     profile_activated = models.BooleanField(_('профиль активирован'), blank=False, null=False, default=False)
+    latitude = models.DecimalField(_('широта'), max_digits=8, decimal_places=6, default=0.0)
+    longitude = models.DecimalField(_('долгота'), max_digits=9, decimal_places=6, default=0.0)
+
+    objects_ = UserManager()
 
     @property
     def age(self):
@@ -60,9 +81,6 @@ class User(AbstractUser):
         """
         return 1.
 
-    def get_by_id(self, _id):
-        return get_by_model_and_id(self, _id)
-
     def save(self, *args, **kwargs):
         was_empty_field = False
         for field in self._meta.fields:
@@ -73,6 +91,10 @@ class User(AbstractUser):
                 was_empty_field = True
                 break
         self.profile_activated = not was_empty_field
+
+        # self.latitude =
+        # self.longitude =
+
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -83,7 +105,7 @@ class User(AbstractUser):
         verbose_name_plural = "Пользователи"
 
 
-class UserTag(TimeStampedModel):
+class UserTag(ManagedModel, TimeStampedModel, GetById):
     user = models.ForeignKey(
         User, blank=False, null=False, verbose_name="Пользователь", on_delete=models.CASCADE
     )
@@ -91,8 +113,7 @@ class UserTag(TimeStampedModel):
         Tag, blank=False, null=False, verbose_name="Тег", on_delete=models.CASCADE
     )
 
-    def get_by_id(self, _id):
-        return get_by_model_and_id(self, _id)
+    objects_ = UserTagManager()
 
     class Meta:
         verbose_name = "Тег пользователя"
@@ -100,18 +121,18 @@ class UserTag(TimeStampedModel):
         unique_together = ('user', 'tag')
 
 
-class UserPhoto(TimeStampedModel):
+class UserPhoto(ManagedModel, TimeStampedModel, GetById):
     title = models.CharField(_('название'), max_length=32, blank=True, null=False)
     image = models.ImageField(_('изображение'), upload_to='images/', blank=False, null=False)
+    main = models.BooleanField(_('главное'), default=False, blank=False, null=False)
     user = models.ForeignKey(
         User, blank=False, null=False, verbose_name="Пользователь", on_delete=models.CASCADE
     )
 
+    objects_ = UserPhotoManager()
+
     def __str__(self):
         return self.title
-
-    def get_by_id(self, _id):
-        return get_by_model_and_id(self, _id)
 
     def thumbnail_tag(self):
         return get_thumb(self.image, 0, 100)
@@ -133,7 +154,7 @@ class UserPhoto(TimeStampedModel):
         verbose_name_plural = 'Изображения пользователя'
 
 
-class UsersConnect(TimeStampedModel):
+class UsersConnect(ManagedModel, TimeStampedModel, GetById):
     """
     Connection means that user_1 likes user_2
     """
@@ -147,8 +168,7 @@ class UsersConnect(TimeStampedModel):
         related_name='user_2_set'
     )
 
-    def get_by_id(self, _id):
-        return get_by_model_and_id(self, _id)
+    objects_ = UsersConnectManager()
 
     class Meta:
         verbose_name = "Коннект пользователей"

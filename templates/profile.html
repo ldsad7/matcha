@@ -5,19 +5,17 @@
 {% load static %}
 
 {% block links %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Red+Rose:wght@700&display=swap" rel="stylesheet">
+    {{ block.super }}
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block scripts %}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="{% static 'js/script.js' %}"></script>
+    {{ block.super }}
     <script src="{% static 'js/autosize.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
-    {% include "header.html" %}
+    {{ block.super }}
     <section class="content">
         <div class="center">
             <section class="user-profile">
@@ -27,7 +25,7 @@
                 <!-- endif -->
                 <figure>
                     <div>
-                        <img src="{% static 'img/default.png' %}" alt="default profile picture">
+                        <img class="for-push" src="{% static 'img/default.png' %}" alt="default profile picture">
                     </div>
                     <div class="not-here-pls" id="del-avatar" style="display: none;">
                         <span class="not-here-pls">&#10008;</span>
@@ -66,7 +64,16 @@
                             <option value="неизвестно">Неизвестно</option>
                         </select>
                     </div>
-                    <div id="location"><span class="gray">Локация: </span><span id="location-data">{{ location }}</span></div>
+                    <div id="location">
+                        <span class="gray">Локация: </span>
+                        <span id="location-data">{{ location }}</span>
+                        <input style="display: none;" type="text" id="selectLocation" list="locat" oninput="changeDatalist(this);" autocomplete="off">
+                        <datalist id="locat">
+                            <option value="Москва"></option>
+                            <option value="Москва и МО"></option>
+                            <option value="Московская Область"></option>
+                        </datalist>
+                    </div>
                     <!-- <div id="location">Локация: {{ location }}</div> -->
                 </figcaption>
                 <!-- <div class="buttons">
@@ -91,24 +98,17 @@
                 <section class="images">
                     <p class="white">Фото:</p>
                     <div class="img-area">
-                        <div>
+                        <div style="flex-wrap: wrap;">
+                            <img id="output" style="display: none;">
                             {% for photo in photos %}
-                            <img src="{{ photo.image }}">
-                            <!--                            <img id="output" style="display: none;">-->
-                            <!-- <div class="hover-info">
-                                <div>Swap avatar</div>
-                            </div> -->
+                                <div>
+                                    <img class="for-push" src="{{ photo.image }}">
+                                </div>
                             {% endfor %}
                             <img id="output" style="display: none;">
                         </div>
                     </div>
-                    <!-- <form action="" id="form" enctype="multipart/form-data" method="POST"> -->
-                        <input type="file" id="imageInput" class="not-here-pls" name="imageInput" accept=".jpg, .jpeg, .png" onchange="image.loadFile(event)">
-                        <input name="title" class="form-control" type="text" value="hello" style="display: none;">
-                        <!-- <select name="user" id="" style="display: none;">
-                            <option value="1">Иванов Андрей</option>
-                        </select> -->
-                    <!-- </form> -->
+                    <input type="file" id="imageInput" class="not-here-pls"name="imageInput" accept=".jpg, .jpeg, .png" onchange="image.loadFile(event)" >
                     <label style="display: none;" for="imageInput" class="not-here-pls" id="image-input">
                         <svg version="1.1" id="Capa_1" class="not-here-pls" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 477.863 477.863" style="enable-background:new 0 0 477.863 477.863;" xml:space="preserve"><g><g><path d="M409.598,153.596h-85.333c-9.426,0-17.067,7.641-17.067,17.067s7.641,17.067,17.067,17.067h85.333c9.426,0,17.067,7.641,17.067,17.067v221.867c0,9.426-7.641,17.067-17.067,17.067H68.265c-9.426,0-17.067-7.641-17.067-17.067V204.796c0-9.426,7.641-17.067,17.067-17.067h85.333c9.426,0,17.067-7.641,17.067-17.067s-7.641-17.067-17.067-17.067H68.265c-28.277,0-51.2,22.923-51.2,51.2v221.867c0,28.277,22.923,51.2,51.2,51.2h341.333c28.277,0,51.2-22.923,51.2-51.2V204.796C460.798,176.519,437.875,153.596,409.598,153.596z"/></g></g><g><g><path d="M336.331,90.33L250.998,4.997c-6.664-6.663-17.468-6.663-24.132,0L141.532,90.33c-6.548,6.78-6.36,17.584,0.42,24.132c6.614,6.388,17.099,6.388,23.713,0l56.201-56.201V341.33c0,9.426,7.641,17.067,17.067,17.067s17.067-7.641,17.067-17.067V58.262l56.201,56.201c6.78,6.548,17.584,6.36,24.132-0.42C342.719,107.429,342.719,96.944,336.331,90.33z"/></g></g></svg>
                     </label>
@@ -126,49 +126,12 @@
     <script src="{% static 'js/changeGender.js' %}"></script>
     <script src="{% static 'js/changeOrientation.js' %}"></script>
     <script src="{% static 'js/changeName.js' %}"></script>
+    <script src="{% static 'js/changeLocation.js' %}"></script>
     <script src="{% static 'js/changeUserData.js' %}"></script>
     <script src="{% static 'js/changeTags.js' %}"></script>
     <!-- endif -->
-    <script>
-        const csrftoken = getCookie('csrftoken');
-        // var output = document.getElementById('output');
-        formdata = new FormData();
-
-         $("#imageInput").on("change", function() {
-            jQuery.noConflict();
-            var file = this.files[0];
-            // if (formdata) {
-                formdata.append("image", file);
-                jQuery.ajax({
-                    url: "/api/v1/test_upload",
-                    type: "POST",
-                    data: formdata,
-                    processData: false,
-                    contentType: false,
-                    success: function(e) {
-                        // console.log(e);
-                        document.getElementById('output').src = "../../media/images/" + e;
-                        if (document.querySelectorAll(".img-area img").length < 4) {
-                            let tmp = document.createElement("img");
-                            tmp.setAttribute("id", "output");
-                            tmp.style.display = "none";
-                            document.querySelector(".img-area").appendChild(tmp);
-                        } else {
-                            // console
-                            document.getElementById("image-input").style.display = "none";
-                        }
-                        document.getElementById('output').style.display = "inline-block";
-                        document.getElementById('output').removeAttribute("id");
-                    },
-                    error: function(e) {
-                        console.log("error");
-                    }
-                });
-
-            // }		
-        });	
-    </script>
-    <script src="{% static 'js/toggleBtn.js' %}"></script>
+    {{ block.super }}
+    <script src="{% static 'js/callAvitoApi.js' %}"></script>
 {% endblock %}
 
 

@@ -4,7 +4,8 @@
 {% block title %}{% trans "Activation email sent" %}{% endblock %}
 
 {% block content %}
-<p>{% trans "Please check your email to complete the registration process." %}</p>
+    {{ block.super }}
+    <p style="color: #e2e2e2; width: 100%; text-align: center;">{% trans "Please check your email to complete the registration process." %}</p>
 {% endblock %}
 
 

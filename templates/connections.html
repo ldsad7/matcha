@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Matcha{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <section class="content">
+        {% include "mini-cards.html" %}
+    </section>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+{% endblock %}
+
+</html>

@@ -1,4 +1,3 @@
-
 var change_user_data = false;
 var cancel_btn = document.getElementById("change-profile-data-cancel");
 
@@ -44,22 +43,17 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         gender.edit();
         orientation.edit();
         _name.edit();
+        _location.edit();
         avatar.edit();
         image.edit();
         change_user_data = true;
         cancel_btn.style.display = "inline-block";
     } else {
-        var id = parseInt(jQuery("#id").text());
-        var tag_names = [];
-        var imgs = [];
-        var tag_tags = jQuery(".tag span");
-        for (var i = 0; i < tag_tags.length; i++)
-            tag_names.push(tag_tags[i].textContent);
-        document.querySelectorAll(".img-area div img").forEach(el => {
-            const str = el.getAttribute("src").split("/");
-            imgs.push(str[str.length - 1]);
-        });
-        console.log(imgs);
+        const id = parseInt($("#id").text());
+        const tag_names = [...$(".tag span")].map(el => { return el.textContent });
+
+        const images_src = [...$(".for-push")];
+
         const csrftoken = getCookie('csrftoken');
         jQuery.ajax({
             headers: {
@@ -70,17 +64,40 @@ document.getElementById("change-profile-data").addEventListener("click", functio
             url: "/api/v1/users/" + id + "/",
             type: "PATCH",
             data: JSON.stringify({
-                "first_name": jQuery("#first_name").val(),
-                "last_name": jQuery("#last_name").val(),
-                "date_of_birth": jQuery("#date-picker").val(),
-                "gender": jQuery("#selectGender option:checked").val(),
-                "orientation": jQuery("#selectOrientation option:checked").val(),
-                "location": jQuery("#location").val(),
-                "info": jQuery("#textArea").val(),
+                "first_name": $("#first_name").val(),
+                "last_name": $("#last_name").val(),
+                "date_of_birth": $("#date-picker").val(),
+                "gender": $("#selectGender option:checked").val(),
+                "orientation": $("#selectOrientation option:checked").val(),
+                "location": $("#selectLocation").val(),
+                "info": $("#textArea").val(),
                 "tags": tag_names,
-                "photos": imgs
             })
         })
+
+        images_src.forEach(elem => {
+            let imageInput = $('#imageInput').length ? $('#imageInput')[0].files[0] : null;
+            if (imageInput) {
+                var data = new FormData();
+                data.append("image", imageInput, "tmp.jpg");
+                // imageInput.name
+                data.append("user", id.toString());
+                let settings = {
+                    "url": "/api/v1/user_photos/",
+                    "method": "POST",
+                    "timeout": 0,
+                    "headers": {
+                        // "Content-Type" : 'multipart/form-data',
+                        "X-CSRFToken": csrftoken,
+                    },
+                    "processData": false,
+                    "mimeType": "multipart/form-data",
+                    "contentType": false,
+                    "data": data
+                };
+                $.ajax(settings);
+            }
+        });
 
         hist.submit();
         tags.submit();
@@ -88,6 +105,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         gender.submit();
         orientation.submit();
         _name.submit();
+        _location.submit();
         avatar.submit();
         image.submit();
         this.innerHTML = "&#9998;";

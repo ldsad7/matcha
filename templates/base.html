@@ -4,13 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
+    {% load static %}
     {% block meta %}{% endblock %}
-    {% block links %}{% endblock %}
-    {% block scripts %}{% endblock %}
+    {% block links %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.ico' %}"/>
+    {% endblock %}
+    {% block scripts %}
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="{% static 'js/script.js' %}"></script>
+    {% endblock %}
     <style>{% block styles %}{% endblock %}</style>
 </head>
 <body>
-    {% block content %}{% endblock %}
-    {% block body_scripts %}{% endblock %}
+    {% block content %}
+        {% include "header.html" %}
+    {% endblock %}
+    {% block body_scripts %}
+        <script src="{% static 'js/toggleBtn.js' %}"></script>
+    {% endblock %}
 </body>
 </html>

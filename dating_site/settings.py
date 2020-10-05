@@ -33,6 +33,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # debug
+    'debug_toolbar',
+
     # utility apps
     'easy_thumbnails',
 
@@ -62,6 +65,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'dating_site.urls'
@@ -177,7 +181,22 @@ CHANNEL_LAYERS = {
 }
 
 ####################################
+# GeoIP
+####################################
+
+# GEOIP_PATH = '/goinfre/tsimonis/geoip/'
+
+####################################
+# Debug
+####################################
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
+
+
+####################################
 # Local Settings
 ####################################
 
-from local_settings import *
+from .local_settings import *
