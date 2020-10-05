@@ -1,15 +1,15 @@
 $bg-col: #303133
 $section-col: #262729
-// $section-col: rgb(38, 39, 41)
-$header-height: 50px
+$header-height: 55px
+$primary: #0077FF
+$dark: #fff
 $navbar-width: 60px
 $block-bg: #1d1d1d
 
 *
     margin: 0
-    padding: 0
+    padding: 0 
     font-family: 'Roboto', sans-serif
-    // z-index: 2
 
 .mt-20
     margin-top: 20px
@@ -40,10 +40,12 @@ a:link
 
 
 .header
-    position: relative
+    position: fixed
     width: 100%
     height: $header-height
     display: flex
+    z-index: 10
+    background: rgba(38, 39, 41, 1)
     flex-direction: row-reverse
     #notif
         position: relative
@@ -58,24 +60,12 @@ a:link
             display: flex
             .notif_elem
                 opacity: 1
-        &::after
-            position: absolute
-            content: ""
-            z-index: 2
-            top: 10px
-            left: 15px
-            width: 10px
-            height: 10px
-            background-color: red
-            border-radius: 50% 
-            animation: notification 2s infinite
     #notif_list
         position: absolute
         width: 120px
         z-index: 10
         display: none
         flex-direction: column
-        // transition: .3s ease
         top: 45px
         left: -50px
         
@@ -93,10 +83,6 @@ a:link
             overflow: hidden
             border: 1px solid
             border-radius: 1px 10px / 12px
-        
-
-        
-
     .login
         display: flex
         font-family: 'Red Rose', cursive
@@ -107,13 +93,27 @@ a:link
         transition: .3s ease
         &:hover
             color: pink
+        
+span.circle
+    position: absolute
+    z-index: 2
+    top: 10px
+    right: 15px
+    width: 10px
+    height: 10px
+    background-color: red
+    border-radius: 50% 
+    animation: notification 2s infinite
+
 
 .toggle
     display: none
+    z-index: 18
     span
         position: relative
         display: inline-block
         width: 20px
+        z-index: 17
         height: 4px
         margin-top: 20px
         border-radius: 2px
@@ -127,6 +127,7 @@ a:link
         &::after, &::before
             content: ""
             display: inline-block
+            z-index: 17
             position: absolute
             width: 20px
             height: 4px
@@ -134,9 +135,9 @@ a:link
             border-radius: 2px
             background-color: #cbcbcb
 
-.navbar
+.nav-bar
     width: $navbar-width
-    z-index: 6
+    z-index: 14
     height: 100%
     top: 0
     position: fixed
@@ -144,13 +145,12 @@ a:link
     display: flex
     align-items: center
     flex-direction: column
-    .navbar_info
+    .nav-bar_info
         height: 100%
         position: absolute
         width: 80px
         left: -50px
         opacity: 0
-        // background-color: $section-col
         background-color: rgba(38, 39, 41, .6)
         transition: .2s ease-in
         z-index: 10
@@ -163,25 +163,25 @@ a:link
             margin-top: 45px
             &:nth-child(1)
                 margin-top: 30px
-            //&:nth-child(2)
-            //    margin-top: 45px
-            //&:nth-child(3)
-            //    margin-top: 45px
     &:hover
-        .navbar_info
+        .nav-bar_info
             left: $navbar-width
             opacity: 1
-            // span
-                // opacity: 1
 
 
     &_elem
+        position: relative
         padding-top: 20px
         fill: #e2e2e2
         transition: .3s ease
         &:hover svg
             fill: pink
             filter: drop-shadow(4px 2px 2px rgba(228,79,213,1))
+        .circle
+            right: 2px
+            top: 18px
+            background-color: red
+            animation: none
 
 
     // #house
@@ -192,6 +192,7 @@ a:link
     #settings
         width: 40px
         height: 40px
+        margin-top: 9px
     #connection
         width: 40px
         height: 40px
@@ -207,7 +208,7 @@ a:link
 .user-profile
     z-index: 5
     position: relative
-    margin-top: 60px
+    margin-top: 20px
     margin-left: 60px
     padding: 20px
     background-color: #1d1d1d
@@ -216,22 +217,12 @@ a:link
     min-height: 250px
     overflow: hidden
     margin-bottom: 50px
-    // .btn_span
-    //     // z-index: 1
-    //     position: absolute
-    //     background: #fff
-    //     transform: translate(-50%, -50%)
-    //     pointer-events: none
-    //     border-radius: 50%
-    //     animation: btn_span 1s linear infinite
     figure
         position: relative
         display: inline-block
         div
             text-align: center
             align-items: center
-            // width: 65px
-            // width: auto
             width: 65px
             img
                 max-width: 65px
@@ -273,7 +264,6 @@ a:link
             border: none
             width: 120px
             font-size: 16px
-            // display: none
 
     #change-profile-data
         position: absolute
@@ -303,32 +293,25 @@ a:link
         &:checked
             outline: none
             
-    // #second_caption
-        // margin-left: 40px
     #connection
         position: relative
-        // margin-left: 15px
-        // tac
         font-size: 14px
         color: #c4c2c2
-        &::after
-            content: ""
+        span:nth-child(1)
             border-radius: 50%
+            display: inline-block
             background-color: green
-            position: absolute
             width: 8px
             height: 8px
+            margin-right: 5px
             top: 6px
-            left: calc(50% - 30px)
-            // animation: notification 5s infinite
-
-
+            &.red
+                background-color: red
+        
     .buttons
         div
             cursor: pointer
-            // position: relative
             padding: 25px 50px
-            /* z-index: 5; */
             border-radius: 40px
             text-transform: uppercase
             font-size: 18px
@@ -437,38 +420,17 @@ a:link
                 width: 80%
                 height: 80%
         .img-area
-            // width: 100%
             display: flex
             flex-wrap: wrap
             div
                 position: relative
-                // display: inline-block
                 display: flex
                 align-items: center
-                // align-items: center
-                // div
-                //     text-align: center
-                //     display: none
-                //     justify-content: center
-                //     height: 100%
-                //     font-size: 20px
-                //     color: #e2e2e2
-                //     letter-spacing: 5px
-                //     // margin: auto
-                //     text-transform: uppercase
-                //     text-align: center
-                // &:hover .hover-info
-                //     display: inline-block
-                //     background-color: rgba(0, 0, 0, .6)
-                // &:hover div
-                //     display: flex
-            
                 .del-img-btn
                     background-color: #e2e2e2
                     position: absolute
                     top: 2px
                     right: 5px
-
 
             img
                 max-width: 300px
@@ -476,19 +438,15 @@ a:link
                 margin: 10px
                 margin-top: 20px
                 transition: .5s ease
-                // &:hover
-                //     transform: scale(1.1)
-                // position: relative
             .hover-info
                 position: absolute
                 top: 0
                 left: 0
-                // display: none
                 width: 100%
                 height: 100%
                 transition: .5s ease
                 background-color: rgba(0, 0, 0, 0)
-                    // transform: scale(1.2)
+ 
 .center
     display: flex
     justify-content: center
@@ -507,6 +465,9 @@ a:link
     color: #e2e2e2
     margin-left: 10px
     margin-top: 5px
+
+.user-profile:first-of-type
+    margin-top: 80px
 
 @keyframes notification
     0%
@@ -531,6 +492,8 @@ a:link
 // *
 
 .user-profile-short
+    &:nth-child(1)
+        margin-top: 80px
     display: flex
     flex-wrap: wrap
     justify-content: flex-start
@@ -586,17 +549,17 @@ a:link
             div
                 width: auto
                 img
-                    max-width: 70%
-                    max-height: 350px
+                    // max-width: 70%
+                    // max-height: 350px
         .img-area
             display: flex
             justify-content: center
-    .navbar
+    .nav-bar
         display: none
-    .navbar-active
+    .nav-bar-active
         display: flex
         top: 50px
-        .navbar_info
+        .nav-bar_info
             left: $navbar-width
             opacity: 1
     .user-profile
@@ -625,6 +588,7 @@ section.content
         color: #e2e2e2
         max-width: 80%
         margin: 60px
+        margin-top: 80px
         padding: 20px
         display: flex
         justify-content: center
@@ -665,17 +629,13 @@ section.content
     max-width: 80%
     margin: 10px 0 0 60px
     padding: 20px
-    // background-color: rgba(27, 27, 27, 0)
     transition: 1.5s ease
-    // display: flex
     display: none
-    // height: 0
     flex-wrap: wrap
     justify-content: center
     align-items: center
     .age-gap
         width: 30%
-        // margin-right: 40px
         .age-gap-title
             margin-bottom: 10px
         input
@@ -684,7 +644,6 @@ section.content
                 outline: none
     .rating-gap
         width: 30%
-        // margin-right: 40px
         .rating-gap-title
             margin-bottom: 10px
         input
@@ -693,7 +652,6 @@ section.content
                 outline: none
     .location
         width: 30%
-        // margin-right: 70px
         .location-gap-title
             margin-bottom: 10px
 
@@ -756,8 +714,9 @@ section.content
 
 .search-area
     height: 40px
-    margin: 60px 0 0 60px
+    margin-top: 80px
     width: 80%
+    margin-bottom: 25px
     position: relative
     input
         width: 100%
@@ -765,19 +724,18 @@ section.content
         border-radius: 10px
         background: #1b1b1b
         transition: .5s ease
-        height: 20px
+        height: 30px
         padding: 5px
         color: #e2e2e2
         &:focus
             outline: none
-            height: 35px
+            height: 45px
         &:focus ~ .search-toggle
             top: 0px
             
     .search-toggle
-        // display: none
         position: absolute
-        right: 0
+        right: 5px
         top: -7px
         transition: .5s ease
         span
@@ -806,7 +764,6 @@ section.content
                 background-color: #cbcbcb
     .search-toggle.active
         span
-            // display: none
             height: 0
             &::after
                 top: 0px
@@ -814,19 +771,11 @@ section.content
             &::before
                 top: 0px
                 transform: rotate(-45deg) 
-            // span
-            //     animation: search-toggle .5s linear forwards
-
-// @keyframes search-toggle
-//     0%
-//         top: 10px  
-//     100%
-//         top: 0px  
-        
 
 .user-card-mini
     min-height: 100px
     padding-bottom: 25px
+    padding-left: 10px
     margin-top: 30px
     margin-bottom: 0px
     figure
@@ -851,6 +800,242 @@ section.content
             background-color: #99c4d8
             &:nth-child(1)
                 top: 55px
-                
-            
 
+#more-actions
+    position: absolute
+    top: 5px
+    right: 5px
+    height: 0
+    width: 0
+    border: none
+    #more-actions-span
+        position: absolute
+        top: 0
+        right: 0
+        width: 7px
+        height: 7px
+        border-radius: 50%
+        background-color: #e2e2e2
+        transition: .5s ease
+        &::after, &::before
+            transition: .5s ease
+            content: ""
+            position: absolute
+            width: 7px
+            height: 7px
+            right: 0
+            border-radius: 50%
+            background-color: #e2e2e2
+        &::after
+            top: 10px
+        &::before
+            top: 20px
+    #more-actions-btn
+        position: absolute
+        top: -3px
+        right: -3px
+        cursor: pointer
+        border: none
+        background: none
+        width: 20px
+        height: 35px
+        z-index: 999
+        &:focus
+            outline: 0
+            border: none
+            display: inline-block
+        &:focus ~ #more-actions-span
+            top: 10px
+        &:focus ~ #more-actions-span::before
+            top: 0px
+        &:focus ~ #more-actions-span::after
+            top: 0px
+
+        
+    .buttons
+        position: absolute
+        top: 20px
+        right: 7px
+        display: none
+        width: 50px
+    
+    .visible
+        display: inline-block
+        
+#buttons-card
+    margin-top: 10px
+    width: 100%
+    text-align: center
+    button
+        width: 100px
+
+// *
+    // * CHAT PAGE
+// *
+
+section#chat-room
+    width: 100%
+    display: flex
+    justify-content: center
+    .chat-user-info
+        position: fixed
+        top: 0
+        z-index: 12
+        min-width: 20%
+        margin: 0 auto
+        padding: 5px 10px
+        background: rgba(48, 49, 51, .95)
+        border: 2px black solid
+        img
+            width: 40px
+            height: 40px
+            border-radius: 50%
+            margin-right: 10px
+    section#messages
+        display: flex
+        flex-direction: column
+        min-width: 75%
+        height: calc(100% - 130px)
+        margin-bottom: 100px
+        .data-message
+            display: flex
+            span:nth-child(1)
+                width: 93%
+            .message-date
+                color: #afafaf
+        .date-block
+            text-align: center
+            color: #e2e2e2
+            margin-top: 10px
+    .messageInput
+        display: flex
+        width: 100%
+        height: 70px
+        align-items: center
+        left: 0
+        background-color: rgba(48, 49, 51, .8)
+        position: fixed
+        bottom: 0px
+        padding: 3px 5% 50px 5% 
+        .inp
+            position: relative
+            margin: auto 0
+            width: 80%
+            border-radius: 3px
+            overflow: hidden
+
+            .label
+                position: absolute
+                top: 20px
+                left: 12px
+                font-size: 16px
+                color: rgba($dark,.5)
+                font-weight: 500
+                transform-origin: 0 0
+                transform: translate3d(0,0,0)
+                transition: all .2s ease
+                pointer-events: none
+
+            .focus-bg
+                position: absolute
+                top: 0
+                left: 0
+                width: 100%
+                height: 100%
+                background: rgba($dark,.05)
+                z-index: -1
+                transform: scaleX(0)
+                transform-origin: left
+
+            input
+                -webkit-appearance: none
+                appearance: none
+                width: 100%
+                border: 0
+                font-family: inherit
+                padding: 16px 12px 0 12px
+                height: 56px
+                font-size: 16px
+                font-weight: 400
+                background: rgba($dark,.02)
+                box-shadow: inset 0 -1px 0 rgba($dark,.3)
+                color: $dark
+                transition: all .15s ease
+
+                &:hover
+                    background: rgba($dark,.04)
+                    box-shadow: inset 0 -1px 0 rgba($dark,.5)
+                
+                &:not(:placeholder-shown)
+                    + .label
+                        color: rgba($dark,.5)
+                        transform: translate3d(0,-12px,0) scale(.75)
+                
+                &:focus
+                    background: rgba($dark,.05)
+                    outline: none
+                    box-shadow: inset 0 -2px 0 $primary
+                    + .label
+                        color: $primary
+                        transform: translate3d(0,-12px,0) scale(.75)
+                        + .focus-bg
+                            transform: scaleX(1)
+                            transition: all .1s ease
+        #chat-message-submit
+            transition: .1s ease
+            width: 50px
+            height: 40px
+            margin-left: 4px
+            &:hover
+                box-shadow: inset 0 -10px 0 $primary
+
+#chats-area
+    margin-top: 80px
+    display: flex
+    flex-direction: column
+    justify-content: center
+    .card-chat
+        padding: 15px 10px
+        background: rgba(0, 0, 0, .3)
+        width: 100%
+        display: flex
+        font-size: larger
+        .avatar
+            border-radius: 50%
+            width: 40px
+            height: 40px
+        &-info
+            margin-left: 10px
+            width: 80%
+            display: flex
+            align-items: center
+            justify-content: space-between
+
+.messages-section-parent
+    width: 80%
+    display: flex
+    justify-content: center
+    margin-top: 50px
+
+#read-all
+    color: aqua
+    border: 2px aqua solid
+    background-color: $bg-col
+    border-radius: 10px 
+    margin-bottom: 5px
+
+.aqua-border
+    border-color: aqua!important
+
+@media screen and ( max-width: 780px )
+    .messages-section-parent
+        width: 95%
+    section#chat-room
+        section#messages
+            min-width: 90%
+            margin-bottom: 130px
+        .messageInput
+            height: 120px
+
+.user-card-mini:nth-child(1)
+    margin-top: 80px

@@ -176,24 +176,8 @@
         tags.edit();
     </script>
     <script>
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
         document.getElementById("search_button").addEventListener("click", function(e) {
-            const csrftoken = getCookie('csrftoken');
+            srftoken = getCookie('csrftoken');
             var tag_names = [];
             let tag_tags = $(".search-data .tag span");
             for (let tag_tag of tag_tags)
@@ -214,14 +198,10 @@
                 success: function(data) {
                     $("[data_id='result']").remove();
                     let html_str = '<div class="center" data_id="result">';
-                    for (let user of data.results)
+                    for (let user of data)
                     {
                         html_str += `
                         <section class="user-profile user-profile-short">
-                            <!-- if authorized -->
-                            <!-- <div id="change-profile-data-cancel">&#10008;</div> -->
-                            <!-- <div id="change-profile-data">&#9998;</div> -->
-                            <!-- endif -->
                             <figure>
                                 <div>`;
                         if (user.photos.length > 0)
@@ -233,7 +213,7 @@
                                 <div class="not-here-pls" id="del-avatar" style="display: none;">
                                     <span class="not-here-pls">&#10008;</span>
                                 </div>
-                                <div id="connection">online</div>
+                                <div id="connection">${user.last_login}</div>
                             </figure>
                             <!-- <figcaption>
                             </figcaption> -->
@@ -262,7 +242,7 @@
                                 <div id="name">
                                     <span>${user.first_name} ${user.last_name}</span>
                                 </div>
-                                <div id="rating">Рейтинг: <span>420&#9733;</span></div>
+                                <div id="rating">Рейтинг: <span>${user.rating}&#9733;</span></div>
                                 <div>
                                     <button id="show-more">показать полностью</button>
                                     <div id="history" class="short-history">Инфо: ${user.info}</div>
@@ -296,6 +276,7 @@
                         </section>`
                     }
                     html_str += '</div>';
+                    console.log(html_str);
                     $("div.center").append(html_str);
                 }
             })

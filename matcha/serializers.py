@@ -1,15 +1,19 @@
 import string
+from datetime import datetime, timedelta
 
+import pytz
+from django.conf import settings
 from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, ErrorDetail
 from rest_framework.fields import (
     CharField, IntegerField, DateTimeField, FloatField, BooleanField,
-    empty
+    ImageField, empty
 )
 
 from .models import (
-    Tag, User, UserTag, UserPhoto, UsersConnect
+    Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification, Message
 )
 
 
@@ -53,6 +57,14 @@ class CommonSerializer(serializers.Serializer):
     def unique_fields(self):
         return []
 
+    @staticmethod
+    def get_modified(instance):
+        return instance.modified.replace(tzinfo=pytz.UTC).astimezone(timezone.get_current_timezone())
+
+    @staticmethod
+    def get_created(instance):
+        return instance.created.replace(tzinfo=pytz.UTC).astimezone(timezone.get_current_timezone())
+
     def get_field(self, field):
         return self.model._declared_fields[field]
 
@@ -62,7 +74,10 @@ class CommonSerializer(serializers.Serializer):
     def run_validation(self, data=None):
         if not data:
             raise_exception('Запрос', 'Некорректный запрос')
-        # print(f'data: {data}')
+        new_data = {}
+        for key, value in data.items():
+            new_data[key] = value
+        data = new_data
         model_fields = self.model_fields
         # print(f'model_fields: {model_fields}')
         diff = set(data) - set(model_fields)
@@ -80,23 +95,23 @@ class CommonSerializer(serializers.Serializer):
             model_field = self.get_field(field)
             required = self.get_model_field_attr(model_field, 'required')
             read_only = self.get_model_field_attr(model_field, 'read_only')
+            allow_null = self.get_model_field_attr(model_field, 'allow_null')
+            allow_blank = self.get_model_field_attr(model_field, 'allow_blank')
             if field in data:
                 value = data[field]
                 if field == 'username':
-                    diff = set(value) - set(string.digits + string.ascii_letters + '@.+-_')
+                    diff = set(value) - set(string.digits + string.ascii_letters + '@.+-')
                     if diff:
                         raise_exception(field, f'Это поле содержит недопустимые символы: {", ".join(diff)}')
                 if field in unique_together:
                     unique_together_dict[field] = value
                 if read_only:
                     raise_exception(field, 'Это поле read_only')
-                allow_null = self.get_model_field_attr(model_field, 'allow_null')
                 if not allow_null and value is None:
                     raise_exception(field, 'Это поле не может быть нулевым')
                 if isinstance(model_field, CharField):
                     if not isinstance(value, str):
                         raise_exception(field, 'Значение не соответствует типу поля')
-                    allow_blank = self.get_model_field_attr(model_field, 'allow_blank')
                     if not allow_blank and not value:
                         raise_exception(field, 'Это поле не может быть пустым')
                     max_length = self.get_model_field_attr(model_field, 'max_length')
@@ -105,6 +120,8 @@ class CommonSerializer(serializers.Serializer):
                     min_length = self.get_model_field_attr(model_field, 'min_length')
                     if min_length is not None and len(value) < min_length:
                         raise_exception(field, f'Это поле не может быть длиной менее {min_length}')
+                    if allow_blank:
+                        data[field] = value
                 elif isinstance(model_field, DateTimeField):
                     if not isinstance(value, str):
                         raise_exception(field, 'Значение не соответствует типу поля')
@@ -120,6 +137,8 @@ class CommonSerializer(serializers.Serializer):
                             data[field] = float(value)
                         except ValueError:
                             raise_exception(field, 'Значение не соответствует типу поля')
+                elif isinstance(model_field, ImageField):
+                    pass
                 elif isinstance(model_field, BooleanField):
                     if not isinstance(value, bool):
                         try:
@@ -131,9 +150,15 @@ class CommonSerializer(serializers.Serializer):
                 if isinstance(obj, ForwardManyToOneDescriptor):
                     if not obj.field.remote_field.model.objects.filter(id=value):
                         raise_exception(field, 'Не существует такого значения в базе')
+                if allow_null and not value:
+                    data[field] = None
             elif required:
                 raise_exception(field, 'Это поле должно обязательно присутствовать в запросе')
             else:
+                if allow_null:
+                    data[field] = None
+                if allow_blank:
+                    data[field] = ''
                 default = self.get_model_field_attr(model_field, 'default')
                 if default is not None and default != empty:
                     data[field] = default
@@ -235,6 +260,8 @@ class UserSerializer(CommonSerializer):
     orientation = serializers.CharField(required=False, max_length=32, default=User.UNKNOWN)
     latitude = serializers.FloatField(required=False, default=0.0)
     longitude = serializers.FloatField(required=False, default=0.0)
+    country = serializers.CharField(required=False, max_length=64, allow_blank=False, allow_null=True)
+    city = serializers.CharField(required=False, max_length=64, allow_blank=False, allow_null=True)
     tags = serializers.ListField(required=False, default=[])
     photos = serializers.ListField(required=False, default=[])
 
@@ -253,7 +280,7 @@ class UserSerializer(CommonSerializer):
 
 class UserReadSerializer(CommonSerializer):
     id = serializers.IntegerField(read_only=True)
-    last_login = serializers.DateTimeField(required=False, allow_null=True)
+    last_login = serializers.SerializerMethodField()
     username = serializers.CharField(required=False, max_length=150)
     is_superuser = serializers.BooleanField(required=False, default=False)
     first_name = serializers.CharField(required=False, allow_blank=True, max_length=30, default='')
@@ -261,7 +288,7 @@ class UserReadSerializer(CommonSerializer):
     email = serializers.EmailField(required=True)
     is_staff = serializers.BooleanField(required=False, default=False)
     is_active = serializers.BooleanField(required=False, default=True)
-    date_joined = serializers.DateTimeField(required=False)
+    date_joined = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
     gender = serializers.CharField(required=False, max_length=32, default=User.UNKNOWN)
     date_of_birth = serializers.DateField(required=False, allow_null=True)
     info = serializers.CharField(required=False, allow_blank=True, max_length=4096, default='')
@@ -270,8 +297,30 @@ class UserReadSerializer(CommonSerializer):
     orientation = serializers.CharField(required=False, max_length=32, default=User.UNKNOWN)
     latitude = serializers.FloatField(required=False, default=0.0)
     longitude = serializers.FloatField(required=False, default=0.0)
+    country = serializers.CharField(required=False, max_length=64, allow_blank=False, allow_null=True)
+    city = serializers.CharField(required=False, max_length=64, allow_blank=False, allow_null=True)
+    fake_accusations = serializers.SerializerMethodField()  # serializers.IntegerField(required=False, default=0)
+    rating = serializers.FloatField(required=False, default=0.0)
     tags = serializers.SerializerMethodField()
     photos = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_fake_accusations(instance: User):
+        return len(UsersFake.objects_.filter(user_2_id=instance.id))
+
+    @staticmethod
+    def get_last_login(instance: User):
+        if instance.last_login:
+            if datetime.utcnow().replace(tzinfo=pytz.UTC) - timedelta(minutes=5) < \
+                    instance.last_login.replace(tzinfo=pytz.UTC):
+                return 'online'
+            else:
+                return instance.last_login.replace(tzinfo=pytz.UTC)
+        return 'offline'
+
+    @staticmethod
+    def get_date_joined(instance: User):
+        return instance.date_joined.replace(tzinfo=pytz.UTC)
 
     @staticmethod
     def get_tags(instance: User):
@@ -310,8 +359,8 @@ class UserTagReadSerializer(CommonSerializer):
     id = serializers.IntegerField(read_only=True)
     user = serializers.SerializerMethodField()
     tag = serializers.SerializerMethodField()
-    created = serializers.DateTimeField(required=False)
-    modified = serializers.DateTimeField(required=False)
+    created = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+    modified = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
 
     @staticmethod
     def get_user(instance: UserTag):
@@ -333,8 +382,8 @@ class UserTagReadSerializer(CommonSerializer):
 class UserPhotoSerializer(CommonSerializer):
     id = serializers.IntegerField(read_only=True)
     title = serializers.CharField(required=False, allow_blank=True, max_length=32)
-    image = serializers.ImageField(required=True)
-    main = serializers.BooleanField(required=False)
+    image = serializers.ImageField(required=False)
+    main = serializers.BooleanField(required=False, default=False)
     user_id = serializers.IntegerField(required=True)
     created = serializers.DateTimeField(required=False)
     modified = serializers.DateTimeField(required=False)
@@ -351,15 +400,19 @@ class UserPhotoSerializer(CommonSerializer):
 class UserPhotoReadSerializer(CommonSerializer):
     id = serializers.IntegerField(read_only=True)
     title = serializers.CharField(required=False, allow_blank=True, max_length=32)
-    image = serializers.ImageField(required=True)
-    main = serializers.BooleanField(required=False)
+    image = serializers.SerializerMethodField()
+    main = serializers.BooleanField(required=False, default=False)
     user = serializers.SerializerMethodField()
-    created = serializers.DateTimeField(required=False)
-    modified = serializers.DateTimeField(required=False)
+    created = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+    modified = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
 
     @staticmethod
     def get_user(instance: UserPhoto):
         return instance.user.id
+
+    # @staticmethod
+    def get_image(self, instance: UserPhoto):
+        return f'{settings.MEDIA_URL}{self.main_model.image.field.upload_to}{instance.image}'
 
     @property
     def model(self):
@@ -372,8 +425,9 @@ class UserPhotoReadSerializer(CommonSerializer):
 
 class UsersConnectSerializer(CommonSerializer):
     id = serializers.IntegerField(read_only=True)
-    user_1_id = serializers.IntegerField(required=True)
-    user_2_id = serializers.IntegerField(required=True)
+    user_1_id = serializers.IntegerField(required=False)
+    user_2_id = serializers.IntegerField(required=False)
+    type = serializers.CharField(required=False, max_length=32)
     created = serializers.DateTimeField(required=False)
     modified = serializers.DateTimeField(required=False)
 
@@ -390,8 +444,9 @@ class UsersConnectReadSerializer(CommonSerializer):
     id = serializers.IntegerField(read_only=True)
     user_1 = serializers.SerializerMethodField()
     user_2 = serializers.SerializerMethodField()
-    created = serializers.DateTimeField(required=False)
-    modified = serializers.DateTimeField(required=False)
+    type = serializers.CharField(required=True, max_length=32)
+    created = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+    modified = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
 
     @staticmethod
     def get_user_1(instance: UsersConnect):
@@ -408,3 +463,177 @@ class UsersConnectReadSerializer(CommonSerializer):
     @property
     def main_model(self):
         return UsersConnect
+
+
+class UsersFakeSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    user_1_id = serializers.IntegerField(required=True)
+    user_2_id = serializers.IntegerField(required=True)
+    created = serializers.DateTimeField(required=False)
+    modified = serializers.DateTimeField(required=False)
+
+    @property
+    def model(self):
+        return UsersFakeSerializer
+
+    @property
+    def main_model(self):
+        return UsersFake
+
+
+class UsersFakeReadSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    user_1 = serializers.SerializerMethodField()
+    user_2 = serializers.SerializerMethodField()
+    created = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+    modified = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+
+    @staticmethod
+    def get_user_1(instance: UsersFake):
+        return UserReadSerializer(instance.user_1).data
+
+    @staticmethod
+    def get_user_2(instance: UsersFake):
+        return UserReadSerializer(instance.user_2).data
+
+    @property
+    def model(self):
+        return UsersFakeReadSerializer
+
+    @property
+    def main_model(self):
+        return UsersFake
+
+
+class UsersBlackListSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    user_1_id = serializers.IntegerField(required=True)
+    user_2_id = serializers.IntegerField(required=True)
+    created = serializers.DateTimeField(required=False)
+    modified = serializers.DateTimeField(required=False)
+
+    @property
+    def model(self):
+        return UsersBlackListSerializer
+
+    @property
+    def main_model(self):
+        return UsersBlackList
+
+
+class UsersBlackListReadSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    user_1 = serializers.SerializerMethodField()
+    user_2 = serializers.SerializerMethodField()
+    created = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+    modified = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+
+    @staticmethod
+    def get_user_1(instance: UsersBlackList):
+        return UserReadSerializer(instance.user_1).data
+
+    @staticmethod
+    def get_user_2(instance: UsersBlackList):
+        return UserReadSerializer(instance.user_2).data
+
+    @property
+    def model(self):
+        return UsersBlackListReadSerializer
+
+    @property
+    def main_model(self):
+        return UsersBlackList
+
+
+class NotificationSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    type = serializers.CharField(required=True, max_length=32)
+    user_1_id = serializers.IntegerField(required=True)
+    user_2_id = serializers.IntegerField(required=True)
+    was_read = serializers.BooleanField(required=False, default=False)
+    created = serializers.DateTimeField(required=False)
+    modified = serializers.DateTimeField(required=False)
+
+    @property
+    def model(self):
+        return NotificationSerializer
+
+    @property
+    def main_model(self):
+        return Notification
+
+
+class NotificationReadSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    type = serializers.CharField(required=True, max_length=32)
+    user_1 = serializers.SerializerMethodField()
+    user_2 = serializers.SerializerMethodField()
+    was_read = serializers.BooleanField(required=False, default=False)
+    created = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+    modified = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+
+    @staticmethod
+    def get_user_1(instance: Notification):
+        return instance.user_1.id
+
+    @staticmethod
+    def get_user_2(instance: Notification):
+        return instance.user_2.id
+
+    @property
+    def model(self):
+        return NotificationReadSerializer
+
+    @property
+    def main_model(self):
+        return Notification
+
+
+class MessageSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    type = serializers.CharField(required=True, max_length=32)
+    user_1_id = serializers.IntegerField(required=True)
+    user_2_id = serializers.IntegerField(required=True)
+    message = serializers.CharField(required=True, max_length=256)
+    created = serializers.DateTimeField(required=False)
+    modified = serializers.DateTimeField(required=False)
+
+    @property
+    def model(self):
+        return MessageSerializer
+
+    @property
+    def main_model(self):
+        return Message
+
+
+class MessageReadSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    type = serializers.CharField(required=True, max_length=32)
+    user_1 = serializers.SerializerMethodField()
+    user_2 = serializers.SerializerMethodField()
+    message = serializers.CharField(required=True, max_length=256)
+    created = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+    modified = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+
+    @staticmethod
+    def get_user_1(instance: Message):
+        return {
+            'id': instance.user_1.id,
+            'username': instance.user_1.username
+        }
+
+    @staticmethod
+    def get_user_2(instance: Message):
+        return {
+            'id': instance.user_2.id,
+            'username': instance.user_2.username
+        }
+
+    @property
+    def model(self):
+        return MessageReadSerializer
+
+    @property
+    def main_model(self):
+        return Message

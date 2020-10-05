@@ -63,6 +63,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'dating_site.middlewares.CustomMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -85,6 +86,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'dating_site.context_processors.global_user',
             ],
         },
     },
@@ -110,6 +112,9 @@ DATABASES = {
         'PORT': 3306
     }
 }
+
+# see https://github.com/maxtepkeev/architect/issues/38
+CONN_MAX_AGE = None
 
 ####################################
 # REST
@@ -179,12 +184,6 @@ CHANNEL_LAYERS = {
         },
     },
 }
-
-####################################
-# GeoIP
-####################################
-
-# GEOIP_PATH = '/goinfre/tsimonis/geoip/'
 
 ####################################
 # Debug

@@ -6,15 +6,18 @@ from django.contrib.auth.models import AbstractUser
 from model_utils import Choices
 from django.utils.translation import ugettext_lazy as _
 from .common import get_by_model_and_id, get_thumb
-from .managers import TagManager, UsersConnectManager, UserTagManager, UserPhotoManager, UserManager
+from .managers import (
+    TagManager, UsersConnectManager, UserTagManager, UserPhotoManager, UserManager,
+    UsersFakeManager, UsersBlackListManager, NotificationManager, MessageManager
+)
 
 
 class ManagedModel:
     def save(self, **kwargs):
         if self.id is not None:
-            self.objects_.update(self)
+            return self.objects_.update(self)
         else:
-            self.objects_.insert(self)
+            return self.objects_.insert(self)
 
     def delete(self, **kwargs):
         self.objects_.delete(self)
@@ -63,9 +66,10 @@ class User(ManagedModel, AbstractUser, GetById):
     info = models.CharField(_('краткое описание'), max_length=4096, blank=True, null=False)
     location = models.CharField(_('местоположение'), max_length=512, blank=True, null=False)
     profile_activated = models.BooleanField(_('профиль активирован'), blank=False, null=False, default=False)
-    latitude = models.DecimalField(_('широта'), max_digits=8, decimal_places=6, default=0.0)
-    longitude = models.DecimalField(_('долгота'), max_digits=9, decimal_places=6, default=0.0)
-
+    latitude = models.FloatField(_('широта'), default=0.0)
+    longitude = models.FloatField(_('долгота'), default=0.0)
+    country = models.CharField(_('страна'), max_length=64, blank=False, null=True)
+    city = models.CharField(_('город'), max_length=64, blank=False, null=True)
     objects_ = UserManager()
 
     @property
@@ -76,10 +80,18 @@ class User(ManagedModel, AbstractUser, GetById):
 
     @property
     def rating(self):
-        """
-        TODO: write this function
-        """
-        return 1.
+        rating = \
+            len(UsersConnect.objects_.filter(user_2_id=self.id, type=UsersConnect.PLUS)) - \
+            len(UsersConnect.objects_.filter(user_2_id=self.id, type=UsersConnect.MINUS)) - \
+            len(UsersBlackList.objects_.filter(user_2_id=self.id)) - \
+            len(UsersFake.objects_.filter(user_2_id=self.id)) + \
+            10 * int(self.profile_activated) + \
+            5 * (len(UserPhoto.objects_.filter(user_id=self.id)) > 3) + \
+            5 * (len(UserTag.objects_.filter(user_id=self.id)) > 3) + \
+            len(UsersConnect.objects_.filter(user_1_id=self.id))
+        if rating < 0:
+            return 0.0
+        return rating
 
     def save(self, *args, **kwargs):
         was_empty_field = False
@@ -159,6 +171,12 @@ class UsersConnect(ManagedModel, TimeStampedModel, GetById):
     Connection means that user_1 likes user_2
     """
 
+    PLUS = 'плюс'
+    MINUS = 'минус'
+    TYPES = Choices(
+        (PLUS, "plus"), (MINUS, "minus")
+    )
+    type = models.CharField(_('тип'), max_length=32, choices=TYPES, default=PLUS)
     user_1 = models.ForeignKey(
         User, blank=False, null=False, verbose_name="Пользователь 1", on_delete=models.CASCADE,
         related_name='user_1_set'
@@ -174,3 +192,105 @@ class UsersConnect(ManagedModel, TimeStampedModel, GetById):
         verbose_name = "Коннект пользователей"
         verbose_name_plural = "Коннекты пользователей"
         unique_together = ('user_1', 'user_2')
+
+
+class UsersFake(ManagedModel, TimeStampedModel, GetById):
+    """
+    Connection means that user_1 faked user_2
+    """
+
+    user_1 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 1", on_delete=models.CASCADE,
+        related_name='user_fake_1_set'
+    )
+    user_2 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 2", on_delete=models.CASCADE,
+        related_name='user_fake_2_set'
+    )
+
+    objects_ = UsersFakeManager()
+
+    class Meta:
+        verbose_name = "Fake-коннект пользователей"
+        verbose_name_plural = "Fake-коннекты пользователей"
+        unique_together = ('user_1', 'user_2')
+
+
+class UsersBlackList(ManagedModel, TimeStampedModel, GetById):
+    """
+    Connection means that user_1 blacklisted user_2
+    """
+
+    user_1 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 1", on_delete=models.CASCADE,
+        related_name='user_blacklist_1_set'
+    )
+    user_2 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 2", on_delete=models.CASCADE,
+        related_name='user_blacklist_2_set'
+    )
+
+    objects_ = UsersBlackListManager()
+
+    class Meta:
+        verbose_name = "BlackList-коннект пользователей"
+        verbose_name_plural = "BlackList-коннекты пользователей"
+        unique_together = ('user_1', 'user_2')
+
+
+class Notification(ManagedModel, TimeStampedModel, GetById):
+    """
+    Connection means that user_1 made smth to user_2
+    """
+
+    LIKE = 'лайк'
+    PROFILE = 'просмотр профиля'
+    MESSAGE = 'сообщение'
+    LIKE_BACK = 'лайк в ответ'
+    IGNORE = 'разрывание коннекта'
+    TYPES = Choices(
+        (LIKE, "like"), (PROFILE, "profile"), (MESSAGE, "message"), (LIKE_BACK, "like back"),
+        (IGNORE, "ignore")
+    )
+    type = models.CharField(_('тип'), max_length=32, choices=TYPES)
+    user_1 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 1", on_delete=models.CASCADE,
+        related_name='user_notification_1_set'
+    )
+    user_2 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 2", on_delete=models.CASCADE,
+        related_name='user_notification_2_set'
+    )
+    was_read = models.BooleanField(_('оповещение прочитано'), blank=False, null=False, default=False)
+
+    objects_ = NotificationManager()
+
+    class Meta:
+        verbose_name = "Notification-коннект пользователей"
+        verbose_name_plural = "Notification-коннекты пользователей"
+
+
+class Message(ManagedModel, TimeStampedModel, GetById):
+    """
+    user_1's username << user_2's username
+    """
+
+    TO_1_2 = '1 -> 2'
+    TO_2_1 = '2 -> 1'
+    TYPES = Choices((TO_1_2, '1 -> 2'), (TO_2_1, '2 -> 1'))
+    type = models.CharField(_('тип'), max_length=32, choices=TYPES)
+    user_1 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 1", on_delete=models.CASCADE,
+        related_name='user_message_1_set'
+    )
+    user_2 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 2", on_delete=models.CASCADE,
+        related_name='user_message_2_set'
+    )
+    message = models.CharField(_('сообщение'), max_length=256, blank=False, null=False)
+
+    objects_ = MessageManager()
+
+    class Meta:
+        verbose_name = "Message-коннект пользователей"
+        verbose_name_plural = "Message-коннекты пользователей"

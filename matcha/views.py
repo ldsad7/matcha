@@ -1,26 +1,43 @@
+import uuid
+
+import mpu
 import requests
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.contrib.gis.geoip2 import GeoIP2
 
 from .models import (
-    Tag, User, UserTag, UserPhoto, UsersConnect,
+    Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification, Message
 )
 from .serializers import (
-    TagSerializer, UserSerializer, UserPhotoSerializer, UserReadSerializer,
-    UsersConnectSerializer, UsersConnectReadSerializer, UserTagSerializer, UserTagReadSerializer,
-    UserPhotoReadSerializer
+    TagSerializer, UserSerializer, UserPhotoSerializer, UserReadSerializer, UsersConnectSerializer,
+    UsersConnectReadSerializer, UserTagSerializer, UserTagReadSerializer, UserPhotoReadSerializer,
+    UsersFakeSerializer, UsersFakeReadSerializer, UsersBlackListSerializer, UsersBlackListReadSerializer,
+    NotificationSerializer, NotificationReadSerializer, MessageSerializer, MessageReadSerializer
 )
-from .filters import filter_age, filter_rating, filter_location, filter_tags
+from .filters import filter_age, filter_rating, filter_location, filter_tags, filter_timestamp
 
 from django.template import loader
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
+
+MINUS = '-'
 
 
-def common_list(request, model, model_serializer, model_read_serializer):
+def order_by(objs, field):
+    starts_with_minus = field.startswith(MINUS)
+    objs = sorted(objs, key=lambda elem: getattr(elem, field.strip(MINUS)))
+    if starts_with_minus:
+        objs = objs[::-1]
+    return objs
+
+
+def common_list(request, model, model_serializer, model_read_serializer, order_by_field=None):
     if request.method == 'GET':
         objs = model.objects_.all()
+        if order_by_field is not None:
+            objs = order_by(objs, order_by_field)
         serializer = model_read_serializer(objs, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
@@ -76,23 +93,13 @@ def user_detail(request, id):
     if request.method in ['PUT', 'PATCH']:
         user_tags = {user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=request.user.id)}
         new_tags = {tag.strip().strip('#') for tag in request.data.get('tags') if tag.strip().strip('#')}
-
-        # x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        # if x_forwarded_for:
-        #     ip = x_forwarded_for.split(',')[0]
-        # else:
-        #     ip = request.META.get('REMOTE_ADDR')
-        # g = GeoIP2()
-        # ip = '205.186.163.125'
-        # print(g.country(ip))
-        # print(g.city(ip))
-        # print(g.lat_lon(ip))
-
         tag_ids = [obj.id for obj in Tag.objects_.filter(name__in=user_tags - new_tags)]
         for obj in UserTag.objects_.filter(tag_id__in=tag_ids):
             obj.delete()
 
         for tag_name in new_tags - user_tags:
+            if not tag_name:
+                continue
             if not Tag.objects_.filter(name=tag_name):
                 Tag(name=tag_name).save()
             tag_obj = Tag.objects_.filter(name=tag_name)[0]
@@ -110,8 +117,7 @@ def tag_detail(request, id):
     return common_detail(request, Tag, TagSerializer, TagSerializer, id)
 
 
-@api_view(['GET'])
-def user_liking(request, id):
+def liking(id):
     """
     returns those users that liked current user
     """
@@ -121,11 +127,45 @@ def user_liking(request, id):
         user_connect.user_1
         for user_connect in UsersConnect.objects_.filter(user_2_id=user.id)
     ]
-    return Response(UserReadSerializer(users, many=True).data)
+    data = UserReadSerializer(users, many=True).data
+    for user in data:
+        user_connects = UsersConnect.objects_.filter(
+            user_1_id=id, user_2_id=user['id']
+        )
+        if not user_connects:
+            UsersConnect(
+                user_1_id=id,
+                user_2_id=user['id'],
+                type=UsersConnect.MINUS
+            ).save()
+            user_connects = UsersConnect.objects_.filter(
+                user_1_id=id, user_2_id=user['id']
+            )
+
+        user['liked_back'] = user_connects[0].type == UsersConnect.PLUS
+        user['users_connect_id'] = user_connects[0].id
+
+    return data
 
 
 @api_view(['GET'])
-def user_liked(request, id):
+def user_liking(request, id):
+    return Response(liking(id))
+
+
+@api_view(['PATCH'])
+def read_notifications(request):
+    ids = request.data.get('ids')
+    if ids is not None:
+        notifications = Notification.objects_.filter(id__in=ids.split(','), user_2_id=request.user.id)
+        for notification in notifications:
+            notification.was_read = True
+            notification.save()
+        return Response({'result': 'OK'})
+    return Response({'result': 'FAIL'})
+
+
+def liked(id):
     """
     returns those users whom current user likes
     """
@@ -135,7 +175,12 @@ def user_liked(request, id):
         user_connect.user_2
         for user_connect in UsersConnect.objects_.filter(user_1_id=user.id)
     ]
-    return Response(UserReadSerializer(users, many=True).data)
+    return UserReadSerializer(users, many=True).data
+
+
+@api_view(['GET'])
+def user_liked(request, id):
+    return Response(liked(id))
 
 
 @api_view(['GET', 'POST'])
@@ -150,6 +195,24 @@ def user_tags_detail(request, id):
 
 @api_view(['GET', 'POST'])
 def user_photos_list(request):
+    if request.method == 'POST':
+        uuid1 = uuid.uuid1()
+        file_name = f'.{settings.MEDIA_URL}{UserPhoto.image.field.upload_to}tmp_{request.data["user_id"]}_{uuid1}.jpg'
+        image = request.data.get('image')
+        if image:
+            file = image.file.read()
+            request.data['image'] = f'tmp_{request.data["user_id"]}_{uuid1}.jpg'
+        serializer = UserPhotoSerializer(data=request.data)
+        if serializer.is_valid():
+            if image:
+                with open(file_name, 'wb') as f:
+                    f.write(file)
+            serializer.save()
+            serialized_data = serializer.data
+            if image:
+                serialized_data['image'] = serialized_data['image'].replace('/media/', '/media/images/')
+            return Response(serialized_data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return common_list(request, UserPhoto, UserPhotoSerializer, UserPhotoReadSerializer)
 
 
@@ -160,38 +223,189 @@ def user_photos_detail(request, id):
 
 @api_view(['GET', 'POST'])
 def users_connects_list(request):
-    return common_list(request, UsersConnect, UsersConnectSerializer, UsersConnectReadSerializer)
+    return common_list(
+        request, UsersConnect, UsersConnectSerializer, UsersConnectReadSerializer,
+        order_by_field='-created'
+    )
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def users_connects_detail(request, id):
-    return common_detail(request, UsersConnect, UsersConnectSerializer, UsersConnectReadSerializer, id)
+    return common_detail(
+        request, UsersConnect, UsersConnectSerializer, UsersConnectReadSerializer, id
+    )
 
 
+@api_view(['GET', 'POST'])
+def users_fakes_list(request):
+    return common_list(request, UsersFake, UsersFakeSerializer, UsersFakeReadSerializer)
+
+
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+def users_fakes_detail(request, id):
+    return common_detail(request, UsersFake, UsersFakeSerializer, UsersFakeReadSerializer, id)
+
+
+@api_view(['GET', 'POST'])
+def users_blacklists_list(request):
+    return common_list(
+        request, UsersBlackList, UsersBlackListSerializer, UsersBlackListReadSerializer
+    )
+
+
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+def users_blacklists_detail(request, id):
+    return common_detail(
+        request, UsersBlackList, UsersBlackListSerializer, UsersBlackListReadSerializer, id
+    )
+
+
+@api_view(['GET', 'POST'])
+def notifications_list(request):
+    if request.method == 'GET':
+        objs = Notification.objects_.filter(user_2_id=request.user.id, was_read=0)
+        for query_param, value in request.query_params.items():
+            if query_param == 'created':
+                try:
+                    value = int(value)
+                except ValueError:
+                    raise Http404(f"В базе нет notification-а с данным id ({value})")
+                objs = filter_timestamp(objs, value)
+        objs = order_by(objs, '-created')
+        serializer = NotificationReadSerializer(objs, many=True)
+        return Response(serializer.data)
+    return common_list(request, Notification, NotificationSerializer, NotificationReadSerializer)
+
+
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+def notifications_detail(request, id):
+    return common_detail(
+        request, Notification, NotificationSerializer, NotificationReadSerializer, id
+    )
+
+
+@api_view(['GET', 'POST'])
+def messages_list(request):
+    return common_list(request, Message, MessageSerializer, MessageReadSerializer)
+
+
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+def messages_detail(request, id):
+    return common_detail(request, Message, MessageSerializer, MessageReadSerializer, id)
+
+
+####################################
 # Additional functions
+####################################
+
+
+def exclude(objs, ids):
+    return [obj for obj in objs if obj['id'] not in ids]
+
+
+def ignore_false_users(objs, user_id):
+    """
+    Removes blocked, faked, already (dis)liked users and himself from a list
+    """
+    ignored_ids = {user_id}
+    ignored_ids |= {obj.user_2_id for obj in UsersConnect.objects_.filter(user_1_id=user_id)}
+    ignored_ids |= {obj.user_1_id for obj in UsersConnect.objects_.filter(user_2_id=user_id, type=UsersConnect.MINUS)}
+    ignored_ids |= {obj.user_2_id for obj in UsersBlackList.objects_.filter(user_1_id=user_id)}
+    ignored_ids |= {obj.user_1_id for obj in UsersBlackList.objects_.filter(user_2_id=user_id)}
+    ignored_ids |= {obj.user_2_id for obj in UsersFake.objects_.filter(user_1_id=user_id)}
+    ignored_ids |= {obj.user_1_id for obj in UsersFake.objects_.filter(user_2_id=user_id)}
+    users = exclude(UserReadSerializer(objs, many=True).data, ignored_ids)
+    return users
+
+
+def ignore_by_orientation_and_gender(users, user):
+    if user.gender != User.UNKNOWN and user.orientation != User.UNKNOWN:
+        if user.orientation == User.HETERO:
+            users = [
+                inner_user for inner_user in users if inner_user['gender'] not in [user.gender, User.UNKNOWN]
+            ]
+        elif user.orientation == User.HOMO:
+            users = [
+                inner_user for inner_user in users if inner_user['gender'] == user.gender
+            ]
+        elif user.orientation == User.BI:
+            users = [
+                inner_user for inner_user in users if inner_user['gender'] != User.UNKNOWN
+            ]
+    return users
+
+
+def order_by_rating(users, user):
+    user_tags = set([user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=user.id)])
+    max_rating = 0.0
+    max_distance = 0.0
+    for inner_user in users:
+        max_rating = max(inner_user['rating'], max_rating)
+        inner_user['distance'] = mpu.haversine_distance(
+            (user.latitude, user.longitude), (inner_user['latitude'], inner_user['longitude'])
+        )
+        max_distance = max(inner_user['distance'], max_distance)
+        inner_user['tag_names'] = set(
+            [user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=inner_user['id'])]
+        )
+    for inner_user in users:
+        inner_user['score'] = \
+            0.33 * inner_user['rating'] / (max_rating + 0.01) + \
+            0.33 * len(user_tags & inner_user['tag_names']) / (len(user_tags | inner_user['tag_names']) + 0.1) + \
+            0.33 * (1 - inner_user['distance'] / (max_distance + 0.01))
+    return sorted(users, key=lambda elem: -elem['score'])
 
 
 def index(request):
     template = loader.get_template('index.html')
-    context = {'users': UserReadSerializer(User.objects.all(), many=True).data}
+    users = User.objects_.all()
+    if request.user.id is not None:
+        user = User.objects_.get(id=request.user.id)
+        users = ignore_false_users(users, user.id)
+        users = ignore_by_orientation_and_gender(users, user)
+        users = order_by_rating(users, user)
+    context = {
+        'users': users
+    }
     return HttpResponse(template.render(context, request))
 
 
+@login_required
 def search(request):
     template = loader.get_template('search.html')
-    context = {'users': UserReadSerializer(User.objects.all(), many=True).data}
+    context = {
+        'users': UserReadSerializer(User.objects.all(), many=True).data
+    }
     return HttpResponse(template.render(context, request))
 
 
+@login_required
 def profile(request):
     template = loader.get_template('profile.html')
     context = UserReadSerializer(request.user).data
     return HttpResponse(template.render(context, request))
 
+
+@login_required
+def user_profile(request, id):
+    template = loader.get_template('user_profile.html')
+    user = User.objects_.get(id=id)
+    if user is not None:
+        context = UserReadSerializer(user).data
+    else:
+        raise Http404(f"Пользователя с данным id ({id}) не существует в базе")
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
 def connections(request):
     template = loader.get_template('connections.html')
-    context = {'users': UserReadSerializer(User.objects.all(), many=True).data}
+    context = {
+        'users': liking(request.user.id)
+    }
+    # UserReadSerializer(User.objects.all(), many=True).data,
     return HttpResponse(template.render(context, request))
+
 
 def get_locations(request):
     return JsonResponse(requests.get(

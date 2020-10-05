@@ -24,9 +24,96 @@
         check_line_clamp();
         window.onresize = function(e) {
             check_line_clamp();
-            console.log("here");
         }
     </script>
+    <script>
+        document.querySelectorAll(".user-profile-short").forEach(el => {
+            connect = el.querySelector("#connection .connect-date");
+            _date = connect.textContent;
+            if (_date !== "online" && _date !== "offline") {
+                _date = moment(_date, "MMDDYYYY hh:mm:ss").fromNow();
+                _date = _date === "Invalid date" ? "offline" : _date;
+                connect.textContent = _date;
+            }
+        });
+    </script>
+    {% if global_user.id %}
+    <script>
+        let user_ids = [];
+        {% for user in users %}
+            user_ids.push({{ user.id }});
+        {% endfor %}
+        csrftoken = getCookie('csrftoken');
+        for (let i = 0; i < {{ users|length }}; i++) {
+            document.getElementById("act-like-" + i).addEventListener("click", function (e) {
+                if (user_ids[i] !== {{ global_user.id }}) {
+                    $.ajax({
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        url: "/api/v1/user_connects/",
+                        type: "POST",
+                        data: JSON.stringify({
+                            "user_1_id": {{ global_user.id }},
+                            "user_2_id": user_ids[i],
+                            "type": 'плюс'
+                        })
+                    });
+                }
+            });
+            document.getElementById("act-dislike-" + i).addEventListener("click", function (e) {
+                if (user_ids[i] !== {{ global_user.id }}) {
+                    $.ajax({
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        url: "/api/v1/user_connects/",
+                        type: "POST",
+                        data: JSON.stringify({
+                            "user_1_id": {{ global_user.id }},
+                            "user_2_id": user_ids[i],
+                            "type": 'минус'
+                        })
+                    });
+                }
+            });
+            document.getElementById("btn-report-" + i).addEventListener("click", function (e) {
+                if (user_ids[i] !== {{ global_user.id }}) {
+                    $.ajax({
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        url: "/api/v1/user_fakes/",
+                        type: "POST",
+                        data: JSON.stringify({
+                            "user_1_id": {{ global_user.id }},
+                            "user_2_id": user_ids[i]
+                        })
+                    });
+                }
+            });
+            document.getElementById("btn-block-" + i).addEventListener("click", function (e) {
+                if (user_ids[i] !== {{ global_user.id }}) {
+                    $.ajax({
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        url: "/api/v1/user_blacklists/",
+                        type: "POST",
+                        data: JSON.stringify({
+                            "user_1_id": {{ global_user.id }},
+                            "user_2_id": user_ids[i]
+                        })
+                    });
+                }
+            });
+        }
+    </script>
+    {% endif %}
 {% endblock %}
 
 </html>

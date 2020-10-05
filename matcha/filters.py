@@ -1,6 +1,7 @@
 from datetime import date
+import pytz
 
-from .models import User, UserTag, Tag
+from .models import UserTag, Tag
 from .exceptions import IncorrectArgument
 
 
@@ -38,11 +39,20 @@ def filter_location(queryset, value, model):
 
 def filter_tags(queryset, value, model):
     tag_names = value.split(',')
+    tag_names = [tag_name for tag_name in tag_names if tag_name]
+    if not tag_names:
+        return queryset
     tag_ids = [obj.id for obj in Tag.objects_.filter(name__in=tag_names)]
     user_ids = [obj.user.id for obj in UserTag.objects_.filter(tag_id__in=tag_ids)]
     ids = {obj.id for obj in queryset}
     user_ids = ids & set(user_ids)
     return model.objects_.filter(id__in=user_ids)
+
+
+def filter_timestamp(queryset, value):
+    return [
+        obj for obj in queryset if obj.created.replace(tzinfo=pytz.UTC).timestamp() >= value
+    ]
 
 
 # class UserFilter(filters.FilterSet):
