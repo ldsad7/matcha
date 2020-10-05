@@ -61,6 +61,9 @@
 
 {% block body_scripts %}
     <script>
+        {% if global_user.id %}user_id = {{ global_user.id }}{% endif %};
+    </script>
+    <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
         window.scrollTo(0,document.body.scrollHeight);
         const chatSocket = new WebSocket(
@@ -199,7 +202,12 @@
 
         chatSocket.onmessage = (e) => {appendMessage(JSON.parse(e.data))};
 
+        chatSocket.onclose = (e) => {alert("WebSocket was closed")};
+
+        chatSocket.onerror = (e) => {alert("Error with WebSocket, maybe Redis is closed?")};
+
         document.querySelector('#chat-message-input').focus();
+
         document.querySelector('#chat-message-input').onkeyup = function(e) {
             if (e.keyCode === 13) {  // enter, return
                 document.querySelector('#chat-message-submit').click();
@@ -219,5 +227,6 @@
         };
     </script>
     <script src="{% static 'js/toggleBtn.js' %}"></script>
-
+    <script src="{% static 'js/getCookie.js' %}"></script>
+    <script src="{% static 'js/getNotifications.js' %}"></script>
 {% endblock %}

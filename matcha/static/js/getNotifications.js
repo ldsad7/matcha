@@ -22,10 +22,7 @@ const appendNotif = (text, id, href) => {
         setTimeout(() => {
             _idTimeout = setTimeout(
                 () => {
-                    console.log(this.id);
-                    console.log(_idsNotifs);
                     const index = _idsNotifs.indexOf(+this.id);
-                    console.log(index);
                     if (index > -1) {
                         _idsNotifs.splice(index, 1);
                         if (_idsNotifs.length < 1) {
@@ -59,7 +56,6 @@ const appendNotif = (text, id, href) => {
 function changeNotifList() {
     SendRequest("get", "/api/v1/notifications", "", function(e) {
         const result = JSON.parse(e.response);
-        console.log(result);
         result.forEach(el => {
             const { type, id } = el;
             if (_idsNotifs.indexOf(id) === -1) {
@@ -91,25 +87,50 @@ function getNotifications(e) {
 changeNotifList();
 getNotifications();
 
-document.getElementById("read-all").addEventListener("click", function(e) {
-    _idsNotifs.forEach(ind => {
-        document.getElementById(ind).remove();
-    });
-    $.ajax({
-        headers: {
-            'Accept' : 'application/json',
-            'Content-Type' : 'application/json',
-            'X-CSRFToken': csrftoken
-        },
-        url: "/api/v1/notifications/read/",
-        type: "PATCH",
-        data: JSON.stringify({
-            "ids": _idsNotifs.join(",")
+function deleteNotification(id_notif) {
+    const index = _idsNotifs.indexOf(+id_notif);
+    if (index > -1) {
+        _idsNotifs.splice(index, 1);
+        if (_idsNotifs.length < 1) {
+            document.querySelector("span.circle").style.display = "none";
+        }
+        if (_idsNotifs.length < 2) {
+            document.getElementById("read-all").style.display = "none";
+        }
+        document.getElementById(id_notif).remove();
+        $.ajax({
+            headers: {
+                'Accept' : 'application/json',
+                'Content-Type' : 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            url: "/api/v1/notifications/read/",
+            type: "PATCH",
+            data: JSON.stringify({
+                "ids": id_notif
+            })
         })
-    })
-    this.style.display = "none";
-    _idsNotifs = [];
-    document.querySelector("span.circle").style.display = "none";
-});
+    }
+}
 
+document.getElementById("read-all").addEventListener("click", function(e) {
+        _idsNotifs.forEach(ind => {
+            document.getElementById(ind).remove();
+        });
+        $.ajax({
+            headers: {
+                'Accept' : 'application/json',
+                'Content-Type' : 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            url: "/api/v1/notifications/read/",
+            type: "PATCH",
+            data: JSON.stringify({
+                "ids": _idsNotifs.join(",")
+            })
+        })
+        this.style.display = "none";
+        _idsNotifs = [];
+        document.querySelector("span.circle").style.display = "none";
+    });
 }

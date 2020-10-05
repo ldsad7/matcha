@@ -37,6 +37,7 @@
         {% for user in users %}
             document.getElementById("room-name-{{ forloop.counter0 }}").setAttribute("href", ["{{ global_user.id }}", "{{ user.id }}"].sort().join('_'));
         {% endfor %}
+        
         // sort chats
         // const sort_by_unread = (a, b) => {
         //     return ~~a.querySelector(".unread-counter").textContent > ~~b.querySelector(".unread-counter").textContent;
