@@ -99,6 +99,7 @@ a:link {
 }
 
 .header #notif_list .notif_elem {
+  width: 100%;
   background-color: rgba(0, 0, 0, 0.8);
   padding: 4px;
   -webkit-transition: .3s ease;

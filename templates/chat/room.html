@@ -65,6 +65,17 @@
     </script>
     <script>
         // TODO: delete notifications about current chat page 
+
+        const current_url = document.URL.slice(0, document.URL.length - 1);;
+
+        setInterval(() => {
+            document.querySelectorAll(".notif_list a").forEach(el => {
+                if (el.href === current_url) {
+                    deleteNotification(el.id);
+                }
+            });
+        });
+
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
         window.scrollTo(0,document.body.scrollHeight);
         const chatSocket = new WebSocket(
