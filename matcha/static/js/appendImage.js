@@ -1,50 +1,9 @@
 var image = {
     loadFile: function(event) {
-<<<<<<< HEAD
-        // var output = document.getElementById('output');
-
-        // if (document.querySelectorAll(".img-area img").length < 4) {
-        //     let tmp = document.createElement("img");
-        //     tmp.setAttribute("id", "output");
-        //     tmp.style.display = "none";
-        //     document.querySelector(".img-area").appendChild(tmp);
-        // } else {
-        //     document.getElementById("image-input").style.display = "none";
-        // }
-        // output.style.display = "inline-block";
-        // output.src = URL.createObjectURL(event.target.files[0]);
-        // output.removeAttribute("id");
-        // avatar.edit();
-        output.onload = function() {
-            const csrftoken = getCookie('csrftoken');
-
-            URL.revokeObjectURL(output.src) // free memory
-            avatar.edit();
-            $.ajax({
-                // headers: {
-                //     'Accept' : 'application/json',
-                //     'Content-Type' : 'application/json',
-                //     'X-CSRFToken': csrftoken
-                // },
-                url: '/api/v1/test_upload', // url where to submit the request
-                type : "POST", // type of action POST || GET
-                dataType : 'json', // data type
-                data : this.files[0], // post data || get data
-                success : function(result) {
-                    // you can see the result from the console
-                    // tab of the developer tools
-                    console.log(result);
-                },
-                error: function(xhr, resp, text) {
-                    console.log(xhr, resp, text);
-                }
-            })
-        }
-=======
         var output = document.getElementById('output');
         const div = document.createElement("div");
 
-        if (document.querySelectorAll(".img-area div div img").length < 3) {
+        if (document.querySelectorAll(".img-area div div img").length < 4) {
             let tmp = document.createElement("img");
             tmp.setAttribute("id", "output");
             tmp.style.display = "none";
@@ -54,11 +13,20 @@ var image = {
             document.getElementById("image-input").style.display = "none";
         }
         output.style.display = "inline-block";
+
+        _image = {}
+        _image.file = event.target.files[0];
+        new_images.push(_image);
+        
         output.src = URL.createObjectURL(event.target.files[0]);
         output.removeAttribute("id");
+        output.classList.add("for-push");
+        avatar.edit();
+
         document.querySelector(".img-area div").appendChild(div);
         div.appendChild(output);
         div.appendChild(createDelBlock());
+
         output.addEventListener("click", function(e) {
             let el = document.querySelector("figure img");
             if (document.querySelector("#change-profile-data-cancel").style.display !== "none") {
@@ -75,13 +43,12 @@ var image = {
                         div.appendChild(createDelBlock());
                         document.querySelector(".img-area div").appendChild(div);
                         e.target.parentNode.remove();
+                        e.target.classList.add("for-push");
                         document.querySelector("figure div").appendChild(e.target);
                     }
                 });
             }
         });
-        // avatar.edit();
->>>>>>> 8efc225a6b6dcbc20cc0782eb59cbde0e3c8bf46
     },
     edit: function() {
         this.input = document.getElementById("image-input");
@@ -90,5 +57,22 @@ var image = {
     },
     submit: function() {
         this.input.style.display = "none";
+        // var form = new FormData();
+        // form.append("image", );
+        // form.append("user", user_id);
+
+        // $.ajax({
+        //     "url": "http://127.0.0.1:8000/api/v1/user_photos/",
+        //     "method": "POST",
+        //     "timeout": 0,
+        //     "headers": {
+        //         "Content-Type": "multipart/form-data",
+        //         "sessionid": "e04s9c436u9xdnpjm84vruyj1g7ukkfa"
+        //     },
+        //     "processData": false,
+        //     "mimeType": "multipart/form-data",
+        //     "contentType": false,
+        //     "data": form
+        // });
     }
 }

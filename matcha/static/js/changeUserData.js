@@ -19,8 +19,11 @@ var hist = {
 
 document.getElementById("change-profile-data").addEventListener("click", function(e) {
     if (change_user_data === false) {
+        new_images = [];
+
         this.innerHTML = "&#10004;";
         this.style.padding = "2px 6px";
+
         hist.edit();
         tags.edit();
         age.edit();
@@ -30,20 +33,16 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         _location.edit();
         avatar.edit();
         image.edit();
+
         change_user_data = true;
         cancel_btn.style.display = "inline-block";
     } else {
         const tag_names = [...$(".tag span")].map(el => { return el.textContent });
 
         const images_src = [...$(".for-push")];
-<<<<<<< HEAD
 
-        const csrftoken = getCookie('csrftoken');
-        jQuery.ajax({
-=======
         csrftoken = getCookie('csrftoken');
         $.ajax({
->>>>>>> f04d466d562d779a27e3dc6b0a8a449b0bb7c47e
             headers: {
                 'Accept' : 'application/json',
                 'Content-Type' : 'application/json',
@@ -62,32 +61,37 @@ document.getElementById("change-profile-data").addEventListener("click", functio
                 "tags": tag_names,
             })
         })
+
         avatar.submit();
-        let data = new FormData();
+
         _name.submit();
-        console.log($('#imageInput')[0].files.length);
-        images_src.forEach(elem => {
-            let imageInput = $('#imageInput').length ? $('#imageInput')[0].files[0] : null;
-            if (imageInput) {
-                data.append("image", imageInput, "tmp.jpg");
+
+        new_images.forEach(elem => {
+            let { file } = elem;
+            // let imageInput = $('#imageInput').length ? $('#imageInput')[0].files[0] : null;
+            if (file) {
+                var data = new FormData();
+
+                // console.log(imageInput);
+                data.append("image", file, "tmp.jpg");
+                data.append("user", user_id + "");
+
+                let settings = {
+                    "url": "/api/v1/user_photos/",
+                    "method": "POST",
+                    "timeout": 0,
+                    "headers": {
+                        // "Content-Type" : 'multipart/form-data',
+                        "X-CSRFToken": getCookie('csrftoken'),
+                    },
+                    "processData": false,
+                    "mimeType": "multipart/form-data",
+                    "contentType": false,
+                    "data": data
+                };
+                $.ajax(settings);
             }
         });
-        data.append("user_id", user_id.toString());
-        let settings = {
-            "url": "/api/v1/user_photos/",
-            "method": "POST",
-            "timeout": 0,
-            "headers": {
-                // "Content-Type" : 'multipart/form-data',
-                "X-CSRFToken": csrftoken,
-            },
-            "processData": false,
-            "mimeType": "multipart/form-data",
-            "contentType": false,
-            "data": data
-        };
-        $.ajax(settings);
-
         hist.submit();
         tags.submit();
         age.submit();

@@ -67,28 +67,18 @@ var avatar = {
                 document.querySelector("figure div").appendChild(e.target);
             });
         });
-        // this.deleted_imgs.forEach(img => {
-        //     let data = new FormData();
-        //     const id = parseInt($("#id").text());
-        //     const csrftoken = getCookie('csrftoken');
+        this.deleted_imgs.forEach(img => {
+            csrftoken = getCookie('csrftoken');
 
-        //     data.append("image", img);
-        //     data.append("user_id", id.toString());
-
-        //     let settings = {
-        //         "url": "/api/v1/user_photos/2",
-        //         "method": "DELETE",
-        //         "timeout": 0,
-        //         "headers": {
-        //             "X-CSRFToken": csrftoken,
-        //         },
-        //         "processData": false,
-        //         "mimeType": "multipart/form-data",
-        //         "contentType": false,
-        //         "data": data
-        //     };
-
-        //     $.ajax(settings);
-        // })
+            $.ajax({
+                "url": "/api/v1/user_photos/" + img.id,
+                "headers": {
+                    'Accept' : 'application/json',
+                    'Content-Type' : 'application/json',
+                    "X-CSRFToken": csrftoken,
+                },
+                type: "DELETE",
+            });
+        })
     }
 }

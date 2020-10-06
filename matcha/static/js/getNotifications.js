@@ -1,4 +1,4 @@
-_intervalNotification = 5; // seconds
+_intervalNotification = 20; // seconds
 
 _idsNotifs = []
 
