@@ -818,7 +818,7 @@ span.circle {
     margin-left: 0;
   }
   .user-profile-short {
-    padding: 20px 0;
+    padding: 20px;
   }
   .user-profile-short figure img {
     max-width: 90%;
@@ -900,16 +900,15 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
   border-radius: 10px;
   color: #e2e2e2;
   max-width: 80%;
-  margin: 10px 0 0 60px;
   padding: 20px;
   -webkit-transition: 1.5s ease;
   transition: 1.5s ease;
   display: none;
   -ms-flex-wrap: wrap;
       flex-wrap: wrap;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
@@ -921,10 +920,6 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
 
 .search-data .age-gap .age-gap-title {
   margin-bottom: 10px;
-}
-
-.search-data .age-gap input {
-  width: 40px;
 }
 
 .search-data .age-gap input:focus {
@@ -939,16 +934,12 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
   margin-bottom: 10px;
 }
 
-.search-data .rating-gap input {
-  width: 40px;
-}
-
 .search-data .rating-gap input:focus {
   outline: none;
 }
 
 .search-data .location {
-  width: 30%;
+  width: auto;
 }
 
 .search-data .location .location-gap-title {
@@ -956,7 +947,7 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
 }
 
 .search-data .interests {
-  width: 30%;
+  margin-top: 10px;
 }
 
 .search-data .interests #tags {
@@ -1034,6 +1025,12 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
   margin-top: 5px;
   color: #000;
   cursor: pointer;
+}
+
+#search_button {
+  -ms-flex-item-align: end;
+      align-self: flex-end;
+  margin-right: 12%;
 }
 
 .search-area {

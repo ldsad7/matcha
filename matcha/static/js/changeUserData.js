@@ -68,20 +68,20 @@ document.getElementById("change-profile-data").addEventListener("click", functio
 
         new_images.forEach(elem => {
             let { file } = elem;
-            // let imageInput = $('#imageInput').length ? $('#imageInput')[0].files[0] : null;
+
             if (file) {
                 var data = new FormData();
 
                 // console.log(imageInput);
                 data.append("image", file, "tmp.jpg");
-                data.append("user", user_id + "");
+                data.append("user_id", user_id + "");
 
                 let settings = {
                     "url": "/api/v1/user_photos/",
                     "method": "POST",
                     "timeout": 0,
                     "headers": {
-                        // "Content-Type" : 'multipart/form-data',
+                        "Content-Type" : 'multipart/form-data',
                         "X-CSRFToken": getCookie('csrftoken'),
                     },
                     "processData": false,

@@ -9,7 +9,6 @@
             const focus_actions = (e) => e.target.parentNode.querySelector('.buttons').classList.toggle('visible');
             function check_actions(e, elem) {
                 let targ_id = e.target.id;
-                console.log(targ_id);
                 if (targ_id.startsWith('act-like-') || targ_id.startsWith('act-dislike-')) {
                     if (targ_id.startsWith('act-like-')) {
                         elem.classList.add("animate__backOutRight");

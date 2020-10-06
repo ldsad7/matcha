@@ -23,7 +23,6 @@ function submitTag(el) {
         new_tag_edited = false;
     }
     el.querySelector("span").innerHTML = "#" + data;
-    // ЗДЕСЬ НАДО ОТПРАВЛЯТЬ ЗАПРОС О СОЗДАНИИ/ИЗМЕНЕНИИ ТЕГА
 }
 
 function createNewTag() {
@@ -38,6 +37,7 @@ function createNewTag() {
     new_tag.appendChild(document.createElement("input"));
     tags_area.appendChild(new_tag);
     tagListener(new_tag);
+    new_tag.querySelector("input").focus();
 }
 
 function tagListener(el) {
