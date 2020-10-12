@@ -272,7 +272,7 @@ class Notification(ManagedModel, TimeStampedModel, GetById):
 
 class Message(ManagedModel, TimeStampedModel, GetById):
     """
-    user_1's username << user_2's username
+    str(user_1.id) <= str(user_2.id)
     """
 
     TO_1_2 = '1 -> 2'

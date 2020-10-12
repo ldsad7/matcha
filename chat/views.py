@@ -16,9 +16,19 @@ def index(request):
         user_connect.user_1_id
         for user_connect in UsersConnect.objects_.filter(user_2_id=request.user.id, type=UsersConnect.PLUS)
     }
-    context = {
-        'users': UserReadSerializer(User.objects_.filter(id__in=liked_user_ids & liking_user_ids), many=True).data
-    }
+    users = UserReadSerializer(User.objects_.filter(id__in=liked_user_ids & liking_user_ids), many=True).data
+    for user in users:
+        if str(request.user.id) <= str(user['id']):
+            user_1_id, user_2_id = request.user.id, user['id']
+        else:
+            user_1_id, user_2_id = user['id'], request.user.id
+        messages = sorted(
+            Message.objects_.filter(user_1_id=user_1_id, user_2_id=user_2_id), key=lambda elem: elem.created
+        )
+        user['last_message'] = None
+        if messages:
+            user['last_message'] = messages[-1].created
+    context = {'users': users}
     return render(request, 'chat/index.html', context)
 
 
