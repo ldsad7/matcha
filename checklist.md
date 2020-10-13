@@ -5,14 +5,14 @@ Check at least the following points:
 - Forms and uploads have correct validations.
 - SQL injection isn't possible.
 If at least one fails, the defense stops.
- Yes
+ Yes ✅
  No
 Installation and seeding
 Re-do the whole installation of every package with the evaluee.
 You must also fill the database with the script he wrote.
 Make sure that the database at least contains 500 different profiles.
 If any of these crash, mark the project as crashed and finish the evaluation.
- Yes
+ Yes ✅
  No
 Features
 During the defense, keep the web console open at all times. If at least one error, notice, or warning appears, select "Crash" at the very bottom of the checklist. An error code from 500 to 599 returned by the server is also considered to be a Crash.
@@ -21,7 +21,7 @@ Launch the webserver containing the website.
 No errors must be visible.
 If this is not the case, the question is false and the evaluation stops.
 The application must run as is when you start the webserver.
- Yes
+ Yes ✅
  No
 User account management
 The app must allow a user to register asking at least an
@@ -33,7 +33,7 @@ and must be able to update his information as well as the
 one given during registration, at any time.
 When you subscribe, you are emailed a clickable link.
 If you haven't clicked the link, the account must not be usable.
- Yes
+ Yes ✅
  No
 User connexion
 The user must then be able to connect with his username
@@ -42,13 +42,13 @@ allowing him to re-initialize his password should
 the first one be forgotten.
 To disconnect must be possible from any page on the site
 with one click.
- Yes
+ Yes ✅
  No
 Extended profile
 The user must be able to fill in the following:
-- His sex 
-- His sexual orientation
-- Short bio
+- His sex ✅
+- His sexual orientation ✅
+- Short bio ✅
 - Interests list (with hashtags \#bio, \#NoMakeup...)
 - Images, up to 5, including a profile picture
 If the seed is correctly implemented,
