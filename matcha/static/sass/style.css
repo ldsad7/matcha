@@ -487,6 +487,10 @@ span.circle {
           align-items: center;
 }
 
+.user-profile .interests #tags p {
+  padding-top: 20px;
+}
+
 .user-profile .interests #tags .tag {
   margin-left: 5px;
   position: relative;
@@ -1134,30 +1138,18 @@ section.content .settings-block .change-pwd [type="submit"]:hover {
 }
 
 .user-card-mini .buttons-sec {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
+  width: 100%;
 }
 
 .user-card-mini .buttons-sec button {
-  position: absolute;
   cursor: pointer;
-  right: 10px;
-  top: 15px;
   min-width: 70px;
-  margin: 10px 0 0 20px;
+  margin: 10px auto;
+  display: block;
   border-radius: 5px;
   padding: 5px;
   border: none;
   background-color: #99c4d8;
-}
-
-.user-card-mini .buttons-sec button:nth-child(1) {
-  top: 55px;
 }
 
 #more-actions {

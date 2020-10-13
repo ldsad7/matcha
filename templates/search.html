@@ -251,10 +251,10 @@
                                 html_str += `red`;
                             }
                             html_str += `"></span><span class="connect-date">`;
-                            if (user.last_login == 'offline') {
+                            if (user.last_login == 'offline' || user.last_login == 'online') {
                                 html_str += user.last_login;
                             } else {
-                                html_str += user.last_login; // correct date...
+                                html_str += moment(new Date(user.last_login)).fromNow();
                             }
                         html_str += `</span></div>
                             </figure>
@@ -366,10 +366,6 @@
     </script>
     {% if global_user.id %}
     <script>
-        // let user_ids = [];
-        // {% for user in users %}
-        //     user_ids.push({{ user.id }});
-        // {% endfor %}
         csrftoken = getCookie('csrftoken');
         function initListeners(i, id) {
             document.getElementById("act-like-" + i).addEventListener("click", function (e) {

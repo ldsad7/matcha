@@ -18,6 +18,7 @@ var image = {
         _image.file = event.target.files[0];
         new_images.push(_image);
         
+        
         output.src = URL.createObjectURL(event.target.files[0]);
         output.removeAttribute("id");
         output.classList.add("for-push");

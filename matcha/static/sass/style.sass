@@ -352,6 +352,8 @@ span.circle
             display: flex
             flex-wrap: wrap
             align-items: center
+            p
+                padding-top: 20px
             .tag
                 margin-left: 5px
                 position: relative
@@ -789,21 +791,23 @@ section.content
                 height: 50px
                 border-radius: 50%
     .buttons-sec
-        display: flex
-        flex-direction: column
+        // display: flex
+        width: 100%
+        // flex-direction: column
         button
-            position: absolute
+            // position: absolute
             cursor: pointer
-            right: 10px
-            top: 15px
+            // right: 10px
+            // top: 15px
             min-width: 70px
-            margin: 10px 0 0 20px
+            margin: 10px auto
+            display: block
             border-radius: 5px
             padding: 5px
             border: none
             background-color: #99c4d8
-            &:nth-child(1)
-                top: 55px
+            // &:nth-child(1)
+            //     top: 55px
 
 #more-actions
     position: absolute

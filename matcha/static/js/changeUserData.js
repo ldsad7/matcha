@@ -67,19 +67,36 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         _name.submit();
 
         new_images.forEach(elem => {
+        // images_src.forEach(elem => {
             let { file } = elem;
+            // let { src } = elem;
+            // let file = src;
 
             if (file) {
+                // var FR = new FileReader();
+                // var data = {};
                 var data = new FormData();
+                // var image = null;
 
-                // console.log(imageInput);
+                // console.log(new_images);
+
+                // const imageToData = (e) => {
+                    // data.image = e.target.result.split(',')[1];
+                    // data.append("image", e.target.result.toString(), "tmp.jpg");
+                // }
+                // FR.addEventListener("load", imageToData);
+                // FR.readAsDataURL( file );
+
+                
+                // data.user_id = user_id;
                 data.append("image", file, "tmp.jpg");
-                data.append("user_id", user_id + "");
+                data.append("user_id", user_id - 0);
+                data.append("main", false);
 
                 let settings = {
                     "url": "/api/v1/user_photos/",
                     "method": "POST",
-                    "timeout": 0,
+                    // "timeout": 0,
                     "headers": {
                         "Content-Type" : 'multipart/form-data',
                         "X-CSRFToken": getCookie('csrftoken'),
@@ -89,6 +106,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
                     "contentType": false,
                     "data": data
                 };
+                console.log(settings);
                 $.ajax(settings);
             }
         });
