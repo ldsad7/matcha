@@ -14,8 +14,10 @@ var image = {
         }
         output.style.display = "inline-block";
 
-        _image = {}
+        _image = {};
+        console.log(event.target);
         _image.file = event.target.files[0];
+        console.log(_image.file);
         new_images.push(_image);
         
         

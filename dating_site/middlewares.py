@@ -21,11 +21,11 @@ class CustomMiddleware:
         path = request.path
         user_1_id = request.user.id
         if user_1_id is not None:
-            body = request.body.decode()
             try:
+                body = request.body.decode()
                 body = json.loads(body)
             except Exception:
-                pass
+                body = []
 
             user_obj = User.objects_.get(id=user_1_id)
             x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
