@@ -49,126 +49,126 @@ The user must be able to fill in the following:
 - His sex ✅
 - His sexual orientation ✅
 - Short bio ✅
-- Interests list (with hashtags \#bio, \#NoMakeup...)
-- Images, up to 5, including a profile picture
+- Interests list (with hashtags \#bio, \#NoMakeup...) ✅
+- Images, up to 5, including a profile picture 🚫
 If the seed is correctly implemented,
 you can make tag propositions in any form you want
 (autocomplete, top-trending)
 Once his profile is complete, he can access the website.
 These informations can be changed at any time, once connected.
 If one of the points fails, this question is false
- Yes
- No
+ Yes ❓
+ No ❓
 Consultations
 The user must be able to check out the people that looked at his
 profile (there mush be an history of visits) as well as the people
 that "liked" him.
- Yes
- No
+ Yes 
+ No 🚫
 Fame rating
 Each user must have a public fame rating. Ask the student to explain
 his stategy regarding the computing of that score, it must be consistent
 and a minimum relevant.
- Yes
- No
+ Yes❓
+ No❓
 Geolocalisation
 The user must be located using GPS positionning, up to his
 neighborhood. If the user does not want to be positionned,
 a way must found to locate him even without his knowledge.
 The user must be able to modify his GPS position in his
 profile.
- Yes
- No
+ Yes❓
+ No❓
 Profile suggestion
 The user must be able to easily get a list of suggestions when
 connecting that match his profile.
 Suggested profiles must be consistant with sexuality. If the
 sexual orientation isn’t specified, the user will be considered
-bi-sexual.
+bi-sexual. ❓
 Check with the student that profile suggestions are weighted on
 three criterias:
-- Same geographic area as the user.
-- With a maximum of common tags.
-- With a maximum fame rating.
+- Same geographic area as the user.❓
+- With a maximum of common tags.❓
+- With a maximum fame rating.❓
 Ask the student to explain his strategy to display a list of
 relevant suggestions.
- Yes
- No
+ Yes ❓
+ No ❓
 Research
 The user must be able to run an advanced research selecting
 one or a few criterias such as:
-- A age gap.
-- A fame rating gap.
-- A location.
-- One or multiple interests tags.
+- A age gap.✅
+- A fame rating gap.✅
+- A location.❓
+- One or multiple interests tags.✅
  Yes
  No
 Sort and filters
 The suggestion list as well as the resulting list of a search must be
 sortable and filterable by:
-- Age.
-- Location.
-- Fame rating.
-- Tags.
+- Age.🚫
+- Location.🚫
+- Fame rating.🚫
+- Tags.🚫
  Yes
- No
+ No 🚫
 Profile of other users
 A user must be able to consult the profile of other users,
 that must contain all the information available about them,
 except for the email address and the password.
 The profile must show the fame rating and if the user is
 connected and if not see the last connection date and time.
- Yes
- No
+ Yes❓
+ No❓
 Connexion between users
 A user can like or unlike the profile of another user. When two people
 like each other, we will say that they are connected and can be able to
-chat.
+chat.✅
 A user that doesn't have a profile picture can't like another user.
 The profile of other users must clearly display if they're connected
 with the current user or if they like the current user.
  Yes
- No
+ No 🚫
 Report et bloking
 It's possible to report a profile as "fake account" and block a specific
 user. A blocked user won’t appear anymore in the research results (or in
 suggestions) and won’t generate additional notifications.
- Yes
- No
+ Yes ❓
+ No ❓
 Chat
 When two users are connected, they must be able to chat in real time.
 (We'll tolerate a 10 secondes delay).
 The user must be able to see from any page if a new message is received.
- Yes
+ Yes ✅
  No
 Notifications
 A user must be notified in real time (We'll also tolerate a
 10 secondes delay) of the following events:
-- The user received a "like".
-- The user received a visit.
-- The user received a message.
-- A "liked" user "liked" back.
-- A connected user "unliked" the current user.
+- The user received a "like". ✅
+- The user received a visit. ✅
+- The user received a message. ✅
+- A "liked" user "liked" back. ✅
+- A connected user "unliked" the current user. ✅
 A user must be able to see, from any page that a notification
 hasn’t been read.
- Yes
+ Yes ✅
  No
 Best practices
 Compatibility
 Is the website compatible with Firefox (>= 41) and Chrome (>= 46)?
 Features described above work correctly with no warnings, errors, or weird logs?
- Yes
+ Yes ✅
  No
 Mobile
 Is the website usable on a mobile and on very small resolution?
 Is the site layout correctly displayed?
- Yes
+ Yes ✅
  No
 Security
 XSS / CSRF / TGIF / WYSIWYG / TMTC / TMNT...
 The subject insisted on that point: the website must be secured.
 Check at least the following points:
-- Passwords are encrypted in the database.
-- Forms and uploads have correct validations. Scripts can not be injected.
-- SQL injection isn't possible. (try to login with`blabla' OR 1='1` as a password)
+- Passwords are encrypted in the database. ✅
+- Forms and uploads have correct validations. Scripts can not be injected. ✅
+- SQL injection isn't possible. (try to login with`blabla' OR 1='1` as a password) ✅
 If at least one fails, the defense stops.
