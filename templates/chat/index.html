@@ -21,7 +21,7 @@
                                 {{ user.username }}
                             </div>
                             <!-- TODO: time of last message -->
-                            <span class="unread-counter">{{ user.last_message }}</span>
+                            <span class="unread-counter">{{ user.last_message|date:'mdY h:m:s' }}</span>
                         </div>
                     </a>
                 </div>
@@ -31,12 +31,21 @@
 {% endblock %}
 
 {% block body_scripts %}
+    <script src="{% static 'js/moment.min.js' %}"></script>
     <script>
         {% if global_user.id %}user_id = {{ global_user.id }}{% endif %};
     </script>
     <script>
         {% for user in users %}
-            document.getElementById("room-name-{{ forloop.counter0 }}").setAttribute("href", ["{{ global_user.id }}", "{{ user.id }}"].sort().join('_'));
+            const room = document.getElementById("room-name-{{ forloop.counter0 }}");
+            room.setAttribute("href", ["{{ global_user.id }}", "{{ user.id }}"].sort().join('_'));
+            console.log(room.querySelector(".unread-counter").textContent);
+            let _date = room.querySelector(".unread-counter").textContent;
+            if (_date != 0) {
+                room.querySelector(".unread-counter").innerHTML = moment(_date, "MMDDYYYY hh:mm:ss").fromNow();
+            } else {
+                room.querySelector(".unread-counter").innerHTML = "Нет сообщений";
+            }
         {% endfor %}
         
         // sort chats
