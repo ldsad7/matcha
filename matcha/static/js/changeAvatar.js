@@ -28,9 +28,9 @@ var avatar = {
         this.del_btn = document.getElementById("del-avatar");
         this.images = document.querySelectorAll(".img-area div img");
         this.clicked = false;
-        document.querySelectorAll(".img-area div div").forEach(el => {
-            el.appendChild(createDelBlock());
-        });
+        // document.querySelectorAll(".img-area div div").forEach(el => {
+        //     el.appendChild(createDelBlock());
+        // });
         if (this.images.length > 1) {
             this.images.forEach(img => {
                 img.addEventListener("click", function(e) {
@@ -39,8 +39,10 @@ var avatar = {
                         let div = document.createElement("div");
                         div.appendChild(el);
                         div.appendChild(createDelBlock());
+                        el.classList.remove("main");
                         document.querySelector(".img-area div").appendChild(div);
                         e.target.parentNode.remove();
+                        e.target.classList.add("main");
                         document.querySelector("figure div").appendChild(e.target);
                         el.addEventListener("click", function(e) {
                             if (document.querySelector("#change-profile-data-cancel").style.display !== "none") {
