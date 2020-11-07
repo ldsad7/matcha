@@ -288,9 +288,6 @@
                                 <div class="img-area">
                                     <div>
                                         <img id="output" style="display: none;">
-                                        <!-- <div class="hover-info">
-                                            <div>Swap avatar</div>
-                                        </div> -->
                                     </div>
                                 </div>
                                 <input type="file" id="imageInput" class="not-here-pls"name="imageInput" accept=".jpg, .jpeg, .png" onchange="image.loadFile(event)">
@@ -317,7 +314,7 @@
                         stackCall.forEach(cmd => {
                             cmd();
                         })
-
+                        check_line_clamp();
                 }
             })
         });
@@ -359,7 +356,6 @@
                 }
             })
         }
-        check_line_clamp();
         window.onresize = function(e) {
             check_line_clamp();
         }
@@ -435,6 +431,7 @@
                 }
             });
         }
+        check_line_clamp();
     </script>
     {% endif %}
 {% endblock %}

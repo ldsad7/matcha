@@ -9,11 +9,13 @@
             const focus_actions = (e) => e.target.parentNode.querySelector('.buttons').classList.toggle('visible');
             function check_actions(e, elem) {
                 let targ_id = e.target.id;
-                if (targ_id.startsWith('act-like-') || targ_id.startsWith('act-dislike-')) {
-                    if (targ_id.startsWith('act-like-')) {
-                        elem.classList.add("animate__backOutRight");
-                    } else {
+                if (targ_id.startsWith('act-like-') || targ_id.startsWith('act-dislike-')
+                                                    || targ_id.startsWith('btn-report-')
+                                                    || targ_id.startsWith('btn-block-')) {
+                    if (targ_id.startsWith('act-dislike-') || targ_id.startsWith('btn-report-') || targ_id.startsWith('btn-block-')) {
                         elem.classList.add("animate__backOutLeft");
+                    } else {
+                        elem.classList.add("animate__backOutRight");
                     }
                     setTimeout(() => {elem.remove()}, 600);
                 }
