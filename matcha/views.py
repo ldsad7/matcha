@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
 
 from .models import (
@@ -39,9 +40,10 @@ def common_list(request, model, model_serializer, model_read_serializer, order_b
         if order_by_field is not None:
             objs = order_by(objs, order_by_field)
         serializer = model_read_serializer(objs, many=True)
-        return Response(serializer.data)
+        # Response(serializer.data)
+        return ListCreateAPIView.get_paginated_response(data=serializer.data)
     elif request.method == 'POST':
-        serializer = model_serializer(data=request.data)
+        serializer = model_serializer(data=request.data, many=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

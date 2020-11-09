@@ -1,6 +1,7 @@
 from datetime import datetime, date
 
 from django.db import models
+from django.utils.functional import cached_property
 from model_utils.models import TimeStampedModel
 from django.contrib.auth.models import AbstractUser
 from model_utils import Choices
@@ -78,19 +79,20 @@ class User(ManagedModel, AbstractUser, GetById):
         d = date.today()
         return (d.year - bday.year) - int((d.month, d.day) < (bday.month, bday.day))
 
-    @property
+    @cached_property
     def rating(self):
-        rating = \
-            len(UsersConnect.objects_.filter(user_2_id=self.id, type=UsersConnect.PLUS)) - \
-            len(UsersConnect.objects_.filter(user_2_id=self.id, type=UsersConnect.MINUS)) - \
-            len(UsersBlackList.objects_.filter(user_2_id=self.id)) - \
-            len(UsersFake.objects_.filter(user_2_id=self.id)) + \
-            10 * int(self.profile_activated) + \
-            5 * (len(UserPhoto.objects_.filter(user_id=self.id)) > 3) + \
-            5 * (len(UserTag.objects_.filter(user_id=self.id)) > 3) + \
-            len(UsersConnect.objects_.filter(user_1_id=self.id))
-        if rating < 0:
-            return 0.0
+        # rating = \
+        #     len(UsersConnect.objects_.filter(user_2_id=self.id, type=UsersConnect.PLUS)) - \
+        #     len(UsersConnect.objects_.filter(user_2_id=self.id, type=UsersConnect.MINUS)) - \
+        #     len(UsersBlackList.objects_.filter(user_2_id=self.id)) - \
+        #     len(UsersFake.objects_.filter(user_2_id=self.id)) + \
+        #     10 * int(self.profile_activated) + \
+        #     5 * (len(UserPhoto.objects_.filter(user_id=self.id)) > 3) + \
+        #     5 * (len(UserTag.objects_.filter(user_id=self.id)) > 3) + \
+        #     len(UsersConnect.objects_.filter(user_1_id=self.id))
+        # if rating < 0:
+        #     return 0.0
+        rating = 0.0
         return rating
 
     def save(self, *args, **kwargs):

@@ -39,3 +39,6 @@ django-debug-toolbar==2.2
 
 # Distance
 mpu==0.23.1
+
+# Faker
+Faker==4.14.2
