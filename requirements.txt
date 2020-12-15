@@ -42,3 +42,4 @@ mpu==0.23.1
 
 # Faker
 Faker==4.14.2
+transliterate==1.10.2
