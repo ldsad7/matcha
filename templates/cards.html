@@ -36,7 +36,7 @@
             <figure>
                 <div>
                     {% if user.photos %}
-                        <img src="{{ user.photos.0.image }}" alt="default profile picture">
+                        <img src="{{ user.photos.0 }}" alt="default profile picture">
                     {% else %}
                         <img src="{% static 'img/default.png' %}" alt="default profile picture">
                     {% endif %}
@@ -52,7 +52,7 @@
                     <span>{{ user.first_name }} {{ user.last_name }}</span>
                 </div>
                 <div id="rating">Рейтинг: <span class="rating">{{ user.rating }}&#9733;</span></div>
-                <div>
+                <div style="margin-left: 10px;">
                     {% if user.info %}
                         <button id="show-more">показать полностью</button>
                         <div id="history" class="short-history">Инфо: {{ user.info }}</div>
@@ -64,7 +64,7 @@
                         <p class="white">Интересы: </p>
                         {% for tag in user.tags %}
                             <div class="tag">
-                                <span>#{{ tag.tag }}</span>
+                                <span>#{{ tag }}</span>
                             </div>
                         {% endfor %}
                     </div>

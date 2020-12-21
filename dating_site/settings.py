@@ -193,9 +193,47 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
-
 ####################################
 # Local Settings
 ####################################
 
 from .local_settings import *
+
+####################################
+# VERBOSE
+####################################
+
+verbose_flag = False
+
+####################################
+# REDIS
+####################################
+
+REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
+REDIS_PORT = os.getenv('REDIS_PORT', '6379')
+REDIS_BASE_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}'
+# NB: for django-health-check
+REDIS_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}'
+
+####################################
+# CELERY
+####################################
+
+CELERY_REDIS_DB = os.getenv('CELERY_REDIS_DB', '0')
+CELERY_BROKER_URL = f'{REDIS_BASE_URL}/{CELERY_REDIS_DB}'
+CELERY_RESULT_BACKEND = f'{REDIS_BASE_URL}/{CELERY_REDIS_DB}'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_ONCE = {
+    'backend': 'celery_once.backends.Redis',
+    'settings': {
+        'url': CELERY_BROKER_URL,
+        'default_timeout': 60 * 60
+    }
+}
+
+####################################
+# Custom Pagination
+####################################
+
+PAGE_SIZE = 5

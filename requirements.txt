@@ -43,3 +43,8 @@ mpu==0.23.1
 # Faker
 Faker==4.14.2
 transliterate==1.10.2
+
+# Celery
+celery==5.0.5
+# celery==4.2.0
+django_redis==4.10.0

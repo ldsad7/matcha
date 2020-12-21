@@ -62,5 +62,14 @@ redis (стандартный порт).
 GeoLite2 City и GeoLite2 Country с
 https://www.maxmind.com/en/accounts/394283/geoip/downloads. 
 Из разархивированных папок нужно взять файлы с расширением `.mmdb`
-и поместить их в отдельную папку,
-на которую и должен указывать GEOIP_PATH.
+и поместить их в отдельную папку, на которую и должен указывать GEOIP_PATH.
+
+Как запустить celery:
+
+Нужен redis (заходим в Ubuntu 18.04 LTS) и далее по инструкции в https://redislabs.com/blog/redis-on-windows-10/
+
+(On Windows add `activate celery-4-windows`)
+
+В одном окне консоли: `celery -A dating_site beat -l info`
+
+В другом окне консоли: `celery -A dating_site worker -l info -P solo`

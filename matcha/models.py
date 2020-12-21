@@ -71,6 +71,7 @@ class User(ManagedModel, AbstractUser, GetById):
     longitude = models.FloatField(_('долгота'), default=0.0)
     country = models.CharField(_('страна'), max_length=64, blank=False, null=True)
     city = models.CharField(_('город'), max_length=64, blank=False, null=True)
+    rating = models.FloatField(_('рейтинг'), default=0.0)
     objects_ = UserManager()
 
     @property
@@ -78,22 +79,6 @@ class User(ManagedModel, AbstractUser, GetById):
         bday = datetime.strptime(self.date_of_birth, '%Y-%m-%d')
         d = date.today()
         return (d.year - bday.year) - int((d.month, d.day) < (bday.month, bday.day))
-
-    @cached_property
-    def rating(self):
-        # rating = \
-        #     len(UsersConnect.objects_.filter(user_2_id=self.id, type=UsersConnect.PLUS)) - \
-        #     len(UsersConnect.objects_.filter(user_2_id=self.id, type=UsersConnect.MINUS)) - \
-        #     len(UsersBlackList.objects_.filter(user_2_id=self.id)) - \
-        #     len(UsersFake.objects_.filter(user_2_id=self.id)) + \
-        #     10 * int(self.profile_activated) + \
-        #     5 * (len(UserPhoto.objects_.filter(user_id=self.id)) > 3) + \
-        #     5 * (len(UserTag.objects_.filter(user_id=self.id)) > 3) + \
-        #     len(UsersConnect.objects_.filter(user_1_id=self.id))
-        # if rating < 0:
-        #     return 0.0
-        rating = 0.0
-        return rating
 
     def save(self, *args, **kwargs):
         was_empty_field = False

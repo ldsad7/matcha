@@ -3,6 +3,8 @@ import datetime
 from django.db import connection
 from django.db.models.fields.related import ForeignKey
 
+from dating_site.settings import verbose_flag
+
 NL = '\n'
 ISO_SEP = ' '
 MODIFIED = 'modified'
@@ -70,7 +72,8 @@ class CommonManager:
                     DELETE FROM {self.db_table}
                     WHERE id={c.id};
                 """
-        print(f'delete query: {query}')
+        if verbose_flag:
+            print(f'delete query: {query}')
         with connection.cursor() as cursor:
             cursor.execute(query)
 
@@ -79,7 +82,8 @@ class CommonManager:
                     SELECT {','.join(self.fields)}
                     FROM {self.db_table};
                 """
-        print(f'all query: {query}')
+        if verbose_flag:
+            print(f'all query: {query}')
         with connection.cursor() as cursor:
             cursor.execute(query)
             objects = []
@@ -96,7 +100,8 @@ class CommonManager:
                     FROM {self.db_table}
                     WHERE id={id};
                 """
-        print(f'get query: {query}')
+        if verbose_flag:
+            print(f'get query: {query}')
         with connection.cursor() as cursor:
             cursor.execute(query)
             objects = []
@@ -116,7 +121,8 @@ class CommonManager:
                     SET {set_values}
                     WHERE id={c.id};
                 """
-        print(f'update query: {query}')
+        if verbose_flag:
+            print(f'update query: {query}')
         with connection.cursor() as cursor:
             cursor.execute(query)
 
@@ -126,7 +132,8 @@ class CommonManager:
                     ({','.join(self.fields_without_id)})
                     VALUES ({','.join(self.field_values(c, self.fields_without_id))});
                 """
-        print(f'insert query: {query}')
+        if verbose_flag:
+            print(f'insert query: {query}')
         with connection.cursor() as cursor:
             cursor.execute(query)
             setattr(c, 'id', cursor.lastrowid)
@@ -169,7 +176,8 @@ class CommonManager:
                     FROM {self.db_table}
                     WHERE {' AND '.join(where_conditions)}
                 """
-                print(f'filter query: {query}')
+                if verbose_flag:
+                    print(f'filter query: {query}')
                 cursor.execute(query)
                 for row in cursor.fetchall():
                     c = self.model()

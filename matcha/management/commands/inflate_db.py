@@ -9,7 +9,7 @@ from transliterate import translit
 
 from matcha.models import User, UserPhoto, UserTag, Tag, UsersConnect, UsersFake, UsersBlackList, Notification
 
-NUM_OF_USERS = 30  # 500
+NUM_OF_USERS = 355  # 500
 # Faker.seed(0)
 fake = Faker('ru_RU')
 
@@ -86,10 +86,13 @@ class Command(BaseCommand):
                 if not Tag.objects_.filter(name=tag_name):
                     Tag(name=tag_name).save()
                 tag = Tag.objects_.filter(name=tag_name)[0]
-                UserTag(
-                    user_id=user_id,
-                    tag_id=tag.id
-                ).save()
+                try:
+                    UserTag(
+                        user_id=user_id,
+                        tag_id=tag.id
+                    ).save()
+                except IntegrityError:
+                    pass
 
             if len(user_ids) // 2 >= 1:
                 for _ in range(random.randint(1, len(user_ids) // 2)):

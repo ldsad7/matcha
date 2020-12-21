@@ -1,14 +1,19 @@
+import time
 import uuid
 
 import mpu
 import requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, JsonResponse, Http404
+from django.template import loader
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
 
+from dating_site.settings import PAGE_SIZE
+from .filters import filter_age, filter_rating, filter_location, filter_tags, filter_timestamp
 from .models import (
     Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification, Message
 )
@@ -18,10 +23,6 @@ from .serializers import (
     UsersFakeSerializer, UsersFakeReadSerializer, UsersBlackListSerializer, UsersBlackListReadSerializer,
     NotificationSerializer, NotificationReadSerializer, MessageSerializer, MessageReadSerializer
 )
-from .filters import filter_age, filter_rating, filter_location, filter_tags, filter_timestamp
-
-from django.template import loader
-from django.http import HttpResponse, JsonResponse, Http404
 
 MINUS = '-'
 
@@ -40,8 +41,8 @@ def common_list(request, model, model_serializer, model_read_serializer, order_b
         if order_by_field is not None:
             objs = order_by(objs, order_by_field)
         serializer = model_read_serializer(objs, many=True)
-        # Response(serializer.data)
-        return ListCreateAPIView.get_paginated_response(data=serializer.data)
+        return Response(serializer.data)
+        # return ListCreateAPIView.get_paginated_response(data=serializer.data)
     elif request.method == 'POST':
         serializer = model_serializer(data=request.data, many=True)
         if serializer.is_valid():
@@ -85,7 +86,7 @@ def user_list(request):
                 objs = filter_location(objs, value, User)
             elif query_param == 'tags':
                 objs = filter_tags(objs, value, User)
-        serializer = UserReadSerializer(objs, many=True)
+        serializer = UserSerializer(objs, many=True)
         return Response(serializer.data)
     return common_list(request, User, UserSerializer, UserReadSerializer)
 
@@ -129,7 +130,7 @@ def liking(id):
         user_connect.user_1
         for user_connect in UsersConnect.objects_.filter(user_2_id=user.id)
     ]
-    data = UserReadSerializer(users, many=True).data
+    data = UserSerializer(users, many=True).data
     for user in data:
         user_connects = UsersConnect.objects_.filter(
             user_1_id=id, user_2_id=user['id']
@@ -177,7 +178,7 @@ def liked(id):
         user_connect.user_2
         for user_connect in UsersConnect.objects_.filter(user_1_id=user.id)
     ]
-    return UserReadSerializer(users, many=True).data
+    return UserSerializer(users, many=True).data
 
 
 @api_view(['GET'])
@@ -301,22 +302,26 @@ def messages_detail(request, id):
 ####################################
 
 
-def exclude(objs, ids):
-    return [obj for obj in objs if obj['id'] not in ids]
-
-
 def ignore_false_users(objs, user_id):
     """
     Removes blocked, faked, already (dis)liked users and himself from a list
     """
     ignored_ids = {user_id}
-    ignored_ids |= {obj.user_2_id for obj in UsersConnect.objects_.filter(user_1_id=user_id)}
-    ignored_ids |= {obj.user_1_id for obj in UsersConnect.objects_.filter(user_2_id=user_id, type=UsersConnect.MINUS)}
-    ignored_ids |= {obj.user_2_id for obj in UsersBlackList.objects_.filter(user_1_id=user_id)}
-    ignored_ids |= {obj.user_1_id for obj in UsersBlackList.objects_.filter(user_2_id=user_id)}
-    ignored_ids |= {obj.user_2_id for obj in UsersFake.objects_.filter(user_1_id=user_id)}
-    ignored_ids |= {obj.user_1_id for obj in UsersFake.objects_.filter(user_2_id=user_id)}
-    users = exclude(UserReadSerializer(objs, many=True).data, ignored_ids)
+
+    users_connects = UsersConnect.objects_.all()
+    ignored_ids |= {obj.user_2_id for obj in users_connects if obj.user_1_id == user_id}
+    ignored_ids |= {obj.user_1_id for obj in users_connects if
+                    obj.user_2_id == user_id and obj.type == UsersConnect.MINUS}
+
+    users_black_lists = UsersBlackList.objects_.all()
+    ignored_ids |= {obj.user_2_id for obj in users_black_lists if obj.user_1_id == user_id}
+    ignored_ids |= {obj.user_1_id for obj in users_black_lists if obj.user_2_id == user_id}
+
+    users_fakes = UsersFake.objects_.all()
+    ignored_ids |= {obj.user_2_id for obj in users_fakes if obj.user_1_id == user_id}
+    ignored_ids |= {obj.user_1_id for obj in users_fakes if obj.user_2_id == user_id}
+
+    users = [obj for obj in objs if obj.id not in ignored_ids]
     return users
 
 
@@ -324,51 +329,63 @@ def ignore_by_orientation_and_gender(users, user):
     if user.gender != User.UNKNOWN and user.orientation != User.UNKNOWN:
         if user.orientation == User.HETERO:
             users = [
-                inner_user for inner_user in users if inner_user['gender'] not in [user.gender, User.UNKNOWN]
+                inner_user for inner_user in users if inner_user.gender not in [user.gender, User.UNKNOWN]
             ]
         elif user.orientation == User.HOMO:
             users = [
-                inner_user for inner_user in users if inner_user['gender'] == user.gender
+                inner_user for inner_user in users if inner_user.gender == user.gender
             ]
         elif user.orientation == User.BI:
             users = [
-                inner_user for inner_user in users if inner_user['gender'] != User.UNKNOWN
+                inner_user for inner_user in users if inner_user.gender != User.UNKNOWN
             ]
     return users
 
 
-def order_by_rating(users, user):
-    user_tags = set([user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=user.id)])
+def order_by_rating(users, user, page):
     max_rating = 0.0
     max_distance = 0.0
+    user_tags = set(user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=user.id))
     for inner_user in users:
-        max_rating = max(inner_user['rating'], max_rating)
-        inner_user['distance'] = mpu.haversine_distance(
-            (user.latitude, user.longitude), (inner_user['latitude'], inner_user['longitude'])
+        max_rating = max(inner_user.rating, max_rating)
+        inner_user.distance = mpu.haversine_distance(
+            (user.latitude, user.longitude), (inner_user.latitude, inner_user.longitude)
         )
-        max_distance = max(inner_user['distance'], max_distance)
-        inner_user['tag_names'] = set(
-            [user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=inner_user['id'])]
+        max_distance = max(inner_user.distance, max_distance)
+        inner_user.tag_names = set(
+            user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=inner_user.id)
         )
     for inner_user in users:
-        inner_user['score'] = \
-            0.33 * inner_user['rating'] / (max_rating + 0.01) + \
-            0.33 * len(user_tags & inner_user['tag_names']) / (len(user_tags | inner_user['tag_names']) + 0.1) + \
-            0.33 * (1 - inner_user['distance'] / (max_distance + 0.01))
-    return sorted(users, key=lambda elem: -elem['score'])
+        inner_user.score = \
+            0.33 * inner_user.rating / (max_rating + 0.01) + \
+            0.33 * len(user_tags & inner_user.tag_names) / (len(user_tags | inner_user.tag_names) + 0.1) + \
+            0.33 * (1 - inner_user.distance / (max_distance + 0.01))
+    return sorted(users, key=lambda elem: -elem.score)[(page - 1) * PAGE_SIZE:page * PAGE_SIZE]
 
 
 def index(request):
     template = loader.get_template('index.html')
     users = User.objects_.all()
+    try:
+        page = int(float(request.GET.get('page', 1)))
+    except ValueError as e:
+        print(f"ValueError happened: {e}")
+        page = 1
     if request.user.id is not None:
         user = User.objects_.get(id=request.user.id)
         users = ignore_false_users(users, user.id)
         users = ignore_by_orientation_and_gender(users, user)
-        users = order_by_rating(users, user)
+
+        start = time.time()
+        users = order_by_rating(users, user, page)
+        end = time.time()
+        print(f'time 4: {end - start}')
+    start = time.time()
     context = {
-        'users': users
+        'users': UserSerializer(users, many=True).data
     }
+    end = time.time()
+    print(f'time 2: {end - start}')
     return HttpResponse(template.render(context, request))
 
 
@@ -376,7 +393,7 @@ def index(request):
 def search(request):
     template = loader.get_template('search.html')
     context = {
-        'users': UserReadSerializer(User.objects.all(), many=True).data
+        'users': UserSerializer(User.objects.all(), many=True).data
     }
     return HttpResponse(template.render(context, request))
 
@@ -384,7 +401,7 @@ def search(request):
 @login_required
 def profile(request):
     template = loader.get_template('profile.html')
-    context = UserReadSerializer(request.user).data
+    context = UserSerializer(request.user).data
     return HttpResponse(template.render(context, request))
 
 
@@ -393,7 +410,7 @@ def user_profile(request, id):
     template = loader.get_template('user_profile.html')
     user = User.objects_.get(id=id)
     if user is not None:
-        context = UserReadSerializer(user).data
+        context = UserSerializer(user).data
     else:
         raise Http404(f"Пользователя с данным id ({id}) не существует в базе")
     return HttpResponse(template.render(context, request))
@@ -405,7 +422,7 @@ def connections(request):
     context = {
         'users': liking(request.user.id)
     }
-    # UserReadSerializer(User.objects.all(), many=True).data,
+    # UserSerializer(User.objects.all(), many=True).data,
     return HttpResponse(template.render(context, request))
 
 
