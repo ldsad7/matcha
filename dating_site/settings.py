@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # debug
-    'debug_toolbar',
+    # 'debug_toolbar',
 
     # utility apps
     'easy_thumbnails',
@@ -66,7 +66,7 @@ MIDDLEWARE = [
     'dating_site.middlewares.CustomMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'dating_site.urls'
@@ -82,7 +82,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.debug',
+                # 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -194,12 +194,6 @@ INTERNAL_IPS = [
 ]
 
 ####################################
-# Local Settings
-####################################
-
-from .local_settings import *
-
-####################################
 # VERBOSE
 ####################################
 
@@ -212,7 +206,7 @@ verbose_flag = False
 REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
 REDIS_PORT = os.getenv('REDIS_PORT', '6379')
 REDIS_BASE_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}'
-# NB: for django-health-check
+# NB: for django-health-checkt
 REDIS_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}'
 
 ####################################
@@ -237,3 +231,9 @@ CELERY_ONCE = {
 ####################################
 
 PAGE_SIZE = 5
+
+####################################
+# Local Settings
+####################################
+
+from .local_settings import *

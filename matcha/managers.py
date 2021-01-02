@@ -222,6 +222,13 @@ class UsersBlackListManager(CommonManager):
         return UsersBlackList
 
 
+class UsersRatingManager(CommonManager):
+    @property
+    def model(self):
+        from .models import UsersRating
+        return UsersRating
+
+
 class UserPhotoManager(CommonManager):
     @property
     def model(self):

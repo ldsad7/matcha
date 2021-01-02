@@ -13,8 +13,8 @@ from rest_framework.fields import (
 )
 
 from .models import (
-    Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification, Message
-)
+    Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification, Message,
+    UsersRating)
 
 
 def raise_exception(field, text):
@@ -265,6 +265,43 @@ class UserSerializer(CommonSerializer):
     rating = serializers.FloatField(required=False, default=0.0)
     # tags = serializers.ListField(required=False, default=[])
     # photos = serializers.ListField(required=False, default=[])
+    tags = serializers.SerializerMethodField()
+    photos = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_tags(instance: User):
+        user_tags = UserTag.objects_.filter(user_id=instance.id)
+        tags = [user_tag.tag.name for user_tag in user_tags]
+        return tags
+
+    @staticmethod
+    def get_photos(instance: User):
+        user_photos = UserPhoto.objects_.filter(user_id=instance.id)
+        photos = [f'/media/images/{user_photo.image}' for user_photo in user_photos]
+        return photos
+
+    @property
+    def unique_fields(self):
+        return ['username', 'email']
+
+    @property
+    def model(self):
+        return UserSerializer
+
+    @property
+    def main_model(self):
+        return User
+
+
+class ShortUserSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    last_login = serializers.DateTimeField(required=False, allow_null=True)
+    username = serializers.CharField(required=False, max_length=150)
+    first_name = serializers.CharField(required=False, allow_blank=True, max_length=30, default='')
+    last_name = serializers.CharField(required=False, allow_blank=True, max_length=150, default='')
+    info = serializers.CharField(required=False, allow_blank=True, max_length=4096, default='')
+    orientation = serializers.CharField(required=False, max_length=32, default=User.UNKNOWN)
+    rating = serializers.FloatField(required=False, default=0.0)
     tags = serializers.SerializerMethodField()
     photos = serializers.SerializerMethodField()
 
@@ -559,6 +596,48 @@ class UsersBlackListReadSerializer(CommonSerializer):
     @property
     def main_model(self):
         return UsersBlackList
+
+
+class UsersRatingSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    user_1_id = serializers.IntegerField(required=True)
+    user_2_id = serializers.IntegerField(required=True)
+    rating = serializers.FloatField(required=True)
+    created = serializers.DateTimeField(required=False)
+    modified = serializers.DateTimeField(required=False)
+
+    @property
+    def model(self):
+        return UsersRatingSerializer
+
+    @property
+    def main_model(self):
+        return UsersRating
+
+
+class UsersRatingReadSerializer(CommonSerializer):
+    id = serializers.IntegerField(read_only=True)
+    user_1 = serializers.SerializerMethodField()
+    user_2 = serializers.SerializerMethodField()
+    rating = serializers.FloatField(required=True)
+    created = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+    modified = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+
+    @staticmethod
+    def get_user_1(instance: UsersRating):
+        return UserSerializer(instance.user_1).data
+
+    @staticmethod
+    def get_user_2(instance: UsersRating):
+        return UserSerializer(instance.user_2).data
+
+    @property
+    def model(self):
+        return UsersRatingReadSerializer
+
+    @property
+    def main_model(self):
+        return UsersRating
 
 
 class NotificationSerializer(CommonSerializer):

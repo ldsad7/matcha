@@ -24,6 +24,7 @@ class Command(BaseCommand):
     @staticmethod
     def update_users():
         user_ids = [user.id for user in User.objects_.all()]
+        prev_raw_content = None
         for _ in range(NUM_OF_USERS):
             gender = random.choice([elem[0] for elem in User.GENDERS])
             if gender == User.MAN:
@@ -67,11 +68,12 @@ class Command(BaseCommand):
             file_name = f'media/images/person_{user_id}.jfif'
             while True:
                 r = requests.get('https://thispersondoesnotexist.com/image', stream=True)
-                if r.status_code != 200:
+                if r.status_code != 200 or r.raw == prev_raw_content:
                     continue
                 with open(file_name, 'wb') as f:
                     r.raw.decode_content = True
                     shutil.copyfileobj(r.raw, f)
+                    prev_raw_content = r.raw
                 break
 
             UserPhoto(
@@ -94,8 +96,8 @@ class Command(BaseCommand):
                 except IntegrityError:
                     pass
 
-            if len(user_ids) // 2 >= 1:
-                for _ in range(random.randint(1, len(user_ids) // 2)):
+            if len(user_ids) // 4 >= 1:
+                for _ in range(random.randint(1, len(user_ids) // 4)):
                     try:
                         UsersConnect(
                             user_1_id=user_id,
@@ -105,8 +107,8 @@ class Command(BaseCommand):
                     except IntegrityError:
                         pass
 
-            if len(user_ids) // 4 >= 1:
-                for _ in range(random.randint(1, len(user_ids) // 4)):
+            if user_ids and len(user_ids) % 100 == 0:
+                for _ in range(random.randint(1, 3)):
                     try:
                         UsersFake(
                             user_1_id=user_id,
@@ -115,6 +117,7 @@ class Command(BaseCommand):
                     except IntegrityError:
                         pass
 
+            if len(user_ids) // 4 >= 1:
                 for _ in range(random.randint(1, len(user_ids) // 4)):
                     try:
                         Notification(
@@ -126,7 +129,7 @@ class Command(BaseCommand):
                     except IntegrityError:
                         pass
 
-            if len(user_ids) // 8 >= 1:
+            if user_ids and len(user_ids) % 50 == 0:
                 for _ in range(random.randint(1, len(user_ids) // 8)):
                     try:
                         UsersBlackList(

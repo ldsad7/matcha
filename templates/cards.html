@@ -36,7 +36,7 @@
             <figure>
                 <div>
                     {% if user.photos %}
-                        <img src="{{ user.photos.0 }}" alt="default profile picture">
+                        <img src="{{ user.photos.0|safe }}" alt="default profile picture">
                     {% else %}
                         <img src="{% static 'img/default.png' %}" alt="default profile picture">
                     {% endif %}
@@ -44,18 +44,18 @@
                 <div class="not-here-pls" id="del-avatar" style="display: none;">
                     <span class="not-here-pls">&#10008;</span>
                 </div>
-                <div id="connection"><span class="{% if user.last_login != 'online' %}red{% endif %}"></span><span class="connect-date">{% if user.last_login == 'offline' %}{{ user.last_login }}{% else %}{{ user.last_login|date:'mdY h:m:s' }}{% endif %}</span></div>
+                <div id="connection"><span class="{% if user.last_login != 'online' %}red{% endif %}"></span><span class="connect-date">{% if user.last_login == 'offline' %}{{ user.last_login|safe }}{% else %}{{ user.last_login|date:'mdY h:m:s'|safe }}{% endif %}</span></div>
             </figure>
             <section class="user-data">
-                <div id="username"><span>{{ user.username }}</span></div>
+                <div id="username"><span>{{ user.username|safe }}</span></div>
                 <div id="name">
-                    <span>{{ user.first_name }} {{ user.last_name }}</span>
+                    <span>{{ user.first_name|safe }} {{ user.last_name|safe }}</span>
                 </div>
-                <div id="rating">Рейтинг: <span class="rating">{{ user.rating }}&#9733;</span></div>
+                <div id="rating">Рейтинг: <span class="rating">{{ user.rating|safe }}&#9733;</span></div>
                 <div style="margin-left: 10px;">
                     {% if user.info %}
                         <button id="show-more">показать полностью</button>
-                        <div id="history" class="short-history">Инфо: {{ user.info }}</div>
+                        <div id="history" class="short-history">Инфо: {{ user.info|safe }}</div>
                     {% endif %}
                 </div>
                 {% if user.tags %}
@@ -64,7 +64,7 @@
                         <p class="white">Интересы: </p>
                         {% for tag in user.tags %}
                             <div class="tag">
-                                <span>#{{ tag }}</span>
+                                <span>#{{ tag|safe }}</span>
                             </div>
                         {% endfor %}
                     </div>

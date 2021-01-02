@@ -9,8 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 from .common import get_by_model_and_id, get_thumb
 from .managers import (
     TagManager, UsersConnectManager, UserTagManager, UserPhotoManager, UserManager,
-    UsersFakeManager, UsersBlackListManager, NotificationManager, MessageManager
-)
+    UsersFakeManager, UsersBlackListManager, NotificationManager, MessageManager,
+    UsersRatingManager)
 
 
 class ManagedModel:
@@ -222,6 +222,29 @@ class UsersBlackList(ManagedModel, TimeStampedModel, GetById):
     class Meta:
         verbose_name = "BlackList-коннект пользователей"
         verbose_name_plural = "BlackList-коннекты пользователей"
+        unique_together = ('user_1', 'user_2')
+
+
+class UsersRating(ManagedModel, TimeStampedModel, GetById):
+    """
+    Connection means that user_1 has rating N for user_2
+    """
+
+    user_1 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 1", on_delete=models.CASCADE,
+        related_name='user_rating_1_set'
+    )
+    user_2 = models.ForeignKey(
+        User, blank=False, null=False, verbose_name="Пользователь 2", on_delete=models.CASCADE,
+        related_name='user_rating_2_set'
+    )
+    rating = models.FloatField(_('рейтинг'), default=0.0)
+
+    objects_ = UsersRatingManager()
+
+    class Meta:
+        verbose_name = "Rating-коннект пользователей"
+        verbose_name_plural = "Rating-коннекты пользователей"
         unique_together = ('user_1', 'user_2')
 
 
