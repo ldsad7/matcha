@@ -25,12 +25,16 @@
                 <!-- endif -->
                 <figure>
                     <div>
-                        <img src="{% static 'img/default.png' %}" alt="default profile picture">
+                        {% if user.main_photo %}
+                            <img src="{{ user.main_photo|safe }}" alt="profile picture">
+                        {% else %}
+                            <img src="{% static 'img/default.png' %}" alt="default profile picture">
+                        {% endif %}
                     </div>
                     <div class="not-here-pls" id="del-avatar" style="display: none;">
                         <span class="not-here-pls">&#10008;</span>
                     </div>
-                    <div id="connection"><span class="{% if last_login != 'online' %}red{% endif %}"></span>{{ last_login }}</div>
+                    <div id="connection"><span class="{% if last_login == "online" %}green{% else %}red{% endif %}"></span>{{ last_login }}</div>
                 </figure>
                 <figcaption>
                     <div id="username">{{ username }}</div>
@@ -89,7 +93,7 @@
                         <p class="white">Интересы:</p>
                         {% for tag in tags %}
                             <div class="tag">
-                                <span>#{{ tag.tag }}</span>
+                                <span>#{{ tag }}</span>
                             </div>
                         {% endfor %}
                     </div>
@@ -101,7 +105,7 @@
                             <img id="output" style="display: none;">
                             {% for photo in photos %}
                                 <div>
-                                    <img src="{{ photo.image }}" id="{{ photo.id }}">
+                                    <img src="{{ photo }}">
                                 </div>
                             {% endfor %}
                             <img id="output" style="display: none;">

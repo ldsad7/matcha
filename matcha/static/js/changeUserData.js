@@ -19,6 +19,8 @@ var hist = {
 
 document.getElementById("change-profile-data").addEventListener("click", function(e) {
     if (change_user_data === false) {
+        initial_images = [...$('.img-area img')].filter(el => el.getAttribute('src'));
+        initial_main_image = [...$('figure img')].filter(el => el.getAttribute('src'));
         new_images = [];
 
         this.innerHTML = "&#10004;";
@@ -37,9 +39,46 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         change_user_data = true;
         cancel_btn.style.display = "inline-block";
     } else {
-        const tag_names = [...$(".tag span")].map(el => { return el.textContent });
+        new_images.forEach(elem => {
+            let { file } = elem;
 
-        const images_src = [...$(".for-push")];
+            if (file) {
+                let data = new FormData();
+
+                data.append("image", file, "tmp.jpg");
+                data.append("user_id", user_id - 0);
+                data.append("main", "False");
+
+                let settings = {
+                    "url": "/api/v1/user_photos/",
+                    "method": "POST",
+                    "headers": {
+                        "X-CSRFToken": getCookie('csrftoken'),
+                    },
+                    "processData": false,
+                    "mimeType": "multipart/form-data",
+                    "contentType": false,
+                    "data": data
+                };
+                $.ajax(settings);
+            }
+        });
+
+        let images = [...$('.img-area img')].filter(el => el.getAttribute('src'));
+        console.log("images: " + images.map(el => { return el.getAttribute('src') }));
+        console.log("initial_images: " + initial_images.map(el => { return el.getAttribute('src') }));
+        let main_image = [...$('figure img')].filter(el => el.getAttribute('src'));
+
+        if (initial_main_image && main_image) {
+            initial_main_image[0].getAttribute('src');
+        } else {
+            //
+        }
+
+        console.log("main_image: " + main_image.map(el => { return el.getAttribute('src') }));
+        console.log("initial_main_image: " + initial_main_image.map(el => { return el.getAttribute('src') }));
+
+        const tag_names = [...$(".tag span")].map(el => { return el.textContent });
 
         csrftoken = getCookie('csrftoken');
         $.ajax({
@@ -58,39 +97,12 @@ document.getElementById("change-profile-data").addEventListener("click", functio
                 "orientation": $("#selectOrientation option:checked").val(),
                 "location": $("#selectLocation").val(),
                 "info": $("#textArea").val(),
-                "tags": tag_names,
+                "tags": tag_names
             })
-        })
+        });
 
         avatar.submit();
-
         _name.submit();
-
-        new_images.forEach(elem => {
-            let { file } = elem;
-
-            if (file) {
-                var data = new FormData();
-
-                data.append("image", file, "tmp.jpg");
-                data.append("user_id", user_id - 0);
-                data.append("main", "False");
-
-                let settings = {
-                    "url": "/api/v1/user_photos/",
-                    "method": "POST",
-                    "headers": {
-                        "X-CSRFToken": getCookie('csrftoken'),
-                    },
-                    "processData": false,
-                    "mimeType": "multipart/form-data",
-                    "contentType": false,
-                    "data": data
-                };
-                console.log(settings);
-                $.ajax(settings);
-            }
-        });
         hist.submit();
         tags.submit();
         age.submit();

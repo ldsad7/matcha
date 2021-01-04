@@ -7,45 +7,6 @@
     <section class="content">
         {% include "cards.html" %}
     </section>
-    <nav style="bottom:10px;z-index:10;position:fixed;left:45%;" aria-label="...">
-      <ul class="pagination" style="">
-        <li class="page-item {% if page >= 2 %} active {% else %} disabled {% endif %}">
-          <a class="page-link" href="?page={{ page|add:-1 }}" tabindex="-1">Previous</a>
-        </li>
-        {% if max_page >= 3 and page >= 3 %}
-            <li class="page-item">
-              <a class="page-link" href="?page=1">1</a>
-            </li>
-            <li class="page-item disabled">
-              <a class="page-link" href="#">...</a>
-            </li>
-        {% endif %}
-        {% if page >= 2 %}
-            <li class="page-item">
-              <a class="page-link" href="?page={{ page|add:-1 }}">{{ page|add:-1 }}</a>
-            </li>
-        {% endif %}
-        <li class="page-item active">
-          <a class="page-link" href="?page={{ page }}">{{ page }} <span class="sr-only">(current)</span></a>
-        </li>
-        {% if page|add:1 <= max_page %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page|add:1 }}">{{ page|add:1 }}</a>
-            </li>
-        {% endif %}
-        {% if max_page >= 3 and page <= max_page|add:-2 %}
-            <li class="page-item disabled">
-              <a class="page-link" href="#">...</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="?page={{ max_page }}">{{ max_page }}</a>
-            </li>
-        {% endif %}
-        <li class="page-item {% if page|add:1 <= max_page %} active {% else %} disabled {% endif %}">
-          <a class="page-link" href="?page={{ page|add:1 }}">Next</a>
-        </li>
-      </ul>
-    </nav>
 {% endblock %}
 
 {% block body_scripts %}

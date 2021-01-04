@@ -3,7 +3,7 @@ from django.http import Http404
 from django.shortcuts import render
 
 from matcha.models import UsersConnect, User, Message
-from matcha.serializers import UserReadSerializer
+from matcha.serializers import UserReadSerializer, UserSerializer
 
 
 @login_required
@@ -16,7 +16,7 @@ def index(request):
         user_connect.user_1_id
         for user_connect in UsersConnect.objects_.filter(user_2_id=request.user.id, type=UsersConnect.PLUS)
     }
-    users = UserSerializer(User.objects_.filter(id__in=liked_user_ids & liking_user_ids), many=True).data
+    users = UserReadSerializer(User.objects_.filter(id__in=liked_user_ids & liking_user_ids), many=True).data
     for user in users:
         if str(request.user.id) <= str(user['id']):
             user_1_id, user_2_id = request.user.id, user['id']

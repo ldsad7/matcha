@@ -24,6 +24,7 @@ from .serializers import (
     UsersBlackListReadSerializer, NotificationSerializer, NotificationReadSerializer,
     MessageSerializer, MessageReadSerializer, UsersRatingSerializer, UsersRatingReadSerializer,
     ShortUserSerializer)
+from .tasks import ignore_false_users, ignore_by_orientation_and_gender
 
 MINUS = '-'
 
@@ -87,8 +88,7 @@ def user_list(request):
                 objs = filter_location(objs, value, User)
             elif query_param == 'tags':
                 objs = filter_tags(objs, value, User)
-        serializer = UserSerializer(objs, many=True)
-        return Response(serializer.data)
+        return Response(UserReadSerializer(objs, many=True).data)
     return common_list(request, User, UserSerializer, UserReadSerializer)
 
 
@@ -100,7 +100,6 @@ def user_detail(request, id):
         tag_ids = [obj.id for obj in Tag.objects_.filter(name__in=user_tags - new_tags)]
         for obj in UserTag.objects_.filter(tag_id__in=tag_ids):
             obj.delete()
-
         for tag_name in new_tags - user_tags:
             if not tag_name:
                 continue
@@ -131,7 +130,7 @@ def liking(id):
         user_connect.user_1
         for user_connect in UsersConnect.objects_.filter(user_2_id=user.id)
     ]
-    data = UserSerializer(users, many=True).data
+    data = UserReadSerializer(users, many=True).data
     for user in data:
         user_connects = UsersConnect.objects_.filter(
             user_1_id=id, user_2_id=user['id']
@@ -179,7 +178,7 @@ def liked(id):
         user_connect.user_2
         for user_connect in UsersConnect.objects_.filter(user_1_id=user.id)
     ]
-    return UserSerializer(users, many=True).data
+    return UserReadSerializer(users, many=True).data
 
 
 @api_view(['GET'])
@@ -342,9 +341,13 @@ def index(request):
         user_ratings = sorted(
             UsersRating.objects_.filter(user_2_id=user_id), key=lambda elem: -elem.rating
         )
-        correct_ids = [user_rating.user_1_id for user_rating in user_ratings]
-        users = [inner_user for inner_user in users if inner_user.id in correct_ids]
-    max_page = (len(users) + PAGE_SIZE - 1) // PAGE_SIZE
+        if user_ratings:
+            correct_ids = [user_rating.user_1_id for user_rating in user_ratings]
+            users = [inner_user for inner_user in users if inner_user.id in correct_ids]
+        else:
+            users = ignore_false_users(users, user_id)
+            users = ignore_by_orientation_and_gender(users, request.user)
+    max_page = max((len(users) + PAGE_SIZE - 1) // PAGE_SIZE, 1)
     if not(1 <= page <= max_page):
         raise Http404(f"Страницы с данным номером ({page}) не существует")
     context = {
@@ -352,7 +355,6 @@ def index(request):
         'page': page,
         'max_page': max_page
     }
-
     return HttpResponse(template.render(context, request))
 
 
@@ -360,7 +362,7 @@ def index(request):
 def search(request):
     template = loader.get_template('search.html')
     context = {
-        'users': UserSerializer(User.objects.all(), many=True).data
+        'users': UserReadSerializer(User.objects.all(), many=True).data
     }
     return HttpResponse(template.render(context, request))
 
@@ -368,7 +370,7 @@ def search(request):
 @login_required
 def profile(request):
     template = loader.get_template('profile.html')
-    context = UserSerializer(request.user).data
+    context = UserReadSerializer(request.user).data
     return HttpResponse(template.render(context, request))
 
 
@@ -377,9 +379,10 @@ def user_profile(request, id):
     template = loader.get_template('user_profile.html')
     user = User.objects_.get(id=id)
     if user is not None:
-        context = UserSerializer(user).data
+        context = UserReadSerializer(user).data
     else:
         raise Http404(f"Пользователя с данным id ({id}) не существует в базе")
+    print(f'context: {context}')
     return HttpResponse(template.render(context, request))
 
 
@@ -389,7 +392,7 @@ def connections(request):
     context = {
         'users': liking(request.user.id)
     }
-    # UserSerializer(User.objects.all(), many=True).data,
+    # UserReadSerializer(User.objects.all(), many=True).data,
     return HttpResponse(template.render(context, request))
 
 

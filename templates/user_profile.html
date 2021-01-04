@@ -21,9 +21,13 @@
             <section class="user-profile">
                 <figure>
                     <div>
-                        <img class="for-push" src="{% static 'img/default.png' %}" alt="default profile picture">
+                        {% if user.main_photo %}
+                            <img src="{{ user.main_photo|safe }}" alt="profile picture">
+                        {% else %}
+                            <img src="{% static 'img/default.png' %}" alt="default profile picture">
+                        {% endif %}
                     </div>
-                    <div id="connection">{{ last_login }}</div>
+                    <div id="connection"><span class="{% if last_login == "online" %}green{% else %}red{% endif %}"></span>{{ last_login }}</div>
                 </figure>
                 <figcaption>
                     <div id="username">{{ username }}</div>
@@ -58,7 +62,7 @@
                         <p class="white">Интересы:</p>
                         {% for tag in tags %}
                             <div class="tag">
-                                <span>#{{ tag.tag }}</span>
+                                <span>#{{ tag }}</span>
                             </div>
                         {% endfor %}
                     </div>
@@ -69,7 +73,7 @@
                         <div style="flex-wrap: wrap;">
                             {% for photo in photos %}
                                 <div>
-                                    <img class="for-push" src="{{ photo.image }}">
+                                    <img class="for-push" src="{{ photo }}">
                                 </div>
                             {% endfor %}
                         </div>

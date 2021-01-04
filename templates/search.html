@@ -249,6 +249,8 @@
                             <div id="connection"><span class="`
                             if (user.last_login != 'online') {
                                 html_str += `red`;
+                            } else {
+                                html_str += `green`;
                             }
                             html_str += `"></span><span class="connect-date">`;
                             if (user.last_login == 'offline' || user.last_login == 'online') {
