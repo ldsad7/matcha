@@ -11,8 +11,8 @@
             {% for user in users %}
                 <div id="chats-area">
                     <a id="room-name-{{ forloop.counter0 }}" class="card-chat">
-                        {% if user.photos %}
-                            <img src="{{ user.photos.0.image }}" class="avatar"  alt="default profile picture">
+                        {% if user.main_photo %}
+                            <img src="{{ user.main_photo }}" class="main avatar" alt="profile picture">
                         {% else %}
                             <img src="{% static 'img/default.png' %}" class="avatar" alt="default profile picture">
                         {% endif %}

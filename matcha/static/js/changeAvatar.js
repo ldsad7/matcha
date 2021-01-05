@@ -54,6 +54,7 @@ var avatar = {
                                 document.querySelector("figure div").appendChild(e.target);
                             }
                         });
+                        main_image_src = document.querySelector("figure img").getAttribute("src");
                     }
                 });
             });

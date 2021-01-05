@@ -159,6 +159,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
+MEDIA_PREFIX = 'media/images'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 ####################################

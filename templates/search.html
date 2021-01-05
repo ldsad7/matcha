@@ -237,8 +237,8 @@
                             {% endif %}
                             <figure>
                                 <div>`;
-                        if (user.photos.length > 0)
-                            html_str += `<img src="${user.photos[0].image}" alt="photo of a man">`;
+                        if (user.main_photo)
+                            html_str += `<img src="${user.main_photo}" alt="photo of a man">`;
                         else
                             html_str += '<img src="/static/img/default.png" alt="default profile picture">';
                         html_str += `

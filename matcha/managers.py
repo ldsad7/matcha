@@ -160,6 +160,8 @@ class CommonManager:
                     where_condition = ''
                     if objs:
                         where_condition = f"{key} IN ({objs})"
+                    else:
+                        where_condition = f"2+2=5"
                 elif op == 'icontains':
                     where_condition = f"LOWER({key}) LIKE '%{value}%'"
                 else:

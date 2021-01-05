@@ -27,8 +27,8 @@
     <section id="chat-room">
         <a href="/profiles/{{ interlocutor.id }}" class="chat-user-info">
             <div style="display: flex; align-items: center;">
-                {% if interlocutor.photos %}
-                    <img src="{{ interlocutor.photos.0.image }}" class="avatar"  alt="default profile picture">
+                {% if interlocutor.main_photo %}
+                    <img src="{{ user.main_photo }}" class="main avatar" alt="profile picture">
                 {% else %}
                     <img src="{% static 'img/default.png' %}" class="avatar" alt="default profile picture">
                 {% endif %}

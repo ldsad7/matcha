@@ -7,6 +7,8 @@ from django.db import IntegrityError
 from faker import Faker
 from transliterate import translit
 
+from dating_site.settings import MEDIA_PREFIX
+
 from matcha.models import User, UserPhoto, UserTag, Tag, UsersConnect, UsersFake, UsersBlackList, Notification
 
 NUM_OF_USERS = 355  # 500
@@ -65,7 +67,7 @@ class Command(BaseCommand):
             user_ids.append(user.id)
 
             user_id = user.id
-            file_name = f'media/images/person_{user_id}.jfif'
+            file_name = f'{MEDIA_PREFIX}/person_{user_id}.jfif'
             while True:
                 r = requests.get('https://thispersondoesnotexist.com/image', stream=True)
                 if r.status_code != 200 or r.raw == prev_raw_content:

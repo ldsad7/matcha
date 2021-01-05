@@ -19,9 +19,11 @@ var hist = {
 
 document.getElementById("change-profile-data").addEventListener("click", function(e) {
     if (change_user_data === false) {
-        initial_images = [...$('.img-area img')].filter(el => el.getAttribute('src'));
+        initial_images = [...$('.img-area img')].filter(el => el.getAttribute('src')).map(el => { return el.getAttribute('src') });
         initial_main_image = [...$('figure img')].filter(el => el.getAttribute('src'));
         new_images = [];
+        new_images_srcs = [];
+        main_image_src = "";
 
         this.innerHTML = "&#10004;";
         this.style.padding = "2px 6px";
@@ -39,7 +41,57 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         change_user_data = true;
         cancel_btn.style.display = "inline-block";
     } else {
-        new_images.forEach(elem => {
+        let main_image = [...$('figure img')].filter(el => el.getAttribute('src'));
+        let initial_main_image_src = initial_main_image[0].getAttribute('src');
+        let main_image_src = main_image[0].getAttribute('src');
+        if (initial_main_image_src !== main_image_src) {
+            $.ajax({
+                headers: {
+                    'Accept' : 'application/json',
+                    'Content-Type' : 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                url: "/api/v1/user_photos/update_main/",
+                type: "PATCH",
+                data: JSON.stringify({
+                    "image": initial_main_image_src,
+                    "main": 0
+                })
+            });
+            if (!main_image_src.startsWith("blob:")) {
+                $.ajax({
+                    headers: {
+                        'Accept' : 'application/json',
+                        'Content-Type' : 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    url: "/api/v1/user_photos/update_main/",
+                    type: "PATCH",
+                    data: JSON.stringify({
+                        "image": main_image_src,
+                        "main": 1
+                    })
+                });
+            }
+        }
+        let images = [...$('.user-profile img')].filter(el => el.getAttribute('src')).map(el => { return el.getAttribute('src') });
+        $.ajax({
+            headers: {
+                'Accept' : 'application/json',
+                'Content-Type' : 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            url: "/api/v1/user_photos/" + user_id + "/update/",
+            type: "PATCH",
+            data: JSON.stringify({
+                "images": images,
+                "initial_images": initial_images
+            })
+        });
+
+        // console.log("new_images: " + new_images.length);
+        // console.log("new_images_srcs: " + new_images_srcs);
+        new_images.forEach(function (elem, i) {
             let { file } = elem;
 
             if (file) {
@@ -47,7 +99,11 @@ document.getElementById("change-profile-data").addEventListener("click", functio
 
                 data.append("image", file, "tmp.jpg");
                 data.append("user_id", user_id - 0);
-                data.append("main", "False");
+                if (new_images_srcs[i] === main_image_src) {
+                    data.append("main", "True");
+                } else {
+                    data.append("main", "False");
+                }
 
                 let settings = {
                     "url": "/api/v1/user_photos/",
@@ -64,19 +120,9 @@ document.getElementById("change-profile-data").addEventListener("click", functio
             }
         });
 
-        let images = [...$('.img-area img')].filter(el => el.getAttribute('src'));
-        console.log("images: " + images.map(el => { return el.getAttribute('src') }));
-        console.log("initial_images: " + initial_images.map(el => { return el.getAttribute('src') }));
-        let main_image = [...$('figure img')].filter(el => el.getAttribute('src'));
 
-        if (initial_main_image && main_image) {
-            initial_main_image[0].getAttribute('src');
-        } else {
-            //
-        }
-
-        console.log("main_image: " + main_image.map(el => { return el.getAttribute('src') }));
-        console.log("initial_main_image: " + initial_main_image.map(el => { return el.getAttribute('src') }));
+        // console.log("main_image: " + main_image.map(el => { return el.getAttribute('src') }));
+        // console.log("initial_main_image: " + initial_main_image.map(el => { return el.getAttribute('src') }));
 
         const tag_names = [...$(".tag span")].map(el => { return el.textContent });
 

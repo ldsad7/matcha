@@ -7,6 +7,7 @@ var image = {
             document.querySelector(".img-area div").appendChild(div);
             el.parentNode.remove();
             el.classList.add("main");
+            main_image_src = el.getAttribute("src");
             document.querySelector("figure div").appendChild(el);
         }
     },
@@ -22,6 +23,7 @@ var image = {
             }
             img.parentNode.remove();
             img.classList.add("main");
+            main_image_src = img.getAttribute("src");
             document.querySelector("figure div").appendChild(img);
             if (!del)
                 el.addEventListener("click", (e) => swapImages(img));
@@ -51,6 +53,8 @@ var image = {
         new_images.push(_image);
            
         output.src = URL.createObjectURL(event.target.files[0]);
+        new_images_srcs.push(output.src);
+
         output.removeAttribute("id");
         output.classList.add("for-push");
         avatar.edit();

@@ -6,7 +6,7 @@
             <figure>
                 <div>
                     {% if user.main_photo %}
-                        <img src="{{ user.main_photo|safe }}" alt="profile picture">
+                        <img src="{{ user.main_photo }}" class="main" alt="profile picture">
                     {% else %}
                         <img src="{% static 'img/default.png' %}" alt="default profile picture">
                     {% endif %}

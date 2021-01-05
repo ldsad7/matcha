@@ -12,6 +12,8 @@ from rest_framework.fields import (
     ImageField, empty
 )
 
+from dating_site.settings import MEDIA_PREFIX
+
 from .models import (
     Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification, Message,
     UsersRating)
@@ -291,7 +293,7 @@ class UserSerializer(CommonSerializer):
     # @staticmethod
     # def get_photos(instance: User):
     #     user_photos = UserPhoto.objects_.filter(user_id=instance.id)
-    #     photos = [f'/media/images/{user_photo.image}' for user_photo in user_photos]
+    #     photos = [f'/{MEDIA_PREFIX}/{user_photo.image}' for user_photo in user_photos]
     #     return photos
 
     @property
@@ -341,13 +343,13 @@ class ShortUserSerializer(CommonSerializer):
     @staticmethod
     def get_photos(instance: User):
         user_photos = UserPhoto.objects_.filter(user_id=instance.id)
-        photos = [f'/media/images/{user_photo.image}' for user_photo in user_photos if not user_photo.main]
+        photos = [f'/{MEDIA_PREFIX}/{user_photo.image}' for user_photo in user_photos if not user_photo.main]
         return photos
 
     @staticmethod
     def get_main_photo(instance: User):
         user_photos = UserPhoto.objects_.filter(user_id=instance.id)
-        photos = [f'/media/images/{user_photo.image}' for user_photo in user_photos if user_photo.main]
+        photos = [f'/{MEDIA_PREFIX}/{user_photo.image}' for user_photo in user_photos if user_photo.main]
         if photos:
             return photos[0]
 
@@ -427,13 +429,13 @@ class UserReadSerializer(CommonSerializer):
     @staticmethod
     def get_photos(instance: User):
         user_photos = UserPhoto.objects_.filter(user_id=instance.id)
-        photos = [f'/media/images/{user_photo.image}' for user_photo in user_photos if not user_photo.main]
+        photos = [f'/{MEDIA_PREFIX}/{user_photo.image}' for user_photo in user_photos if not user_photo.main]
         return photos
 
     @staticmethod
     def get_main_photo(instance: User):
         user_photos = UserPhoto.objects_.filter(user_id=instance.id)
-        photos = [f'/media/images/{user_photo.image}' for user_photo in user_photos if user_photo.main]
+        photos = [f'/{MEDIA_PREFIX}/{user_photo.image}' for user_photo in user_photos if user_photo.main]
         if photos:
             return photos[0]
 

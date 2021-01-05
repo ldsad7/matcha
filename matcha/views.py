@@ -12,7 +12,7 @@ from rest_framework.decorators import api_view
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
 
-from dating_site.settings import PAGE_SIZE
+from dating_site.settings import PAGE_SIZE, MEDIA_PREFIX
 from .filters import filter_age, filter_rating, filter_location, filter_tags, filter_timestamp
 from .models import (
     Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification, Message,
@@ -157,6 +157,39 @@ def user_liking(request, id):
 
 
 @api_view(['PATCH'])
+def user_photos_update_main(request):
+    image = request.data.get('image')
+    new_main = request.data.get('main')
+    # print(f'user_photos_update_main: image: {image}, new_main: {new_main}')
+    if image.startswith(f'/{MEDIA_PREFIX}/'):
+        image = image[len(f'/{MEDIA_PREFIX}/'):]
+    user_photos = UserPhoto.objects_.filter(image=image)
+    if user_photos:
+        user_photos[0].main = new_main
+        user_photos[0].save()
+    return Response({'result': 'SUCCESS'})
+
+
+@api_view(['PATCH'])
+def user_photos_update(request, id):
+    initial_images = set(request.data.get('initial_images'))
+    initial_images = {
+        image[len(f'/{MEDIA_PREFIX}/'):] if image.startswith(f'/{MEDIA_PREFIX}/') else image
+        for image in initial_images
+    }
+    images = set(request.data.get('images'))
+    images = {
+        image[len(f'/{MEDIA_PREFIX}/'):] if image.startswith(f'/{MEDIA_PREFIX}/') else image
+        for image in images
+    }
+    to_delete = UserPhoto.objects_.filter(user_id=id, image__in=initial_images - images)
+    # print(f"user_photos_update: initial_images: {initial_images}, images: {images}, to_delete: {to_delete}")
+    for image in to_delete:
+        image.delete()
+    return Response({'result': 'SUCCESS'})
+
+
+@api_view(['PATCH'])
 def read_notifications(request):
     ids = request.data.get('ids')
     if ids is not None:
@@ -213,7 +246,7 @@ def user_photos_list(request):
             serializer.save()
             serialized_data = serializer.data
             if image:
-                serialized_data['image'] = serialized_data['image'].replace('/media/', '/media/images/')
+                serialized_data['image'] = serialized_data['image'].replace('/media/', f'/{MEDIA_PREFIX}/')
             return Response(serialized_data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return common_list(request, UserPhoto, UserPhotoSerializer, UserPhotoReadSerializer)
