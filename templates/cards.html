@@ -3,43 +3,79 @@
         <nav style="bottom:10px;z-index:10;position:fixed;" aria-label="...">
           <ul class="pagination" style="">
             <li class="page-item {% if page >= 2 %} active {% else %} disabled {% endif %}">
-              <a class="page-link" href="?page={{ page|add:-1 }}" tabindex="-1">Previous</a>
+              <a class="page-link" href="{{ page|add:-1 }}" tabindex="-1">Previous</a>
             </li>
             {% if max_page >= 3 and page >= 3 %}
                 <li class="page-item">
-                  <a class="page-link" href="?page=1">1</a>
+                  <a class="page-link" href="1">1</a>
                 </li>
-                <li class="page-item disabled">
-                  <a class="page-link" href="#">...</a>
-                </li>
+                {% if page > 3 %}
+                    <li class="page-item disabled">
+                      <a class="page-link" href="#">...</a>
+                    </li>
+                {% endif %}
             {% endif %}
             {% if page >= 2 %}
                 <li class="page-item">
-                  <a class="page-link" href="?page={{ page|add:-1 }}">{{ page|add:-1 }}</a>
+                  <a class="page-link" href="{{ page|add:-1 }}">{{ page|add:-1 }}</a>
                 </li>
             {% endif %}
             <li class="page-item active">
-              <a class="page-link" href="?page={{ page }}">{{ page }} <span class="sr-only">(current)</span></a>
+              <a class="page-link" href="{{ page }}">{{ page }} <span class="sr-only">(current)</span></a>
             </li>
             {% if page|add:1 <= max_page %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page|add:1 }}">{{ page|add:1 }}</a>
+                    <a class="page-link" href="{{ page|add:1 }}">{{ page|add:1 }}</a>
                 </li>
             {% endif %}
             {% if max_page >= 3 and page <= max_page|add:-2 %}
-                <li class="page-item disabled">
-                  <a class="page-link" href="#">...</a>
-                </li>
+                {% if page < max_page|add:-2 %}
+                    <li class="page-item disabled">
+                      <a class="page-link" href="#">...</a>
+                    </li>
+                {% endif %}
                 <li class="page-item">
-                  <a class="page-link" href="?page={{ max_page }}">{{ max_page }}</a>
+                  <a class="page-link" href="{{ max_page }}">{{ max_page }}</a>
                 </li>
             {% endif %}
             <li class="page-item {% if page|add:1 <= max_page %} active {% else %} disabled {% endif %}">
-              <a class="page-link" href="?page={{ page|add:1 }}">Next</a>
+              <a class="page-link" href="{{ page|add:1 }}">Next</a>
             </li>
           </ul>
         </nav>
         <script>
+            $(".page-link").click(function(event) {
+                event.preventDefault();
+                if (window.location.search.match(/[&?]?page=/g)) {
+                    window.location.search = window.location.search.replace(/([&?]?page=)(.*?)(&|$)/g, "$1" + this.getAttribute('href') + "$3");
+                } else {
+                    if (!window.location.search.match(/\?/g)) {
+                        window.location.search += '?page=' + this.getAttribute('href');
+                    } else {
+                        window.location.search += '&page=' + this.getAttribute('href');
+                    }
+                }
+            });
+
+            function get_current_age(date) {
+                var d = date.split('-');
+                if( typeof d[2] !== "undefined" ) {
+                    date = d[1]+'.'+d[2]+'.'+d[0];
+                    return ((new Date().getTime() - new Date(date)) / (24 * 3600 * 365.25 * 1000)) | 0;
+                }
+                return 0;
+            }
+
+            $(document).ready(function() {
+                $(".age").each(function () {
+                    let value = get_current_age(this.querySelector("span").innerHTML);
+                    if (value !== 0)
+                        this.querySelector("span").innerHTML = get_current_age(this.querySelector("span").innerHTML);
+                    else
+                        this.querySelector("span").innerHTML = "Неизвестен";
+                });
+            });
+
             document.addEventListener("click", (e) => {
                 if (!(e.target.id.startsWith("btn-report") || e.target.id.startsWith("btn-block") || e.target.id === "more-actions-btn")) {
                     document.querySelectorAll(".buttons").forEach(el => {el.classList.remove("visible")});
@@ -57,11 +93,14 @@
                         elem.classList.add("animate__backOutRight");
                     }
                     setTimeout(() => {elem.remove()}, 600);
+                } else {
+                    window.location.href = "/profiles/" + elem.querySelector("#id").textContent + "/";
                 }
             }
         </script>
     {% for user in users %}
         <section class="user-profile user-profile-short animate__animated" onclick="check_actions(event, this);">
+            <span id="id" style="display:none;">{{ user.id }}</span>
             {% if global_user.is_authenticated %}
                 <div id="more-actions">
                     <button id="more-actions-btn" onclick="focus_actions(event)"></button>
@@ -90,7 +129,9 @@
                 <div id="name">
                     <span>{{ user.first_name|safe }} {{ user.last_name|safe }}</span>
                 </div>
-                <div id="rating">Рейтинг: <span class="rating">{{ user.rating|safe }}&#9733;</span></div>
+                <div id="age" class="age">Возраст: <span>{{ user.date_of_birth|safe }}</span></div><br/>
+                <div id="rating">Рейтинг: <span class="rating">{{ user.rating|safe }}&#9733;</span></div><br/>
+                <div class="location" style="margin-left:10px;line-height:20px;display:inline-block">Местоположение: <span>{{ user.location|safe }}</span></div>
                 <div style="margin-left: 10px;">
                     {% if user.info %}
                         <button id="show-more">показать полностью</button>
@@ -116,7 +157,7 @@
                         <img id="output" style="display: none;">
                     </div>
                 </div>
-                <input type="file" id="imageInput" class="not-here-pls"name="imageInput" accept=".jpg, .jpeg, .png" onchange="image.loadFile(event)">
+                <input type="file" id="imageInput" class="not-here-pls" name="imageInput" accept=".jpg, .jpeg, .png" onchange="image.loadFile(event)">
                 <label style="display: none;" for="imageInput" class="not-here-pls" id="image-input">
                     <svg version="1.1" id="Capa_1" class="not-here-pls" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 477.863 477.863" style="enable-background:new 0 0 477.863 477.863;" xml:space="preserve"><g><g><path d="M409.598,153.596h-85.333c-9.426,0-17.067,7.641-17.067,17.067s7.641,17.067,17.067,17.067h85.333c9.426,0,17.067,7.641,17.067,17.067v221.867c0,9.426-7.641,17.067-17.067,17.067H68.265c-9.426,0-17.067-7.641-17.067-17.067V204.796c0-9.426,7.641-17.067,17.067-17.067h85.333c9.426,0,17.067-7.641,17.067-17.067s-7.641-17.067-17.067-17.067H68.265c-28.277,0-51.2,22.923-51.2,51.2v221.867c0,28.277,22.923,51.2,51.2,51.2h341.333c28.277,0,51.2-22.923,51.2-51.2V204.796C460.798,176.519,437.875,153.596,409.598,153.596z"/></g></g><g><g><path d="M336.331,90.33L250.998,4.997c-6.664-6.663-17.468-6.663-24.132,0L141.532,90.33c-6.548,6.78-6.36,17.584,0.42,24.132c6.614,6.388,17.099,6.388,23.713,0l56.201-56.201V341.33c0,9.426,7.641,17.067,17.067,17.067s17.067-7.641,17.067-17.067V58.262l56.201,56.201c6.78,6.548,17.584,6.36,24.132-0.42C342.719,107.429,342.719,96.944,336.331,90.33z"/></g></g></svg>
                 </label>

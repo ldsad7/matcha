@@ -9,7 +9,8 @@ def filter_age(queryset, value, model):
     try:
         low, high = list(map(int, value.split(':')))
     except Exception:
-        raise IncorrectArgument
+        # raise IncorrectArgument
+        return queryset
     today = date.today()
 
     ids = [obj.id for obj in queryset]
@@ -24,7 +25,8 @@ def filter_rating(queryset, value, model):
     try:
         low, high = list(map(float, value.replace(',', '.').split(':')))
     except Exception:
-        raise IncorrectArgument
+        # raise IncorrectArgument
+        return queryset
     ids = [obj.id for obj in queryset if low <= obj.rating <= high]
     return model.objects_.filter(id__in=ids)
 
@@ -35,6 +37,14 @@ def filter_location(queryset, value, model):
     """
     ids = [obj.id for obj in queryset]
     return model.objects_.filter(id__in=ids, location__icontains=value)
+
+
+def filter_name(queryset, value, model):
+    return [
+        obj for obj in queryset
+        if value.lower() in f'{obj.first_name} {obj.last_name}'.lower() or
+           value.lower() in f'{obj.last_name} {obj.first_name}'.lower()
+    ]
 
 
 def filter_tags(queryset, value, model):

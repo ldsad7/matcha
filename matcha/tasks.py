@@ -3,7 +3,7 @@ import logging
 import mpu
 
 from dating_site.celery import app
-from dating_site.settings import verbose_flag
+from dating_site.settings import verbose_flag, MAX_RATING
 
 LOG = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ def sync_rating():
             sum([1 for obj in users_connects if obj.user_1_id == user.id])
         if rating < 0:
             rating = 0.0
-        user.rating = rating
+        user.rating = min(rating, MAX_RATING)
         if verbose_flag:
             print(f"{user.id}: {user.rating}")
         user.save()
@@ -81,7 +81,7 @@ def update_rating(users, user):
     max_distance = 0.0
     user_tags = set(user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=user.id))
     for inner_user in users:
-        max_rating = max(inner_user.rating, max_rating)
+        max_rating = min(max(inner_user.rating, max_rating), MAX_RATING)
         inner_user.distance = mpu.haversine_distance(
             (user.latitude, user.longitude), (inner_user.latitude, inner_user.longitude)
         )
@@ -95,6 +95,7 @@ def update_rating(users, user):
             0.33 * inner_user.rating / (max_rating + 0.01) + \
             0.33 * len(user_tags & inner_user.tag_names) / (len(user_tags | inner_user.tag_names) + 0.1) + \
             0.33 * (1 - inner_user.distance / (max_distance + 0.01))
+        rating = min(rating, MAX_RATING)
         if users_rating:
             users_rating[0].rating = rating
         else:

@@ -318,6 +318,8 @@ class ShortUserSerializer(CommonSerializer):
     info = serializers.CharField(required=False, allow_blank=True, max_length=4096, default='')
     orientation = serializers.CharField(required=False, max_length=32, default=User.UNKNOWN)
     rating = serializers.FloatField(required=False, default=0.0)
+    date_of_birth = serializers.DateField(required=False, allow_null=True)
+    location = serializers.CharField(required=False, allow_blank=True, max_length=512, default='')
 
     last_login = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()

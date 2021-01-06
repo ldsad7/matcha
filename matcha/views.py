@@ -12,8 +12,8 @@ from rest_framework.decorators import api_view
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
 
-from dating_site.settings import PAGE_SIZE, MEDIA_PREFIX
-from .filters import filter_age, filter_rating, filter_location, filter_tags, filter_timestamp
+from dating_site.settings import PAGE_SIZE, MEDIA_PREFIX, MAX_AGE, MAX_RATING
+from .filters import filter_age, filter_rating, filter_location, filter_tags, filter_timestamp, filter_name
 from .models import (
     Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification, Message,
     UsersRating)
@@ -46,7 +46,7 @@ def common_list(request, model, model_serializer, model_read_serializer, order_b
         return Response(serializer.data)
         # return ListCreateAPIView.get_paginated_response(data=serializer.data)
     elif request.method == 'POST':
-        serializer = model_serializer(data=request.data, many=True)
+        serializer = model_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -78,17 +78,7 @@ def common_detail(request, model, model_serializer, model_read_serializer, id_):
 @api_view(['GET', 'POST'])
 def user_list(request):
     if request.method == 'GET':
-        objs = User.objects_.all()
-        for query_param, value in request.query_params.items():
-            if query_param == 'age':
-                objs = filter_age(objs, value, User)
-            elif query_param == 'rating':
-                objs = filter_rating(objs, value, User)
-            elif query_param == 'location':
-                objs = filter_location(objs, value, User)
-            elif query_param == 'tags':
-                objs = filter_tags(objs, value, User)
-        return Response(UserReadSerializer(objs, many=True).data)
+        return Response(ShortUserSerializer(User.objects_.all(), many=True).data)
     return common_list(request, User, UserSerializer, UserReadSerializer)
 
 
@@ -394,8 +384,37 @@ def index(request):
 @login_required
 def search(request):
     template = loader.get_template('search.html')
+    users = User.objects_.all()
+    age = request.GET.get('age')
+    if age is not None:
+        users = filter_age(users, age, User)
+    rating = request.GET.get('rating')
+    if rating is not None:
+        users = filter_rating(users, rating, User)
+    location = request.GET.get('location')
+    if location is not None:
+        users = filter_location(users, location, User)
+    tags = request.GET.get('tags')
+    if tags is not None:
+        users = filter_tags(users, tags, User)
+    name = request.GET.get('name')
+    if name is not None:
+        users = filter_name(users, name, User)
+
+    try:
+        page = int(float(request.GET.get('page', 1)))
+    except ValueError as e:
+        print(f"ValueError happened: {e}")
+        page = 1
+    max_page = max((len(users) + PAGE_SIZE - 1) // PAGE_SIZE, 1)
+    if not (1 <= page <= max_page):
+        raise Http404(f"Страницы с данным номером ({page}) не существует")
     context = {
-        'users': UserReadSerializer(User.objects.all(), many=True).data
+        'users': ShortUserSerializer(users[(page - 1) * PAGE_SIZE:page * PAGE_SIZE], many=True).data,
+        'page': page,
+        'max_page': max_page,
+        'max_age': MAX_AGE,
+        'max_rating': MAX_RATING
     }
     return HttpResponse(template.render(context, request))
 
