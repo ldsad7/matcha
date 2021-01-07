@@ -14,6 +14,10 @@
     <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.ico' %}"/>
     {% endblock %}
     {% block scripts %}
+        {% if global_user.is_authenticated %}
+            <script src="{% static 'js/getCookie.js' %}"></script>
+            <script src="{% static 'js/getParameterByName.js' %}"></script>
+        {% endif %}
         <script src="{% static 'js/moment.min.js' %}"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="{% static 'js/script.js' %}"></script>
@@ -30,9 +34,9 @@
         </script>
         <script src="{% static 'js/toggleBtn.js' %}"></script>
         {% if global_user.is_authenticated %}
-            <script src="{% static 'js/getCookie.js' %}"></script>
             <script src="{% static 'js/getNotifications.js' %}"></script>
         {% endif %}
+        <script src="{% static 'js/callAvitoApi.js' %}"></script>
     {% endblock %}
 </body>
 </html>

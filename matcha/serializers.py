@@ -1,5 +1,5 @@
 import string
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 import pytz
 from django.conf import settings
@@ -325,6 +325,7 @@ class ShortUserSerializer(CommonSerializer):
     tags = serializers.SerializerMethodField()
     photos = serializers.SerializerMethodField()
     main_photo = serializers.SerializerMethodField()
+    age = serializers.SerializerMethodField()
 
     @staticmethod
     def get_last_login(instance: User):
@@ -335,6 +336,15 @@ class ShortUserSerializer(CommonSerializer):
             else:
                 return instance.last_login.replace(tzinfo=pytz.UTC)
         return 'offline'
+
+    @staticmethod
+    def get_age(instance: User):
+        today = date.today()
+        born = instance.date_of_birth
+        try:
+            return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+        except AttributeError:
+            return 'Неизвестно'
 
     @staticmethod
     def get_tags(instance: User):
@@ -395,10 +405,20 @@ class UserReadSerializer(CommonSerializer):
     tags = serializers.SerializerMethodField()
     photos = serializers.SerializerMethodField()
     main_photo = serializers.SerializerMethodField()
+    age = serializers.SerializerMethodField()
 
     # @staticmethod
     # def get_date_joined(instance: User):
     #     return instance.date_joined.replace(tzinfo=pytz.UTC)
+
+    @staticmethod
+    def get_age(instance: User):
+        today = date.today()
+        born = instance.date_of_birth
+        try:
+            return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+        except AttributeError:
+            return 'Неизвестно'
 
     @staticmethod
     def get_last_login(instance: User):

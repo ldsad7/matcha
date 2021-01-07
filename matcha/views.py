@@ -24,7 +24,7 @@ from .serializers import (
     UsersBlackListReadSerializer, NotificationSerializer, NotificationReadSerializer,
     MessageSerializer, MessageReadSerializer, UsersRatingSerializer, UsersRatingReadSerializer,
     ShortUserSerializer)
-from .tasks import ignore_false_users, ignore_by_orientation_and_gender
+from .tasks import ignore_false_users, ignore_by_orientation_and_gender, ignore_only_blocked_and_faked_users
 
 MINUS = '-'
 
@@ -110,35 +110,36 @@ def tag_detail(request, id):
     return common_detail(request, Tag, TagSerializer, TagSerializer, id)
 
 
-def liking(id):
+def liking(user_id):
     """
     returns those users that liked current user
     """
 
-    user = User.objects_.get(id=id)
+    user = User.objects_.get(id=user_id)
     users = [
         user_connect.user_1
         for user_connect in UsersConnect.objects_.filter(user_2_id=user.id)
     ]
-    data = UserReadSerializer(users, many=True).data
+    users = ignore_only_blocked_and_faked_users(users, user_id)
+    data = ShortUserSerializer(users, many=True).data
     for user in data:
         user_connects = UsersConnect.objects_.filter(
-            user_1_id=id, user_2_id=user['id']
+            user_1_id=user_id, user_2_id=user['id']
         )
         if not user_connects:
             UsersConnect(
-                user_1_id=id,
+                user_1_id=user_id,
                 user_2_id=user['id'],
                 type=UsersConnect.MINUS
             ).save()
             user_connects = UsersConnect.objects_.filter(
-                user_1_id=id, user_2_id=user['id']
+                user_1_id=user_id, user_2_id=user['id']
             )
-
         user['liked_back'] = user_connects[0].type == UsersConnect.PLUS
         user['users_connect_id'] = user_connects[0].id
+        user['created_connect'] = user_connects[0].created
 
-    return data
+    return sorted(data, key=lambda elem: elem['created_connect'])[::-1]
 
 
 @api_view(['GET'])
@@ -361,15 +362,14 @@ def index(request):
         page = 1
     user_id = request.user.id
     if user_id is not None:
+        users = ignore_false_users(users, user_id)
+        users = ignore_by_orientation_and_gender(users, request.user)
         user_ratings = sorted(
             UsersRating.objects_.filter(user_2_id=user_id), key=lambda elem: -elem.rating
         )
         if user_ratings:
             correct_ids = [user_rating.user_1_id for user_rating in user_ratings]
             users = [inner_user for inner_user in users if inner_user.id in correct_ids]
-        else:
-            users = ignore_false_users(users, user_id)
-            users = ignore_by_orientation_and_gender(users, request.user)
     max_page = max((len(users) + PAGE_SIZE - 1) // PAGE_SIZE, 1)
     if not(1 <= page <= max_page):
         raise Http404(f"Страницы с данным номером ({page}) не существует")
@@ -434,17 +434,30 @@ def user_profile(request, id):
         context = UserReadSerializer(user).data
     else:
         raise Http404(f"Пользователя с данным id ({id}) не существует в базе")
-    print(f'context: {context}')
     return HttpResponse(template.render(context, request))
 
 
 @login_required
 def connections(request):
     template = loader.get_template('connections.html')
+    users = liking(request.user.id)
+
+    try:
+        page = int(float(request.GET.get('page', 1)))
+    except ValueError as e:
+        print(f"ValueError happened: {e}")
+        page = 1
+    max_page = max((len(users) + PAGE_SIZE - 1) // PAGE_SIZE, 1)
+    if not (1 <= page <= max_page):
+        raise Http404(f"Страницы с данным номером ({page}) не существует")
     context = {
-        'users': liking(request.user.id)
+        'users': users[(page - 1) * PAGE_SIZE:page * PAGE_SIZE],
+        'page': page,
+        'max_page': max_page,
+        'max_age': MAX_AGE,
+        'max_rating': MAX_RATING
     }
-    # UserReadSerializer(User.objects.all(), many=True).data,
+
     return HttpResponse(template.render(context, request))
 
 

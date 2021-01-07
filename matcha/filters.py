@@ -43,7 +43,8 @@ def filter_name(queryset, value, model):
     return [
         obj for obj in queryset
         if value.lower() in f'{obj.first_name} {obj.last_name}'.lower() or
-           value.lower() in f'{obj.last_name} {obj.first_name}'.lower()
+           value.lower() in f'{obj.last_name} {obj.first_name}'.lower() or
+           value.lower() in obj.username.lower()
     ]
 
 

@@ -32,8 +32,8 @@
                 {% else %}
                     <img src="{% static 'img/default.png' %}" class="avatar" alt="default profile picture">
                 {% endif %}
-                <div style="display: flex; width: 80%;  justify-content: center;" >
-                    <span class="username">{{ interlocutor.username }}</span>
+                <div style="display: flex; width: 100%;  justify-content: center;">
+                    <span class="username">{% if interlocutor.first_name and interlocutor.last_name %}{{ interlocutor.first_name }} {{ interlocutor.last_name }} ({{ interlocutor.username }}){% else %}{{ interlocutor.username }}{% endif %}</span>
                 </div>
             </div>
         </a>
@@ -99,7 +99,7 @@
             let newBlockMessage = document.createElement("div");
 
             if (from !== "you :") {newBlockMessage.classList.add("aqua-border")}
-            newBlockMessage.innerHTML = `<p class="from">${from}</p>`
+            newBlockMessage.innerHTML = `<p class="from">${from}</p>`;
             newBlockMessage.classList.add("block-message");
             return newBlockMessage;
         }

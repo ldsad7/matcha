@@ -7,9 +7,58 @@
 {% block content %}
     {{ block.super }}
     <div class="center">
+        <nav style="bottom:10px;z-index:10;position:fixed;" aria-label="...">
+          <ul class="pagination" style="">
+            <li class="page-item {% if page >= 2 %} active {% else %} disabled {% endif %}">
+              <a class="page-link" href="{{ page|add:-1 }}" tabindex="-1">Previous</a>
+            </li>
+            {% if max_page >= 3 and page >= 3 %}
+                <li class="page-item">
+                  <a class="page-link" href="1">1</a>
+                </li>
+                {% if page > 3 %}
+                    <li class="page-item disabled">
+                      <a class="page-link" href="#">...</a>
+                    </li>
+                {% endif %}
+            {% endif %}
+            {% if page >= 2 %}
+                <li class="page-item">
+                  <a class="page-link" href="{{ page|add:-1 }}">{{ page|add:-1 }}</a>
+                </li>
+            {% endif %}
+            <li class="page-item active">
+              <a class="page-link" href="{{ page }}">{{ page }} <span class="sr-only">(current)</span></a>
+            </li>
+            {% if page|add:1 <= max_page %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ page|add:1 }}">{{ page|add:1 }}</a>
+                </li>
+            {% endif %}
+            {% if max_page >= 3 and page <= max_page|add:-2 %}
+                {% if page < max_page|add:-2 %}
+                    <li class="page-item disabled">
+                      <a class="page-link" href="#">...</a>
+                    </li>
+                {% endif %}
+                <li class="page-item">
+                  <a class="page-link" href="{{ max_page }}">{{ max_page }}</a>
+                </li>
+            {% endif %}
+            <li class="page-item {% if page|add:1 <= max_page %} active {% else %} disabled {% endif %}">
+              <a class="page-link" href="{{ page|add:1 }}">Next</a>
+            </li>
+          </ul>
+        </nav>
+
+        <div class="search-area">
+            <input id="search-bar" type="text" placeholder="Поиск...">
+            <label for="search-bar"></label>
+        </div>
+
         <div style="display: flex; width: 80%; justify-content: center; flex-direction: column;">
             {% for user in users %}
-                <div id="chats-area">
+                <div id="chats-area" style="margin: 5px 0 7.5px;">
                     <a id="room-name-{{ forloop.counter0 }}" class="card-chat">
                         {% if user.main_photo %}
                             <img src="{{ user.main_photo }}" class="main avatar" alt="profile picture">
@@ -18,10 +67,9 @@
                         {% endif %}
                         <div class="card-chat-info">
                             <div class="card-chat-user">
-                                {{ user.username }}
+                                {% if user.first_name and user.last_name %}{{ user.first_name }} {{ user.last_name }} ({{ user.username }}){% else %}{{ user.username }}{% endif %}
                             </div>
-                            <!-- TODO: time of last message -->
-                            <span class="unread-counter">{{ user.last_message|date:'mdY h:m:s' }}</span>
+                            <span class="unread-counter">{{ user.last_message }}</span>
                         </div>
                     </a>
                 </div>
@@ -36,18 +84,48 @@
         {% if global_user.id %}user_id = {{ global_user.id }}{% endif %};
     </script>
     <script>
-        {% for user in users %}
-            const room = document.getElementById("room-name-{{ forloop.counter0 }}");
-            room.setAttribute("href", ["{{ global_user.id }}", "{{ user.id }}"].sort().join('_'));
-            console.log(room.querySelector(".unread-counter").textContent);
-            let _date = room.querySelector(".unread-counter").textContent;
-            if (_date != 0) {
-                room.querySelector(".unread-counter").innerHTML = moment(_date, "MMDDYYYY hh:mm:ss").fromNow();
+        $(".page-link").click(function(event) {
+            event.preventDefault();
+            if (window.location.search.match(/[&?]?page=/g)) {
+                window.location.search = window.location.search.replace(/([&?]?page=)(.*?)(&|$)/g, "$1" + this.getAttribute('href') + "$3");
             } else {
+                if (!window.location.search.match(/\?/g)) {
+                    window.location.search += '?page=' + this.getAttribute('href');
+                } else {
+                    window.location.search += '&page=' + this.getAttribute('href');
+                }
+            }
+        });
+
+        $(document).ready(function() {
+            try {
+                let name = getParameterByName('name');
+                if (name) {
+                    $("#search-bar").val(name);
+                }
+            } catch (error) {
+                console.log("search filters error happened: " + error);
+            }
+        });
+
+        {% for user in users %}
+            room = document.getElementById("room-name-{{ forloop.counter0 }}");
+            room.setAttribute("href", ["{{ global_user.id }}", "{{ user.id }}"].sort().join('_'));
+            _date = room.querySelector(".unread-counter").textContent;
+            if (!_date) {
                 room.querySelector(".unread-counter").innerHTML = "Нет сообщений";
             }
         {% endfor %}
-        
+
+        let input = document.getElementById("search-bar");
+        input.addEventListener("keyup", function(event) {
+          if (event.keyCode === 13) {
+            event.preventDefault();
+            let value = input.value.trim();
+            window.location.href = "/chat/?" + "name=" + value;
+          }
+        });
+
         // sort chats
         // const sort_by_unread = (a, b) => {
         //     return ~~a.querySelector(".unread-counter").textContent > ~~b.querySelector(".unread-counter").textContent;

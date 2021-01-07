@@ -43,61 +43,6 @@
             </li>
           </ul>
         </nav>
-        <script>
-            $(".page-link").click(function(event) {
-                event.preventDefault();
-                if (window.location.search.match(/[&?]?page=/g)) {
-                    window.location.search = window.location.search.replace(/([&?]?page=)(.*?)(&|$)/g, "$1" + this.getAttribute('href') + "$3");
-                } else {
-                    if (!window.location.search.match(/\?/g)) {
-                        window.location.search += '?page=' + this.getAttribute('href');
-                    } else {
-                        window.location.search += '&page=' + this.getAttribute('href');
-                    }
-                }
-            });
-
-            function get_current_age(date) {
-                var d = date.split('-');
-                if( typeof d[2] !== "undefined" ) {
-                    date = d[1]+'.'+d[2]+'.'+d[0];
-                    return ((new Date().getTime() - new Date(date)) / (24 * 3600 * 365.25 * 1000)) | 0;
-                }
-                return 0;
-            }
-
-            $(document).ready(function() {
-                $(".age").each(function () {
-                    let value = get_current_age(this.querySelector("span").innerHTML);
-                    if (value !== 0)
-                        this.querySelector("span").innerHTML = get_current_age(this.querySelector("span").innerHTML);
-                    else
-                        this.querySelector("span").innerHTML = "Неизвестен";
-                });
-            });
-
-            document.addEventListener("click", (e) => {
-                if (!(e.target.id.startsWith("btn-report") || e.target.id.startsWith("btn-block") || e.target.id === "more-actions-btn")) {
-                    document.querySelectorAll(".buttons").forEach(el => {el.classList.remove("visible")});
-                }
-            });
-            const focus_actions = (e) => e.target.parentNode.querySelector('.buttons').classList.toggle('visible');
-            function check_actions(e, elem) {
-                let targ_id = e.target.id;
-                if (targ_id.startsWith('act-like-') || targ_id.startsWith('act-dislike-')
-                                                    || targ_id.startsWith('btn-report-')
-                                                    || targ_id.startsWith('btn-block-')) {
-                    if (targ_id.startsWith('act-dislike-') || targ_id.startsWith('btn-report-') || targ_id.startsWith('btn-block-')) {
-                        elem.classList.add("animate__backOutLeft");
-                    } else {
-                        elem.classList.add("animate__backOutRight");
-                    }
-                    setTimeout(() => {elem.remove()}, 600);
-                } else {
-                    window.location.href = "/profiles/" + elem.querySelector("#id").textContent + "/";
-                }
-            }
-        </script>
     {% for user in users %}
         <section class="user-profile user-profile-short animate__animated" onclick="check_actions(event, this);">
             <span id="id" style="display:none;">{{ user.id }}</span>
@@ -122,14 +67,16 @@
                 <div class="not-here-pls" id="del-avatar" style="display: none;">
                     <span class="not-here-pls">&#10008;</span>
                 </div>
-                <div id="connection"><span class="{% if last_login == "online" %}green{% else %}red{% endif %}"></span><span class="connect-date">{% if user.last_login == 'offline' %}{{ user.last_login|safe }}{% else %}{{ user.last_login|date:'mdY h:m:s'|safe }}{% endif %}</span></div>
+                <div id="connection">
+                    <span class="{% if user.last_login == "online" %}green{% else %}red{% endif %}"></span>{{ user.last_login }}
+                </div>
             </figure>
             <section class="user-data">
                 <div id="username"><span>{{ user.username|safe }}</span></div>
                 <div id="name">
                     <span>{{ user.first_name|safe }} {{ user.last_name|safe }}</span>
                 </div>
-                <div id="age" class="age">Возраст: <span>{{ user.date_of_birth|safe }}</span></div><br/>
+                <div id="age" class="age">Возраст: <span>{{ user.age }}</span></div><br/>
                 <div id="rating">Рейтинг: <span class="rating">{{ user.rating|safe }}&#9733;</span></div><br/>
                 <div class="location" style="margin-left:10px;line-height:20px;display:inline-block">Местоположение: <span>{{ user.location|safe }}</span></div>
                 <div style="margin-left: 10px;">
@@ -163,11 +110,221 @@
                 </label>
             </section>
             {% if global_user.is_authenticated %}
-                <section id="buttons-card">
-                    <button type="button" id="act-dislike-{{ forloop.counter0 }}" class="btn btn-outline-danger btn-lg"><i id="act-dislike" class="fa fa-thumbs-down"></i></button>
-                    <button type="button" id="act-like-{{ forloop.counter0 }}" class="btn btn-outline-success btn-lg"><i id="act-like" class="fa fa-thumbs-up"></i></button>
-                </section>
+                {% if type == "likes" %}
+                    <section id="buttons-card">
+                        <button type="button" id="act-dislike-{{ forloop.counter0 }}" class="btn btn-outline-danger btn-lg"><i id="act-dislike" class="fa fa-thumbs-down"></i></button>
+                        <button type="button" id="act-like-{{ forloop.counter0 }}" class="btn btn-outline-success btn-lg"><i id="act-like" class="fa fa-thumbs-up"></i></button>
+                    </section>
+                {% elif type == "connects" %}
+                    <section class="buttons-sec" style="margin-top: 10px;width: 100%;text-align: center;">
+                        {% if user.liked_back %}
+                            <button id="like-button-{{ forloop.counter0 }}" style="background-color: rgb(199, 69, 69);width: 100px;">Ignore</button>
+                            <button id="chat-button-{{ forloop.counter0 }}" style="background-color: rgb(69, 199, 69);width: 100px;">Chat</button>
+                        {% else %}
+                            <button id="like-button-{{ forloop.counter0 }}" style="background-color: #99c4d8;width: 100px;">Like</button>
+                        {% endif %}
+                    </section>
+                {% endif %}
             {% endif %}
         </section>
     {% endfor %}
+        <script>
+            $(".page-link").click(function(event) {
+                event.preventDefault();
+                if (window.location.search.match(/[&?]?page=/g)) {
+                    window.location.search = window.location.search.replace(/([&?]?page=)(.*?)(&|$)/g, "$1" + this.getAttribute('href') + "$3");
+                } else {
+                    if (!window.location.search.match(/\?/g)) {
+                        window.location.search += '?page=' + this.getAttribute('href');
+                    } else {
+                        window.location.search += '&page=' + this.getAttribute('href');
+                    }
+                }
+            });
+
+            document.addEventListener("click", (e) => {
+                if (!(e.target.id.startsWith("btn-report") || e.target.id.startsWith("btn-block") || e.target.id === "more-actions-btn")) {
+                    document.querySelectorAll(".buttons").forEach(el => {el.classList.remove("visible")});
+                }
+            });
+            const focus_actions = (e) => e.target.parentNode.querySelector('.buttons').classList.toggle('visible');
+            function check_actions(e, elem) {
+                let targ_id = e.target.id;
+                if (targ_id.startsWith('act-like-') || targ_id.startsWith('act-dislike-')
+                                                    || targ_id.startsWith('btn-report-')
+                                                    || targ_id.startsWith('btn-block-')
+                                                    || targ_id === 'show-more'
+                                                    || targ_id.startsWith('like-button-')
+                                                    || targ_id.startsWith('more-actions-')
+                                                    || targ_id.startsWith('btn-')
+                                                    || targ_id.startsWith('chat-button-')) {
+                    if (targ_id.startsWith('act-dislike-') || targ_id.startsWith('btn-report-') || targ_id.startsWith('btn-block-')) {
+                        elem.classList.add("animate__backOutLeft");
+                        setTimeout(() => {elem.remove()}, 600);
+                    } else if (targ_id.startsWith('act-like-')) {
+                        elem.classList.add("animate__backOutRight");
+                        elem.id = "tmp_" + elem.id;
+                        setTimeout(() => {elem.remove()}, 600);
+                    } else {
+                        //
+                    }
+                } else {
+                    window.location.href = "/profiles/" + elem.querySelector("#id").textContent + "/";
+                }
+            }
+        </script>
+        {% if global_user.id %}
+            <script>
+                function createElementFromHTML(htmlString) {
+                  let div = document.createElement('div');
+                  div.innerHTML = htmlString.trim();
+
+                  // Change this to div.childNodes to support multiple top-level nodes
+                  return div.firstChild;
+                }
+
+                let user_ids = [];
+                let users_connect_ids = [];
+                {% for user in users %}
+                    user_ids.push({{ user.id }});
+                    users_connect_ids.push({{ user.users_connect_id }});
+                {% endfor %}
+                csrftoken = getCookie('csrftoken');
+                for (let i = 0; i < {{ users|length }}; i++) {
+                    {% if type == "likes" %}
+                        document.getElementById("act-like-" + i).addEventListener("click", function (e) {
+                            if (user_ids[i] !== {{ global_user.id }}) {
+                                $.ajax({
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRFToken': csrftoken
+                                    },
+                                    url: "/api/v1/user_connects/",
+                                    type: "POST",
+                                    data: JSON.stringify({
+                                        "user_1_id": {{ global_user.id }},
+                                        "user_2_id": user_ids[i],
+                                        "type": 'плюс'
+                                    })
+                                });
+                            }
+                        });
+                        document.getElementById("act-dislike-" + i).addEventListener("click", function (e) {
+                            if (user_ids[i] !== {{ global_user.id }}) {
+                                $.ajax({
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRFToken': csrftoken
+                                    },
+                                    url: "/api/v1/user_connects/",
+                                    type: "POST",
+                                    data: JSON.stringify({
+                                        "user_1_id": {{ global_user.id }},
+                                        "user_2_id": user_ids[i],
+                                        "type": 'минус'
+                                    })
+                                });
+                            }
+                        });
+                    {% elif type == "connects" %}
+                        let chat_button = null;
+                        document.getElementById("like-button-" + i).addEventListener("click", function (e) {
+                            if (user_ids[i] !== {{ global_user.id }}) {
+                                let prev_text = $(this).text();
+                                let type = '';
+                                if (prev_text === "Like") {
+                                    $(this).text("Ignore");
+                                    $(this).css("background-color", "rgb(199, 69, 69)");
+                                    type = 'плюс';
+                                    chat_button = createElementFromHTML('<button id="chat-button-' + i + '" style="background-color: rgb(69, 199, 69);width: 100px;">Chat</button>');
+                                    $(this).parent().append(chat_button);
+                                    chat_button.addEventListener("click", function (e) {
+                                        if (user_ids[i] !== {{ global_user.id }}) {
+                                            window.location.href = "/chat/" + user_id + "_" + user_ids[i] + "/";
+                                        }
+                                    });
+                                } else {
+                                    $(this).text("Like");
+                                    $(this).css("background-color", "#99c4d8");
+                                    chat_button = document.getElementById("chat-button-" + i);
+                                    type = 'минус';
+                                    if (chat_button) {
+                                        chat_button.remove();
+                                    }
+                                }
+                                $.ajax({
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRFToken': csrftoken
+                                    },
+                                    url: "/api/v1/user_connects/" + users_connect_ids[i] + "/",
+                                    type: "PATCH",
+                                    data: JSON.stringify({
+                                        "type": type
+                                    })
+                                });
+                            }
+                        });
+                        chat_button = document.getElementById("chat-button-" + i);
+                        if (chat_button) {
+                            chat_button.addEventListener("click", function (e) {
+                                if (user_ids[i] !== {{ global_user.id }}) {
+                                    let ids = [user_id.toString(), user_ids[i].toString()];
+                                    ids.sort();
+                                    window.location.href = "/chat/" + ids[0] + "_" + ids[1] + "/";
+                                }
+                            });
+                        }
+                    {% endif %}
+                    document.getElementById("btn-report-" + i).addEventListener("click", function (e) {
+                        if (user_ids[i] !== {{ global_user.id }}) {
+                            $.ajax({
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': csrftoken
+                                },
+                                url: "/api/v1/user_fakes/",
+                                type: "POST",
+                                data: JSON.stringify({
+                                    "user_1_id": {{ global_user.id }},
+                                    "user_2_id": user_ids[i]
+                                })
+                            });
+                        }
+                    });
+                    document.getElementById("btn-block-" + i).addEventListener("click", function (e) {
+                        if (user_ids[i] !== {{ global_user.id }}) {
+                            $.ajax({
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': csrftoken
+                                },
+                                url: "/api/v1/user_blacklists/",
+                                type: "POST",
+                                data: JSON.stringify({
+                                    "user_1_id": {{ global_user.id }},
+                                    "user_2_id": user_ids[i]
+                                })
+                            });
+                        }
+                    });
+                }
+            </script>
+        {% endif %}
+
+        <script>
+            function check_line_clamp() {
+                document.querySelectorAll("#history").forEach(el => {
+                    if (el.scrollHeight === el.clientHeight) {
+                        el.parentNode.querySelector("button").style.display = "none";
+                    } else {
+                        el.parentNode.querySelector("button").style.display = "block";
+                    }
+                })
+            }
+            check_line_clamp();
+            window.onresize = function(e) {
+                check_line_clamp();
+            }
+        </script>
 </div>

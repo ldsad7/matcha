@@ -56,6 +56,25 @@ def ignore_false_users(objs, user_id):
     return users
 
 
+def ignore_only_blocked_and_faked_users(objs, user_id):
+    """
+    Removes blocked and faked users and himself from a list
+    """
+    from matcha.models import UsersBlackList, UsersFake
+
+    ignored_ids = {user_id}
+    users_black_lists = UsersBlackList.objects_.all()
+    ignored_ids |= {obj.user_2_id for obj in users_black_lists if obj.user_1_id == user_id}
+    ignored_ids |= {obj.user_1_id for obj in users_black_lists if obj.user_2_id == user_id}
+
+    users_fakes = UsersFake.objects_.all()
+    ignored_ids |= {obj.user_2_id for obj in users_fakes if obj.user_1_id == user_id}
+    ignored_ids |= {obj.user_1_id for obj in users_fakes if obj.user_2_id == user_id}
+
+    users = [obj for obj in objs if obj.id not in ignored_ids]
+    return users
+
+
 def ignore_by_orientation_and_gender(users, user):
     from matcha.models import User
     if user.gender != User.UNKNOWN and user.orientation != User.UNKNOWN:

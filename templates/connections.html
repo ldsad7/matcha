@@ -5,48 +5,10 @@
 {% block content %}
     {{ block.super }}
     <section class="content">
-        {% include "mini-cards.html" %}
+        {% include "cards.html" with type="connects" %}
     </section>
 {% endblock %}
 
 {% block body_scripts %}
     {{ block.super }}
-    <script>
-        let user_ids = [];
-        let users_connect_ids = [];
-        {% for user in users %}
-            user_ids.push({{ user.id }});
-            users_connect_ids.push({{ user.users_connect_id }});
-        {% endfor %}
-        csrftoken = getCookie('csrftoken');
-        for (let i = 0; i < {{ users|length }}; i++) {
-            document.getElementById("like-button-" + i).addEventListener("click", function (e) {
-                let prev_text = $(this).text();
-                let type = '';
-                if (prev_text === "Like") {
-                    $(this).text("Ignore");
-                    $(this).css("background-color", "rgb(199, 69, 69)");
-                    type = 'плюс';
-                } else {
-                    $(this).text("Like");
-                    $(this).css("background-color", "#99c4d8");
-                    type = 'минус';
-                }
-
-                $.ajax({
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrftoken
-                    },
-                    url: "/api/v1/user_connects/" + users_connect_ids[i] + "/",
-                    type: "PATCH",
-                    data: JSON.stringify({
-                        "type": type
-                    })
-                });
-            });
-        }
-    </script>
 {% endblock %}
-
-</html>

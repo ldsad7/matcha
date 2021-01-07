@@ -35,6 +35,7 @@
                         <span class="not-here-pls">&#10008;</span>
                     </div>
                     <div id="connection"><span class="{% if last_login == "online" %}green{% else %}red{% endif %}"></span>{{ last_login }}</div>
+
                 </figure>
                 <figcaption>
                     <div id="username">{{ username }}</div>
@@ -141,7 +142,6 @@
     <script src="{% static 'js/changeTags.js' %}"></script>
     <!-- endif -->
     {{ block.super }}
-    <script src="{% static 'js/callAvitoApi.js' %}"></script>
 {% endblock %}
 
 
