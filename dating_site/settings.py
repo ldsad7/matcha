@@ -207,7 +207,7 @@ verbose_flag = False
 REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
 REDIS_PORT = os.getenv('REDIS_PORT', '6379')
 REDIS_BASE_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}'
-# NB: for django-health-checkt
+# NB: for django-health-check
 REDIS_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}'
 
 ####################################

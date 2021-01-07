@@ -28,7 +28,7 @@
         <a href="/profiles/{{ interlocutor.id }}" class="chat-user-info">
             <div style="display: flex; align-items: center;">
                 {% if interlocutor.main_photo %}
-                    <img src="{{ user.main_photo }}" class="main avatar" alt="profile picture">
+                    <img src="{{ interlocutor.main_photo }}" class="main avatar" alt="profile picture">
                 {% else %}
                     <img src="{% static 'img/default.png' %}" class="avatar" alt="default profile picture">
                 {% endif %}
@@ -78,6 +78,7 @@
 
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
         window.scrollTo(0,document.body.scrollHeight);
+        console.log("window.location.host: " + window.location.host);
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
@@ -85,14 +86,14 @@
             + roomName
             + '/'
         );
+        console.log("chatSocket.url: " + chatSocket.url);
 
         const getCurrentMonthName = () => {
             return ["января", "февраля", "марта", "апреля", "мая", "июня",
                 "июля", "августа", "сентября", "октября", "ноября", "декабря"
                 ][new Date().getMonth()];
-        }
+        };
 
-        const userId = {{ global_user.id }};
         messageFromId = 1;
 
         function createBlockMessage({from, created}) {
@@ -118,7 +119,7 @@
 
         Date.prototype.timeNow = function () {
             return ((this.getHours() < 10)?"0":"") + this.getHours() +":"+ ((this.getMinutes() < 10)?"0":"") + this.getMinutes() +":"+ ((this.getSeconds() < 10)?"0":"") + this.getSeconds();
-        }
+        };
 
         {% for message in messages %}
             {% if message.message %}
@@ -159,7 +160,7 @@
             }
             if (!message)
                 return;
-            messageFromId = sender_id;
+            let messageFromId = sender_id;
             const messagesArea = document.getElementById("messages");
             let newMessage = document.createElement("p");
             const blocksDate = document.querySelectorAll(".date-block .day");
@@ -188,12 +189,12 @@
             }
             newMessage.classList.add("data-message");
             newMessage.innerHTML = `<span>${message}</span><span class="message-date">${created.time}</span>`;
-            if ((isLastMessageFromEnemy || !(lastMessageBlock)) && messageFromId == userId) {
+            if ((isLastMessageFromEnemy || !(lastMessageBlock)) && messageFromId == {{ global_user.id }}) {
                 let newBlockMessage = createBlockMessage({from: "you :", created: created});
 
                 newBlockMessage.appendChild(newMessage);
                 messagesArea.appendChild(newBlockMessage);
-            } else if (messageFromId == userId) {
+            } else if (messageFromId == {{ global_user.id }}) {
                 lastMessageBlock.appendChild(newMessage);
             } else {
                 if (lastMessageBlock && isLastMessageFromEnemy) {
@@ -210,13 +211,29 @@
 
         messages.forEach(mes => {
             appendMessage(mes);
-        })
+        });
 
-        chatSocket.onmessage = (e) => {appendMessage(JSON.parse(e.data))};
+        chatSocket.onopen = function(e) {
+          let message_text = "WebSocket rocks";
+          chatSocket.send(message_text);
+          console.log("socket sent: ", message_text);
+          console.log("self.socket event.type:", e.type);
+        };
 
-        chatSocket.onclose = (e) => {alert("WebSocket was closed")};
+        chatSocket.onmessage = function(e) {
+            appendMessage(JSON.parse(e.data));
+            console.log("self.socket event.type:", e.type);
+        };
 
-        chatSocket.onerror = (e) => {alert("Error with WebSocket, maybe Redis is closed?")};
+        chatSocket.onclose = function(e) {
+            alert("WebSocket was closed");
+            console.log("self.socket event.type:", e.type);
+        };
+
+        chatSocket.onerror = function(e) {
+            alert("Error with WebSocket, maybe Redis is closed?");
+            console.log("self.socket event.type:", e.type);
+        };
 
         document.querySelector('#chat-message-input').focus();
 
@@ -230,10 +247,12 @@
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
             if (message) {
-                chatSocket.send(JSON.stringify({
+                let message_text = JSON.stringify({
                     'message': message,
                     'global_user_id': {{ global_user.id }}
-                }));
+                });
+                chatSocket.send(message_text);
+                console.log("socket sent: ", message_text);
                 messageInputDom.value = '';
             }
         };

@@ -8,7 +8,7 @@ from rest_framework.exceptions import PermissionDenied
 from dating_site.settings import PAGE_SIZE
 from matcha.filters import filter_name
 from matcha.models import UsersConnect, User, Message
-from matcha.serializers import UserReadSerializer
+from matcha.serializers import UserReadSerializer, ShortUserSerializer
 from matcha.tasks import ignore_only_blocked_and_faked_users
 
 
@@ -96,6 +96,6 @@ def room(request, room_name):
     context = {
         'room_name': room_name,
         'messages': messages,
-        'interlocutor': interlocutor
+        'interlocutor': ShortUserSerializer(interlocutor).data
     }
     return render(request, 'chat/room.html', context)

@@ -73,6 +73,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 type=Notification.MESSAGE
             ).save()
             self.last_message = curr_datetime
+
         # Send message to room group
         await self.channel_layer.group_send(
             self.room_group_name,
