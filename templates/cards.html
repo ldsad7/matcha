@@ -160,6 +160,7 @@
                                                     || targ_id.startsWith('chat-button-')) {
                     if (targ_id.startsWith('act-dislike-') || targ_id.startsWith('btn-report-') || targ_id.startsWith('btn-block-')) {
                         elem.classList.add("animate__backOutLeft");
+                        elem.id = "tmp_" + elem.id;
                         setTimeout(() => {elem.remove()}, 600);
                     } else if (targ_id.startsWith('act-like-')) {
                         elem.classList.add("animate__backOutRight");
