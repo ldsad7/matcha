@@ -746,6 +746,14 @@ class NotificationReadSerializer(CommonSerializer):
     modified = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
 
     @staticmethod
+    def get_created(instance: Notification):
+        return instance.created.replace(tzinfo=pytz.UTC)
+
+    @staticmethod
+    def get_modified(instance: Notification):
+        return instance.modified.replace(tzinfo=pytz.UTC)
+
+    @staticmethod
     def get_user_1(instance: Notification):
         return instance.user_1.id
 
@@ -788,6 +796,14 @@ class MessageReadSerializer(CommonSerializer):
     message = serializers.CharField(required=True, max_length=256)
     created = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
     modified = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+
+    @staticmethod
+    def get_created(instance: Message):
+        return instance.created.replace(tzinfo=pytz.UTC)
+
+    @staticmethod
+    def get_modified(instance: Message):
+        return instance.modified.replace(tzinfo=pytz.UTC)
 
     @staticmethod
     def get_user_1(instance: Message):

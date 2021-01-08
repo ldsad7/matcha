@@ -137,4 +137,7 @@
         // }
     </script>
     <script src="{% static 'js/toggleBtn.js' %}"></script>
+    {% if global_user.is_authenticated %}
+        <script src="{% static 'js/getNotifications.js' %}"></script>
+    {% endif %}
 {% endblock %}

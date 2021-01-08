@@ -32,6 +32,11 @@
                 {% else %}
                     <img src="{% static 'img/default.png' %}" class="avatar" alt="default profile picture">
                 {% endif %}
+                <div>
+                    <span
+                        style="background-color:{% if interlocutor.last_login == "online" %}green{% else %}red{% endif %};border-radius:50%;display:inline-block;width:8px;height:8px;margin-right:5px;top:6px;">
+                    </span>
+                </div>
                 <div style="display: flex; width: 100%;  justify-content: center;">
                     <span class="username">{% if interlocutor.first_name and interlocutor.last_name %}{{ interlocutor.first_name }} {{ interlocutor.last_name }} ({{ interlocutor.username }}){% else %}{{ interlocutor.username }}{% endif %}</span>
                 </div>
@@ -64,13 +69,12 @@
         {% if global_user.id %}user_id = {{ global_user.id }}{% endif %};
     </script>
     <script>
-        // TODO: delete notifications about current chat page 
-
-        const current_url = document.URL.slice(0, document.URL.length - 1);;
+        const current_url = document.URL.slice(0, document.URL.length - 1);
 
         setInterval(() => {
             document.querySelectorAll(".notif_list a").forEach(el => {
                 if (el.href === current_url) {
+                    console.log("el.href: " + el.href + " current_url: " + current_url);
                     deleteNotification(el.id);
                 }
             });
@@ -78,7 +82,6 @@
 
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
         window.scrollTo(0,document.body.scrollHeight);
-        console.log("window.location.host: " + window.location.host);
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
@@ -86,13 +89,12 @@
             + roomName
             + '/'
         );
-        console.log("chatSocket.url: " + chatSocket.url);
 
         const getCurrentMonthName = () => {
             return ["января", "февраля", "марта", "апреля", "мая", "июня",
                 "июля", "августа", "сентября", "октября", "ноября", "декабря"
                 ][new Date().getMonth()];
-        };
+        }
 
         messageFromId = 1;
 
@@ -136,7 +138,7 @@
                                     {% else %}
                                         {{ global_user.id }}
                                     {% endif %}
-                                {% endif %};
+                                {% endif %}
                 newMes.message = "{{ message.message }}";
                 newMes.created = {};
                 newMes.created.day = "{{ message.created|date:'d' }}";
@@ -160,7 +162,7 @@
             }
             if (!message)
                 return;
-            let messageFromId = sender_id;
+            messageFromId = sender_id;
             const messagesArea = document.getElementById("messages");
             let newMessage = document.createElement("p");
             const blocksDate = document.querySelectorAll(".date-block .day");
@@ -189,12 +191,12 @@
             }
             newMessage.classList.add("data-message");
             newMessage.innerHTML = `<span>${message}</span><span class="message-date">${created.time}</span>`;
-            if ((isLastMessageFromEnemy || !(lastMessageBlock)) && messageFromId == {{ global_user.id }}) {
+            if ((isLastMessageFromEnemy || !(lastMessageBlock)) && messageFromId === {{ global_user.id }}) {
                 let newBlockMessage = createBlockMessage({from: "you :", created: created});
 
                 newBlockMessage.appendChild(newMessage);
                 messagesArea.appendChild(newBlockMessage);
-            } else if (messageFromId == {{ global_user.id }}) {
+            } else if (messageFromId === {{ global_user.id }}) {
                 lastMessageBlock.appendChild(newMessage);
             } else {
                 if (lastMessageBlock && isLastMessageFromEnemy) {
@@ -213,27 +215,11 @@
             appendMessage(mes);
         });
 
-        chatSocket.onopen = function(e) {
-          let message_text = "WebSocket rocks";
-          chatSocket.send(message_text);
-          console.log("socket sent: ", message_text);
-          console.log("self.socket event.type:", e.type);
-        };
+        chatSocket.onmessage = (e) => {appendMessage(JSON.parse(e.data))};
 
-        chatSocket.onmessage = function(e) {
-            appendMessage(JSON.parse(e.data));
-            console.log("self.socket event.type:", e.type);
-        };
+        chatSocket.onclose = (e) => {alert("WebSocket was closed")};
 
-        chatSocket.onclose = function(e) {
-            alert("WebSocket was closed");
-            console.log("self.socket event.type:", e.type);
-        };
-
-        chatSocket.onerror = function(e) {
-            alert("Error with WebSocket, maybe Redis is closed?");
-            console.log("self.socket event.type:", e.type);
-        };
+        chatSocket.onerror = (e) => {alert("Error with WebSocket, maybe Redis is closed?")};
 
         document.querySelector('#chat-message-input').focus();
 
@@ -252,12 +238,12 @@
                     'global_user_id': {{ global_user.id }}
                 });
                 chatSocket.send(message_text);
-                console.log("socket sent: ", message_text);
                 messageInputDom.value = '';
             }
         };
     </script>
     <script src="{% static 'js/toggleBtn.js' %}"></script>
-    <script src="{% static 'js/getCookie.js' %}"></script>
-    <script src="{% static 'js/getNotifications.js' %}"></script>
+    {% if global_user.is_authenticated %}
+        <script src="{% static 'js/getNotifications.js' %}"></script>
+    {% endif %}
 {% endblock %}

@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import pytz
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render
@@ -8,7 +9,7 @@ from rest_framework.exceptions import PermissionDenied
 from dating_site.settings import PAGE_SIZE
 from matcha.filters import filter_name
 from matcha.models import UsersConnect, User, Message
-from matcha.serializers import UserReadSerializer, ShortUserSerializer
+from matcha.serializers import UserReadSerializer, ShortUserSerializer, MessageSerializer
 from matcha.tasks import ignore_only_blocked_and_faked_users
 
 
@@ -70,6 +71,8 @@ def room(request, room_name):
     messages = sorted(Message.objects_.filter(
         user_1_id=first_user_id, user_2_id=second_user_id
     ), key=lambda elem: elem.created)
+    for message in messages:
+        message.created = message.created.replace(tzinfo=pytz.UTC)
     if request.user.id == first_user_id:
         try:
             interlocutor = User.objects_.filter(id=second_user_id)[0]
@@ -96,6 +99,7 @@ def room(request, room_name):
     context = {
         'room_name': room_name,
         'messages': messages,
+        'chat_exists': chat_exists,
         'interlocutor': ShortUserSerializer(interlocutor).data
     }
     return render(request, 'chat/room.html', context)
