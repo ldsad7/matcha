@@ -81,9 +81,6 @@
 {% block body_scripts %}
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script>
-        {% if global_user.id %}user_id = {{ global_user.id }}{% endif %};
-    </script>
-    <script>
         $(".page-link").click(function(event) {
             event.preventDefault();
             if (window.location.search.match(/[&?]?page=/g)) {

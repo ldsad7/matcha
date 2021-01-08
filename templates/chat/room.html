@@ -66,15 +66,11 @@
 
 {% block body_scripts %}
     <script>
-        {% if global_user.id %}user_id = {{ global_user.id }}{% endif %};
-    </script>
-    <script>
         const current_url = document.URL.slice(0, document.URL.length - 1);
 
         setInterval(() => {
             document.querySelectorAll(".notif_list a").forEach(el => {
                 if (el.href === current_url) {
-                    console.log("el.href: " + el.href + " current_url: " + current_url);
                     deleteNotification(el.id);
                 }
             });

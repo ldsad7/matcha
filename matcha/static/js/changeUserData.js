@@ -89,8 +89,6 @@ document.getElementById("change-profile-data").addEventListener("click", functio
             })
         });
 
-        // console.log("new_images: " + new_images.length);
-        // console.log("new_images_srcs: " + new_images_srcs);
         new_images.forEach(function (elem, i) {
             let { file } = elem;
 
@@ -119,10 +117,6 @@ document.getElementById("change-profile-data").addEventListener("click", functio
                 $.ajax(settings);
             }
         });
-
-
-        // console.log("main_image: " + main_image.map(el => { return el.getAttribute('src') }));
-        // console.log("initial_main_image: " + initial_main_image.map(el => { return el.getAttribute('src') }));
 
         const tag_names = [...$(".tag span")].map(el => { return el.textContent });
 

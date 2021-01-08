@@ -123,11 +123,6 @@
 {% endblock %}
 
 {% block body_scripts %}
-    <script>
-        {% for photo in photos %}
-            console.log({{photo.id}});
-        {% endfor %}
-    </script>
     <!-- if auth -->
     <script src="{% static 'js/appendImage.js' %}"></script>
     <script src="{% static 'js/changeAge.js' %}"></script>

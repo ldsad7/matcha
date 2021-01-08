@@ -37,10 +37,14 @@ class CustomMiddleware:
             if verbose_flag:
                 print(f'ip: {ip}')
             g = GeoIP2()
-            ip = '205.186.163.125'  # TODO: REPLACE HARDCODE LATER
-            user_obj.country = g.country(ip)['country_name']
-            user_obj.city = g.city(ip)['city']
-            user_obj.latitude, user_obj.longitude = g.lat_lon(ip)
+            try:
+                user_obj.country = g.country(ip)['country_name']
+                user_obj.city = g.city(ip)['city']
+                user_obj.latitude, user_obj.longitude = g.lat_lon(ip)
+            except Exception as e:
+                if verbose_flag:
+                    print(f"Error happened: {e}")
+                pass
             user_obj.last_login = datetime.utcnow()
             user_obj.save()
 

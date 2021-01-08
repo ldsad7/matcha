@@ -32,9 +32,6 @@ def filter_rating(queryset, value, model):
 
 
 def filter_location(queryset, value, model):
-    """
-    TODO: rewrite with latitude, longitude?
-    """
     ids = [obj.id for obj in queryset]
     return model.objects_.filter(id__in=ids, location__icontains=value)
 
