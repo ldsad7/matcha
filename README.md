@@ -53,7 +53,7 @@ REQUIREMENTS:
 в противном случае это будет что-то другое), а `name = 127.0.0.1:8000`, если запускается на локалке.  
 
 Чтобы заработал чат, нужно поднять локально (или на сервере)
-redis (стандартный порт).
+redis (стандартный порт; https://gist.github.com/tomysmile/1b8a321e7c58499ef9f9441b2faa0aa8).
 
 `brew install libmaxminddb` для более быстрой геолокации
 (для других систем см. https://github.com/maxmind/libmaxminddb)

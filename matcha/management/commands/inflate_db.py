@@ -2,6 +2,8 @@ import random
 import shutil
 
 import requests
+import time
+
 from django.core.management import BaseCommand
 from django.db import IntegrityError
 from faker import Faker
@@ -11,7 +13,7 @@ from dating_site.settings import MEDIA_PREFIX
 
 from matcha.models import User, UserPhoto, UserTag, Tag, UsersConnect, UsersFake, UsersBlackList, Notification
 
-NUM_OF_USERS = 355  # 500
+NUM_OF_USERS = 500
 # Faker.seed(0)
 fake = Faker('ru_RU')
 
@@ -26,7 +28,7 @@ class Command(BaseCommand):
     @staticmethod
     def update_users():
         user_ids = [user.id for user in User.objects_.all()]
-        prev_raw_content = None
+        prev_raw_text = None
         for _ in range(NUM_OF_USERS):
             gender = random.choice([elem[0] for elem in User.GENDERS])
             if gender == User.MAN:
@@ -69,13 +71,14 @@ class Command(BaseCommand):
             user_id = user.id
             file_name = f'{MEDIA_PREFIX}/person_{user_id}.jfif'
             while True:
+                time.sleep(1)
                 r = requests.get('https://thispersondoesnotexist.com/image', stream=True)
-                if r.status_code != 200 or r.raw == prev_raw_content:
+                r.raw.decode_content = True
+                if r.status_code != 200 or r.raw == prev_raw_text:
                     continue
+                prev_raw_text = r.raw
                 with open(file_name, 'wb') as f:
-                    r.raw.decode_content = True
                     shutil.copyfileobj(r.raw, f)
-                    prev_raw_content = r.raw
                 break
 
             UserPhoto(
