@@ -49,3 +49,7 @@ brew services restart redis
 
 echo '\033[32mrunning server...\033[0m'
 $py manage.py runserver
+
+echo '\033[32mlaunching celery...\033[0m'
+celery -A dating_site worker -l info &
+celery -A dating_site beat -l info &
