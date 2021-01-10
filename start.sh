@@ -30,8 +30,13 @@ $py -m pip install -r requirements.txt
 brew update
 brew install libmaxminddb
 
+echo '\033[32mlaunching mysql...\033[0m'
+mysqld_safe --skip-grant-tables
+brew services start mysql
+mysql.server start
+
 echo '\033[32mcreating database...\033[0m'
-mysql --user="$user" --password="$password" --database="$database" --execute="drop database if exists $database; create database $database;"
+mysql --user="$user" --password="$password" --execute="drop database if exists $database; create database $database;"
 
 echo '\033[32mmigrating tables...\033[0m'
 $py manage.py migrate
