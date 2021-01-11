@@ -11,8 +11,15 @@ function createDelBlock() {
                         align-items: center;`
     del_block.innerHTML = "x";
     del_block.addEventListener("click", function(e) {
+
         const inp_btn = document.getElementById("image-input");
-        avatar.deleted_imgs.push(e.target.parentNode.querySelector("img"));
+        let img = e.target.parentNode.querySelector("img");
+
+        let ind = new_images_srcs.indexOf(img.src);
+        new_images_srcs.splice(ind, 1);
+        new_images.splice(ind, 1);
+
+        avatar.deleted_imgs.push(img);
         e.target.parentNode.remove();
         if (inp_btn.style.display == "none") {
             inp_btn.style.display = "block";

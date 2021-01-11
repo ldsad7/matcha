@@ -65,6 +65,7 @@
 {% endblock %}
 
 {% block body_scripts %}
+    {{ block.super }}
     <script>
         const current_url = document.URL.slice(0, document.URL.length - 1);
 
@@ -90,7 +91,7 @@
             return ["января", "февраля", "марта", "апреля", "мая", "июня",
                 "июля", "августа", "сентября", "октября", "ноября", "декабря"
                 ][new Date().getMonth()];
-        }
+        };
 
         messageFromId = 1;
 
@@ -238,8 +239,4 @@
             }
         };
     </script>
-    <script src="{% static 'js/toggleBtn.js' %}"></script>
-    {% if global_user.is_authenticated %}
-        <script src="{% static 'js/getNotifications.js' %}"></script>
-    {% endif %}
 {% endblock %}

@@ -28,11 +28,11 @@ django-registration-redux==2.8
 
 # Chat
 channels==2.4.0
-channels-redis==3.0.1
+channels-redis==2.4.2  # was 3.0.1
 asgiref==3.2.10
 
 # Geo
-geoip2==4.0.2
+# geoip2==4.0.2
 
 # Debug
 django-debug-toolbar==2.2

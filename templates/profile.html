@@ -48,10 +48,10 @@
                 </figcaption>
                 <figcaption id="second_caption">
                     <div id="age">Возраст:
-                        <input  type="hidden" id="date-picker" name="trip-start"
-                        value="{{ date_of_birth }}"
-                        min="1945-01-01" max="2006-12-31" required>
-                        <span>19</span><span> лет</span></div>
+                        <input  type="hidden" id="date-picker" placeholder="2004-12-31"
+                        name="trip-start" value="{{ date_of_birth }}"
+                        min="1945-01-01" max="2004-12-31" required>
+                        <span>{{ age }}</span><span> лет</span></div>
                     <div id="gender">Пол: <span>{{ gender }}</span>
                         <select id="selectGender" style="display: none;">
                             <option value="мужской">М</option>
@@ -123,6 +123,7 @@
 {% endblock %}
 
 {% block body_scripts %}
+    {{ block.super }}
     <!-- if auth -->
     <script src="{% static 'js/appendImage.js' %}"></script>
     <script src="{% static 'js/changeAge.js' %}"></script>
@@ -131,12 +132,9 @@
     <script src="{% static 'js/changeOrientation.js' %}"></script>
     <script src="{% static 'js/changeName.js' %}"></script>
     <script src="{% static 'js/changeLocation.js' %}"></script>
-
     <script src="{% static 'js/changeUserData.js' %}"></script>
-
     <script src="{% static 'js/changeTags.js' %}"></script>
     <!-- endif -->
-    {{ block.super }}
 {% endblock %}
 
 

@@ -77,19 +77,32 @@ def ignore_only_blocked_and_faked_users(objs, user_id):
 
 def ignore_by_orientation_and_gender(users, user):
     from matcha.models import User
-    if user.gender != User.UNKNOWN and user.orientation != User.UNKNOWN:
+    if user.gender != User.UNKNOWN:
         if user.orientation == User.HETERO:
             users = [
-                inner_user for inner_user in users if inner_user.gender not in [user.gender, User.UNKNOWN]
+                inner_user for inner_user in users
+                if inner_user.gender not in [user.gender, User.UNKNOWN] and
+                   inner_user.orientation not in [User.HOMO, User.UNKNOWN]
             ]
         elif user.orientation == User.HOMO:
             users = [
-                inner_user for inner_user in users if inner_user.gender == user.gender
+                inner_user for inner_user in users
+                if inner_user.gender == user.gender and
+                   inner_user.orientation not in [User.HETERO, User.UNKNOWN]
             ]
-        elif user.orientation == User.BI:
+        elif user.orientation in [User.BI, User.UNKNOWN]:
             users = [
-                inner_user for inner_user in users if inner_user.gender != User.UNKNOWN
+                inner_user for inner_user in users
+                if (inner_user.gender == user.gender and
+                    inner_user.orientation in [User.BI, User.HOMO]) or
+                   (inner_user.gender not in [user.gender, User.UNKNOWN] and
+                    inner_user.orientation in [User.BI, User.HETERO])
             ]
+    elif user.orientation in [User.BI, User.UNKNOWN]:
+        users = [
+            inner_user for inner_user in users
+            if inner_user.orientation in [User.BI, User.UNKNOWN]
+        ]
     return users
 
 

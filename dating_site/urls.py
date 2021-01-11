@@ -1,7 +1,8 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve
 
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
@@ -25,6 +26,8 @@ urlpatterns = [
     path('search/', views.search, name='search'),
     path('admin/', admin.site.urls),
     path('chat/', include('chat.urls')),
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
     path('profiles/<int:id>/', views.user_profile, name='profiles'),
     path('api/v1/', include('matcha.urls')),
     path(

@@ -55,15 +55,6 @@ REQUIREMENTS:
 Чтобы заработал чат, нужно поднять локально (или на сервере)
 redis (стандартный порт; https://gist.github.com/tomysmile/1b8a321e7c58499ef9f9441b2faa0aa8).
 
-`brew install libmaxminddb` для более быстрой геолокации
-(для других систем см. https://github.com/maxmind/libmaxminddb)
-
-Нужно изменить под себя GEOIP_PATH, в котором будут лежать файлы
-GeoLite2 City и GeoLite2 Country с
-https://www.maxmind.com/en/accounts/394283/geoip/downloads. 
-Из разархивированных папок нужно взять файлы с расширением `.mmdb`
-и поместить их в отдельную папку, на которую и должен указывать GEOIP_PATH.
-
 Как запустить celery:
 
 Нужен redis (заходим в Ubuntu 18.04 LTS) и далее по инструкции в https://redislabs.com/blog/redis-on-windows-10/

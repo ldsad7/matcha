@@ -9,17 +9,24 @@ function get_current_age(date) {
 
 var ageArea = document.getElementById("age");
 var datePicker = document.getElementById("date-picker");
-ageArea.querySelector("span").innerHTML = get_current_age(datePicker.value);
+// ageArea.querySelector("span").innerHTML = get_current_age(datePicker.value);
 
 var age = {
     edit: function() {
         this.ageArea = document.getElementById("age");
         this.datePicker = document.getElementById("date-picker");
+        if (!this.datePicker.value) {
+            this.datePicker.setAttribute("value", "2004-12-31");
+        }
         this.datePicker.setAttribute("type", "date");
     },
     submit: function() {
         this.datePicker.setAttribute("type", "hidden");
-        this.datePicker.setAttribute("value", this.datePicker.value);
+        if (!this.datePicker.value) {
+            this.datePicker.setAttribute("value", "2004-12-31");
+        } else {
+            this.datePicker.setAttribute("value", this.datePicker.value);
+        }
         this.ageArea.querySelector("span").innerHTML = get_current_age(this.datePicker.value);
     }
-}
+};

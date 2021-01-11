@@ -272,49 +272,49 @@
 {% endblock %}
 
 {% block body_scripts %}
-<script type="text/javascript">
-    active = false;
+    <script type="text/javascript">
+        active = false;
 
-    function func() {
-        var cont = document.querySelector(".container");
-        cont.classList.toggle('active');
-        if (active)
-            active = false;
-        else
-            active = true;
-    }
+        function func() {
+            var cont = document.querySelector(".container");
+            cont.classList.toggle('active');
+            if (active)
+                active = false;
+            else
+                active = true;
+        }
 
-    $(document).ready(function() {
-        func();
-    });
+        $(document).ready(function() {
+            func();
+        });
 
-    document.querySelector(".sign_up_bx .block").addEventListener("mousemove", function(e) {
-        var target = e.target.closest('.filt.sec');
-        try {
+        document.querySelector(".sign_up_bx .block").addEventListener("mousemove", function(e) {
+            var target = e.target.closest('.filt.sec');
+            try {
+                var targetCoords = target.getBoundingClientRect();
+                var x = e.clientX - targetCoords.left;
+                var y = e.clientY - targetCoords.top;
+                var pointer = document.querySelector(".sec .pointer");
+                pointer.style.top = y - 40 + "px";
+                pointer.style.left = x - 40 + "px";
+            } catch {
+
+            }
+        });
+        document.querySelector(".sign_up_bx .block").addEventListener("click", function(e) {
+            var target = e.target.closest('.filt.sec');
             var targetCoords = target.getBoundingClientRect();
             var x = e.clientX - targetCoords.left;
             var y = e.clientY - targetCoords.top;
-            var pointer = document.querySelector(".sec .pointer");
-            pointer.style.top = y - 40 + "px";
-            pointer.style.left = x - 40 + "px";
-        } catch {
 
-        }
-    });
-    document.querySelector(".sign_up_bx .block").addEventListener("click", function(e) {
-        var target = e.target.closest('.filt.sec');
-        var targetCoords = target.getBoundingClientRect();
-        var x = e.clientX - targetCoords.left;
-        var y = e.clientY - targetCoords.top;
-
-        let span = document.createElement("span");
-        span.classList.add("btn_span");
-        span.style.left = x + "px";
-        span.style.top = y + "px";
-        document.querySelector(".filt.sec").appendChild(span);
-        setTimeout(() => { span.remove() }, 1000);
-    });
-</script>
+            let span = document.createElement("span");
+            span.classList.add("btn_span");
+            span.style.left = x + "px";
+            span.style.top = y + "px";
+            document.querySelector(".filt.sec").appendChild(span);
+            setTimeout(() => { span.remove() }, 1000);
+        });
+    </script>
 {% endblock %}
 
 

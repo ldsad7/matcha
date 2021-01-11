@@ -26,7 +26,7 @@ def index(request):
     users = User.objects_.filter(id__in=liked_user_ids & liking_user_ids)
     name = request.GET.get('name')
     if name is not None:
-        users = filter_name(users, name, User)
+        users = filter_name(users, name)
 
     users = ignore_only_blocked_and_faked_users(users, request.user.id)
 

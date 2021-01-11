@@ -1,5 +1,6 @@
 import time
 import uuid
+from datetime import date
 
 import mpu
 import requests
@@ -13,6 +14,7 @@ from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
 
 from dating_site.settings import PAGE_SIZE, MEDIA_PREFIX, MAX_AGE, MAX_RATING
+from .exceptions import IncorrectArgument
 from .filters import filter_age, filter_rating, filter_location, filter_tags, filter_timestamp, filter_name
 from .models import (
     Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification, Message,
@@ -341,25 +343,21 @@ def messages_detail(request, id):
 ####################################
 
 
-# class Timer:
-#     def __enter__(self):
-#         self.start = time.clock()
-#         return self
-#
-#     def __exit__(self, *args):
-#         self.end = time.clock()
-#         self.interval = self.end - self.start
-#         print(f"time interval: {self.interval}")
+def get_page(request, len_users):
+    try:
+        page = int(float(request.GET.get('page', 1)))
+    except ValueError as e:
+        print(f"ValueError happened: {e}. Setting page=1.")
+        page = 1
+    max_page = max((len_users + PAGE_SIZE - 1) // PAGE_SIZE, 1)
+    if not (1 <= page <= max_page):
+        raise Http404(f"Страницы с данным номером ({page}) не существует")
+    return page, max_page
 
 
 def index(request):
     template = loader.get_template('index.html')
     users = User.objects_.all()
-    try:
-        page = int(float(request.GET.get('page', 1)))
-    except ValueError as e:
-        print(f"ValueError happened: {e}")
-        page = 1
     user_id = request.user.id
     if user_id is not None:
         users = ignore_false_users(users, user_id)
@@ -370,9 +368,7 @@ def index(request):
         if user_ratings:
             correct_ids = [user_rating.user_1_id for user_rating in user_ratings]
             users = [inner_user for inner_user in users if inner_user.id in correct_ids]
-    max_page = max((len(users) + PAGE_SIZE - 1) // PAGE_SIZE, 1)
-    if not(1 <= page <= max_page):
-        raise Http404(f"Страницы с данным номером ({page}) не существует")
+    page, max_page = get_page(request, len(users))
     context = {
         'users': ShortUserSerializer(users[(page - 1) * PAGE_SIZE:page * PAGE_SIZE], many=True).data,
         'page': page,
@@ -381,34 +377,61 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 
+def inner_search(request):
+    filters = {}
+
+    age = request.GET.get('age')
+    if age is not None:
+        try:
+            low, high = list(map(int, age.split(':')))
+        except Exception:
+            raise IncorrectArgument
+        today = date.today()
+        filters['date_of_birth__gte'] = date(year=today.year - high - 1, month=today.month, day=today.day)
+        filters['date_of_birth__lte'] = date(year=today.year - low, month=today.month, day=today.day)
+
+    rating = request.GET.get('rating')
+    if rating is not None:
+        try:
+            low, high = list(map(float, rating.replace(',', '.').split(':')))
+        except Exception:
+            raise IncorrectArgument
+        filters['rating__gte'] = low
+        filters['rating__lte'] = high
+
+    location = request.GET.get('location')
+    if location is not None:
+        filters['location__icontains'] = location.lower()
+
+    tags = request.GET.get('tags')
+    if tags is not None:
+        tag_names = tags.split(',')
+        tag_names = [tag_name for tag_name in tag_names if tag_name]
+        if tag_names:
+            tag_ids = [obj.id for obj in Tag.objects_.filter(name__in=tag_names)]
+            user_ids = [obj.user.id for obj in UserTag.objects_.filter(tag_id__in=tag_ids)]
+            filters['id__in'] = user_ids
+
+    if not filters:
+        return User.objects_.all()
+    users = User.objects_.filter(**filters)
+    return users
+
+
 @login_required
 def search(request):
     template = loader.get_template('search.html')
-    users = User.objects_.all()
-    age = request.GET.get('age')
-    if age is not None:
-        users = filter_age(users, age, User)
-    rating = request.GET.get('rating')
-    if rating is not None:
-        users = filter_rating(users, rating, User)
-    location = request.GET.get('location')
-    if location is not None:
-        users = filter_location(users, location, User)
-    tags = request.GET.get('tags')
-    if tags is not None:
-        users = filter_tags(users, tags, User)
+
+    user_id = request.user.id
+    users = inner_search(request)
+
     name = request.GET.get('name')
     if name is not None:
-        users = filter_name(users, name, User)
+        users = filter_name(users, name)
 
-    try:
-        page = int(float(request.GET.get('page', 1)))
-    except ValueError as e:
-        print(f"ValueError happened: {e}")
-        page = 1
-    max_page = max((len(users) + PAGE_SIZE - 1) // PAGE_SIZE, 1)
-    if not (1 <= page <= max_page):
-        raise Http404(f"Страницы с данным номером ({page}) не существует")
+    users = ignore_only_blocked_and_faked_users(users, user_id)
+
+    page, max_page = get_page(request, len(users))
     context = {
         'users': ShortUserSerializer(users[(page - 1) * PAGE_SIZE:page * PAGE_SIZE], many=True).data,
         'page': page,
@@ -442,14 +465,7 @@ def connections(request):
     template = loader.get_template('connections.html')
     users = liking(request.user.id)
 
-    try:
-        page = int(float(request.GET.get('page', 1)))
-    except ValueError as e:
-        print(f"ValueError happened: {e}")
-        page = 1
-    max_page = max((len(users) + PAGE_SIZE - 1) // PAGE_SIZE, 1)
-    if not (1 <= page <= max_page):
-        raise Http404(f"Страницы с данным номером ({page}) не существует")
+    page, max_page = get_page(request, len(users))
     context = {
         'users': users[(page - 1) * PAGE_SIZE:page * PAGE_SIZE],
         'page': page,

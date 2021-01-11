@@ -40,9 +40,9 @@
                 <figcaption id="second_caption">
                     <div id="age">Дата рождения:
                         <input  type="hidden" id="date-picker" name="trip-start"
-                        value="{{ date_of_birth }}" min="1945-01-01" max="2006-12-31" required>
-                        <span>19</span>
-                        <span> лет</span>
+                        value="{{ date_of_birth }}" placeholder="2004-12-31"
+                        min="1945-01-01" max="2004-12-31" required>
+                        <span>{{ age }}</span><span> лет</span>
                     </div>
                     <div id="gender">Пол: <span>{{ gender }}</span></div>
                     <div id="orientation">
@@ -83,10 +83,3 @@
         </div>
     </section>
 {% endblock %}
-
-{% block body_scripts %}
-    <script src="{% static 'js/changeAge.js' %}"></script>
-    {{ block.super }}
-{% endblock %}
-
-</html>

@@ -344,7 +344,7 @@ class ShortUserSerializer(CommonSerializer):
         try:
             return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
         except AttributeError:
-            return 'Неизвестно'
+            return 'неизвестно, сколько'
 
     @staticmethod
     def get_tags(instance: User):
@@ -418,7 +418,7 @@ class UserReadSerializer(CommonSerializer):
         try:
             return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
         except AttributeError:
-            return 'Неизвестно'
+            return 'неизвестно, сколько'
 
     @staticmethod
     def get_last_login(instance: User):

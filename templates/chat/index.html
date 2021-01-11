@@ -79,6 +79,7 @@
 {% endblock %}
 
 {% block body_scripts %}
+    {{ block.super }}
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script>
         $(".page-link").click(function(event) {
@@ -122,19 +123,5 @@
             window.location.href = "/chat/?" + "name=" + value;
           }
         });
-
-        // sort chats
-        // const sort_by_unread = (a, b) => {
-        //     return ~~a.querySelector(".unread-counter").textContent > ~~b.querySelector(".unread-counter").textContent;
-        // }
-        // var list = [...document.querySelectorAll(".card-chat")];
-        // list.sort(sort_by_unread);
-        // for (let i = 0, len = list.length; i < len; i++) {
-        //     list[i].parentNode.appendChild(list[i]);
-        // }
     </script>
-    <script src="{% static 'js/toggleBtn.js' %}"></script>
-    {% if global_user.is_authenticated %}
-        <script src="{% static 'js/getNotifications.js' %}"></script>
-    {% endif %}
 {% endblock %}

@@ -8,14 +8,13 @@ password='password'
 database='pmt'
 domain='yandex.ru'
 name='127.0.0.1:8000'
+site_name='dating_site'
 py='/Users/tsimonis/Desktop/projects/matcha/myvenv/bin/python'
 script=$(readlink "$0")
-scriptpath=$(dirname "$SCRIPT")
+scriptpath=$(dirname "$script")
 
-echo '\033[32mcopying large or secret files into new directory...\033[0m'
-cp ~/local_settings.py $scriptpath/dating_site
-cp ~/GeoLite2-City.mmdb $scriptpath/geoip
-cp ~/GeoLite2-Country.mmdb $scriptpath/geoip
+echo '\033[32mcopying large or secret files into our folder...\033[0m'
+cp ~/local_settings.py $scriptpath/$site_name
 
 echo '\033[32mcreating venv myvenv...\033[0m'
 if [ ! -d "myvenve" ]; then
@@ -40,6 +39,9 @@ mysql --user="$user" --password="$password" --execute="drop database if exists $
 
 echo '\033[32mmigrating tables...\033[0m'
 $py manage.py migrate
+
+echo '\033[32collecting static and media files...\033[0m'
+$py manage.py collectstatic --no-input
 
 echo '\033[32mupdating a record in django_site table...\033[0m'
 mysql --user="$user" --password="$password" --database="$database" --execute="update django_site set domain='$domain', name='$name' where id=1;"

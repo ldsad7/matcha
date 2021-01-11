@@ -141,7 +141,7 @@ class CommonManager:
 
     def filter(self, *args, **kwargs):
         if not kwargs:
-            return
+            return []
         where_conditions = []
         for key, value in kwargs.items():
             key, *op = key.rsplit('__', maxsplit=1)

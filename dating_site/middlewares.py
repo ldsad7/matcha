@@ -1,12 +1,14 @@
 import json
 from datetime import datetime
 
-import pytz
+import requests
+# from django.contrib.gis.geoip2 import GeoIP2
 from django.http import Http404
-from django.contrib.gis.geoip2 import GeoIP2
 
 from dating_site.settings import verbose_flag
 from matcha.models import UsersConnect, Notification, User
+
+IP_TO_JSON = {}
 
 
 class CustomMiddleware:
@@ -36,15 +38,22 @@ class CustomMiddleware:
                 ip = request.META.get('REMOTE_ADDR')
             if verbose_flag:
                 print(f'ip: {ip}')
-            g = GeoIP2()
+            if ip in IP_TO_JSON:
+                data = IP_TO_JSON[ip]
+            else:
+                data = requests.get(f"https://extreme-ip-lookup.com/json/{ip}").json()
+                IP_TO_JSON[ip] = data
+            # g = GeoIP2()
             try:
-                user_obj.country = g.country(ip)['country_name']
-                user_obj.city = g.city(ip)['city']
-                user_obj.latitude, user_obj.longitude = g.lat_lon(ip)
+                user_obj.country = data['country'] or None
+                user_obj.city = data['city'] or None
+                user_obj.latitude, user_obj.longitude = data["lat"] or 0.0, data["lon"] or 0.0
+                user_obj.latitude, user_obj.longitude = list(
+                    map(float, [user_obj.latitude, user_obj.longitude])
+                )
             except Exception as e:
                 if verbose_flag:
                     print(f"Error happened: {e}")
-                pass
             user_obj.last_login = datetime.utcnow()
             user_obj.save()
 

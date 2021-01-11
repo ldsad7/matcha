@@ -13,7 +13,7 @@ def filter_age(queryset, value, model):
         return queryset
     today = date.today()
 
-    ids = [obj.id for obj in queryset]
+    ids = [obj.id for obj in queryset if low <= obj.date_of_birth <= high]
     return model.objects_.filter(
         id__in=ids,
         date_of_birth__gte=date(year=today.year - high - 1, month=today.month, day=today.day),
@@ -36,7 +36,7 @@ def filter_location(queryset, value, model):
     return model.objects_.filter(id__in=ids, location__icontains=value)
 
 
-def filter_name(queryset, value, model):
+def filter_name(queryset, value):
     return [
         obj for obj in queryset
         if value.lower() in f'{obj.first_name} {obj.last_name}'.lower() or
