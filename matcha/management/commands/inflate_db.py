@@ -62,7 +62,7 @@ class Command(BaseCommand):
                 is_active=True,
                 date_joined=fake.date_time_this_year(),
                 password=fake.password(),
-                last_login=fake.date_time_this_decade(),
+                last_online=fake.date_time_this_decade(),
                 is_superuser=False
             )
             user.save()

@@ -25,9 +25,8 @@
     <style>{% block styles %}{% endblock %}</style>
 </head>
 <body>
-    {% block content %}
-        {% include "header.html" %}
-    {% endblock %}
+    {% include "header.html" %}
+    {% block content %}{% endblock %}
     {% block body_scripts %}
         <script>
             {% if global_user.id %}user_id = {{ global_user.id }}{% endif %};
@@ -38,5 +37,6 @@
         {% endif %}
         <script src="{% static 'js/callAvitoApi.js' %}"></script>
     {% endblock %}
+    {% include "footer.html" %}
 </body>
 </html>

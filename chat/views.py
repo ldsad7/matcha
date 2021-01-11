@@ -4,16 +4,18 @@ import pytz
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render
+from django.views.decorators.cache import never_cache
 from rest_framework.exceptions import PermissionDenied
 
 from dating_site.settings import PAGE_SIZE
 from matcha.filters import filter_name
 from matcha.models import UsersConnect, User, Message
 from matcha.serializers import UserReadSerializer, ShortUserSerializer, MessageSerializer
-from matcha.tasks import ignore_only_blocked_and_faked_users
+from matcha.tasks import ignore_only_blocked_and_faked_users_bidir
 
 
 @login_required
+@never_cache
 def index(request):
     liked_user_ids = {
         user_connect.user_2_id
@@ -28,7 +30,7 @@ def index(request):
     if name is not None:
         users = filter_name(users, name)
 
-    users = ignore_only_blocked_and_faked_users(users, request.user.id)
+    users = ignore_only_blocked_and_faked_users_bidir(users, request.user.id)
 
     users = UserReadSerializer(users, many=True).data
     for user in users:
@@ -39,9 +41,9 @@ def index(request):
         messages = sorted(
             Message.objects_.filter(user_1_id=user_1_id, user_2_id=user_2_id), key=lambda elem: elem.created
         )
-        user['last_message'] = ''
+        user['last_message'] = 'Нет сообщений'
         if messages:
-            user['last_message'] = messages[-1].created
+            user['last_message'] = messages[-1].created.replace(tzinfo=pytz.UTC)
 
     try:
         page = int(float(request.GET.get('page', 1)))
@@ -54,7 +56,10 @@ def index(request):
         raise Http404(f"Страницы с данным номером ({page}) не существует")
     context = {
         'users': sorted(
-            users, key=lambda elem: elem['last_message'] or datetime.min, reverse=True
+            users,
+            key=lambda elem: datetime.min.replace(tzinfo=pytz.UTC)
+                if isinstance(elem['last_message'], str) else elem['last_message'],
+            reverse=True
         )[(page - 1) * 2 * page_size:page * page_size],
         'page': page,
         'max_page': max_page
@@ -63,6 +68,7 @@ def index(request):
 
 
 @login_required
+@never_cache
 def room(request, room_name):
     try:
         first_user_id, second_user_id = list(map(int, room_name.split('_')))

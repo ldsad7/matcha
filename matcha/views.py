@@ -1,21 +1,19 @@
-import time
 import uuid
 from datetime import date
 
-import mpu
 import requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse, Http404
 from django.template import loader
+from django.views.decorators.cache import never_cache
 from rest_framework import status
 from rest_framework.decorators import api_view
-from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
 
 from dating_site.settings import PAGE_SIZE, MEDIA_PREFIX, MAX_AGE, MAX_RATING
 from .exceptions import IncorrectArgument
-from .filters import filter_age, filter_rating, filter_location, filter_tags, filter_timestamp, filter_name
+from .filters import filter_timestamp, filter_name
 from .models import (
     Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification, Message,
     UsersRating)
@@ -26,7 +24,8 @@ from .serializers import (
     UsersBlackListReadSerializer, NotificationSerializer, NotificationReadSerializer,
     MessageSerializer, MessageReadSerializer, UsersRatingSerializer, UsersRatingReadSerializer,
     ShortUserSerializer)
-from .tasks import ignore_false_users, ignore_by_orientation_and_gender, ignore_only_blocked_and_faked_users
+from .tasks import ignore_false_users, ignore_by_orientation_and_gender, ignore_only_blocked_and_faked_users_bidir, \
+    ignore_only_blocked_and_faked_users_onedir
 
 MINUS = '-'
 
@@ -78,6 +77,7 @@ def common_detail(request, model, model_serializer, model_read_serializer, id_):
 
 
 @api_view(['GET', 'POST'])
+@never_cache
 def user_list(request):
     if request.method == 'GET':
         return Response(ShortUserSerializer(User.objects_.all(), many=True).data)
@@ -85,6 +85,7 @@ def user_list(request):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@never_cache
 def user_detail(request, id):
     if request.method in ['PUT', 'PATCH']:
         user_tags = {user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=request.user.id)}
@@ -103,11 +104,13 @@ def user_detail(request, id):
 
 
 @api_view(['GET', 'POST'])
+@never_cache
 def tag_list(request):
     return common_list(request, Tag, TagSerializer, TagSerializer)
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@never_cache
 def tag_detail(request, id):
     return common_detail(request, Tag, TagSerializer, TagSerializer, id)
 
@@ -122,7 +125,7 @@ def liking(user_id):
         user_connect.user_1
         for user_connect in UsersConnect.objects_.filter(user_2_id=user.id)
     ]
-    users = ignore_only_blocked_and_faked_users(users, user_id)
+    users = ignore_only_blocked_and_faked_users_onedir(users, user_id)
     data = ShortUserSerializer(users, many=True).data
     for user in data:
         user_connects = UsersConnect.objects_.filter(
@@ -145,11 +148,13 @@ def liking(user_id):
 
 
 @api_view(['GET'])
+@never_cache
 def user_liking(request, id):
     return Response(liking(id))
 
 
 @api_view(['PATCH'])
+@never_cache
 def user_photos_update_main(request):
     image = request.data.get('image')
     new_main = request.data.get('main')
@@ -164,6 +169,7 @@ def user_photos_update_main(request):
 
 
 @api_view(['PATCH'])
+@never_cache
 def user_photos_update(request, id):
     initial_images = set(request.data.get('initial_images'))
     initial_images = {
@@ -183,6 +189,7 @@ def user_photos_update(request, id):
 
 
 @api_view(['PATCH'])
+@never_cache
 def read_notifications(request):
     ids = request.data.get('ids')
     if ids is not None:
@@ -208,21 +215,25 @@ def liked(id):
 
 
 @api_view(['GET'])
+@never_cache
 def user_liked(request, id):
     return Response(liked(id))
 
 
 @api_view(['GET', 'POST'])
+@never_cache
 def user_tags_list(request):
     return common_list(request, UserTag, UserTagSerializer, UserTagReadSerializer)
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@never_cache
 def user_tags_detail(request, id):
     return common_detail(request, UserTag, UserTagSerializer, UserTagReadSerializer, id)
 
 
 @api_view(['GET', 'POST'])
+@never_cache
 def user_photos_list(request):
     if request.method == 'POST':
         uuid1 = uuid.uuid1()
@@ -246,11 +257,13 @@ def user_photos_list(request):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@never_cache
 def user_photos_detail(request, id):
     return common_detail(request, UserPhoto, UserPhotoSerializer, UserPhotoReadSerializer, id)
 
 
 @api_view(['GET', 'POST'])
+@never_cache
 def users_connects_list(request):
     return common_list(
         request, UsersConnect, UsersConnectSerializer, UsersConnectReadSerializer,
@@ -259,6 +272,7 @@ def users_connects_list(request):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@never_cache
 def users_connects_detail(request, id):
     return common_detail(
         request, UsersConnect, UsersConnectSerializer, UsersConnectReadSerializer, id
@@ -266,6 +280,7 @@ def users_connects_detail(request, id):
 
 
 @api_view(['GET', 'POST'])
+@never_cache
 def users_ratings_list(request):
     return common_list(
         request, UsersRating, UsersRatingSerializer, UsersRatingReadSerializer,
@@ -274,6 +289,7 @@ def users_ratings_list(request):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@never_cache
 def users_ratings_detail(request, id):
     return common_detail(
         request, UsersRating, UsersRatingSerializer, UsersRatingReadSerializer, id
@@ -281,16 +297,19 @@ def users_ratings_detail(request, id):
 
 
 @api_view(['GET', 'POST'])
+@never_cache
 def users_fakes_list(request):
     return common_list(request, UsersFake, UsersFakeSerializer, UsersFakeReadSerializer)
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@never_cache
 def users_fakes_detail(request, id):
     return common_detail(request, UsersFake, UsersFakeSerializer, UsersFakeReadSerializer, id)
 
 
 @api_view(['GET', 'POST'])
+@never_cache
 def users_blacklists_list(request):
     return common_list(
         request, UsersBlackList, UsersBlackListSerializer, UsersBlackListReadSerializer
@@ -298,6 +317,7 @@ def users_blacklists_list(request):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@never_cache
 def users_blacklists_detail(request, id):
     return common_detail(
         request, UsersBlackList, UsersBlackListSerializer, UsersBlackListReadSerializer, id
@@ -305,23 +325,31 @@ def users_blacklists_detail(request, id):
 
 
 @api_view(['GET', 'POST'])
+@never_cache
 def notifications_list(request):
     if request.method == 'GET':
         objs = Notification.objects_.filter(user_2_id=request.user.id, was_read=0)
-        for query_param, value in request.query_params.items():
-            if query_param == 'created':
-                try:
-                    value = int(value)
-                except ValueError:
-                    raise Http404(f"В базе нет notification-а с данным id ({value})")
-                objs = filter_timestamp(objs, value)
-        objs = order_by(objs, '-created')
+        objs = [
+            obj for obj in objs
+            if not UsersBlackList.objects_.filter(user_1_id=request.user.id, user_2_id=obj.user_1_id) and
+               not UsersFake.objects_.filter(user_1_id=request.user.id, user_2_id=obj.user_1_id) and
+               not UsersConnect.objects_.filter(user_1_id=request.user.id, user_2_id=obj.user_1_id, type=UsersConnect.MINUS)
+        ]
+        # for query_param, value in request.query_params.items():
+        #     if query_param == 'created':
+        #         try:
+        #             value = int(value)
+        #         except ValueError:
+        #             raise Http404(f"В базе нет notification-а с данным id ({value})")
+        #         objs = filter_timestamp(objs, value)
+        objs = order_by(objs, 'created')
         serializer = NotificationReadSerializer(objs, many=True)
         return Response(serializer.data)
     return common_list(request, Notification, NotificationSerializer, NotificationReadSerializer)
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@never_cache
 def notifications_detail(request, id):
     return common_detail(
         request, Notification, NotificationSerializer, NotificationReadSerializer, id
@@ -329,11 +357,13 @@ def notifications_detail(request, id):
 
 
 @api_view(['GET', 'POST'])
+@never_cache
 def messages_list(request):
     return common_list(request, Message, MessageSerializer, MessageReadSerializer)
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@never_cache
 def messages_detail(request, id):
     return common_detail(request, Message, MessageSerializer, MessageReadSerializer, id)
 
@@ -355,6 +385,7 @@ def get_page(request, len_users):
     return page, max_page
 
 
+@never_cache
 def index(request):
     template = loader.get_template('index.html')
     users = User.objects_.all()
@@ -419,6 +450,7 @@ def inner_search(request):
 
 
 @login_required
+@never_cache
 def search(request):
     template = loader.get_template('search.html')
 
@@ -429,7 +461,7 @@ def search(request):
     if name is not None:
         users = filter_name(users, name)
 
-    users = ignore_only_blocked_and_faked_users(users, user_id)
+    users = ignore_only_blocked_and_faked_users_bidir(users, user_id)
 
     page, max_page = get_page(request, len(users))
     context = {
@@ -443,6 +475,7 @@ def search(request):
 
 
 @login_required
+@never_cache
 def profile(request):
     template = loader.get_template('profile.html')
     context = UserReadSerializer(request.user).data
@@ -450,6 +483,7 @@ def profile(request):
 
 
 @login_required
+@never_cache
 def user_profile(request, id):
     template = loader.get_template('user_profile.html')
     user = User.objects_.get(id=id)
@@ -461,6 +495,7 @@ def user_profile(request, id):
 
 
 @login_required
+@never_cache
 def connections(request):
     template = loader.get_template('connections.html')
     users = liking(request.user.id)

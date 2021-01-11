@@ -72,6 +72,7 @@ class User(ManagedModel, AbstractUser, GetById):
     country = models.CharField(_('страна'), max_length=64, blank=False, null=True)
     city = models.CharField(_('город'), max_length=64, blank=False, null=True)
     rating = models.FloatField(_('рейтинг'), default=0.0)
+    last_online = models.DateTimeField(_('last_online'), blank=False, null=True)
     objects_ = UserManager()
 
     @property

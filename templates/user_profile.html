@@ -27,7 +27,7 @@
                             <img src="{% static 'img/default.png' %}" alt="default profile picture">
                         {% endif %}
                     </div>
-                    <div id="connection"><span class="{% if last_login == "online" %}green{% else %}red{% endif %}"></span>{{ last_login }}</div>
+                    <div id="connection"><span class="{% if last_online == "online" %}green{% else %}red{% endif %}"></span>{{ last_online }}</div>
                 </figure>
                 <figcaption>
                     <div id="username">{{ username }}</div>

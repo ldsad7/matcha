@@ -34,10 +34,10 @@
                 {% endif %}
                 <div>
                     <span
-                        style="background-color:{% if interlocutor.last_login == "online" %}green{% else %}red{% endif %};border-radius:50%;display:inline-block;width:8px;height:8px;margin-right:5px;top:6px;">
+                        style="background-color:{% if interlocutor.last_online == "online" %}green{% else %}red{% endif %};border-radius:50%;display:inline-block;width:8px;height:8px;margin-right:5px;top:6px;">
                     </span>
                 </div>
-                <div style="display: flex; width: 100%;  justify-content: center;">
+                <div style="display: flex; width: 100%;  justify-content: left;">
                     <span class="username">{% if interlocutor.first_name and interlocutor.last_name %}{{ interlocutor.first_name }} {{ interlocutor.last_name }} ({{ interlocutor.username }}){% else %}{{ interlocutor.username }}{% endif %}</span>
                 </div>
             </div>
@@ -79,7 +79,7 @@
 
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
         window.scrollTo(0,document.body.scrollHeight);
-        const chatSocket = new WebSocket(
+        let chatSocket = new WebSocket(
             'ws://'
             + window.location.host
             + '/ws/chat/'
@@ -104,11 +104,11 @@
             return newBlockMessage;
         }
 
-        function createBlockDate({day, month}) {
+        function createBlockDate({day, month, year}) {
             let newBlockMessage = document.createElement("div");
 
             newBlockMessage.classList.add("date-block");
-            newBlockMessage.innerHTML = `<span class="day">${day}</span> ${month}`
+            newBlockMessage.innerHTML = `<span class="day">${day}</span> ${month} ${year}`
 
             return newBlockMessage;
         }
@@ -140,7 +140,8 @@
                 newMes.created = {};
                 newMes.created.day = "{{ message.created|date:'d' }}";
                 newMes.created.month = "{{ message.created }}".split(" ")[1];
-                newMes.created.time = "{{ message.created|date:'h:i:s' }}";
+                newMes.created.year = "{{ message.created|date:'Y' }}";
+                newMes.created.time = "{{ message.created|date:'H:i:s' }}";
                 messages.push(newMes);
             {% endif %}
         {% endfor %}
@@ -148,47 +149,61 @@
         function appendMessage(e) {
             const { message, sender_id } = e;
             let { created } = e;
+
+            let date = new Date();
             if (!created) {
                 created = {};
-                created.day = new Date().getDate();
+                created.day = date.getDate();
                 created.month = getCurrentMonthName();
+                created.year = date.getFullYear().toString();
                 created.time = new Date().timeNow();
             }
             if (!created.month) {
                 created.month = getCurrentMonthName();
+            }
+            if (!created.year) {
+                created.year = date.getFullYear().toString();
             }
             if (!message)
                 return;
             messageFromId = sender_id;
             const messagesArea = document.getElementById("messages");
             let newMessage = document.createElement("p");
-            const blocksDate = document.querySelectorAll(".date-block .day");
+            const blocksDate = document.querySelectorAll(".date-block");
             const lastDate = [...blocksDate][blocksDate.length - 1];
             const blocksMessages = document.querySelectorAll(".block-message");
             const lastMessageBlock = [...blocksMessages][blocksMessages.length - 1];
             let isLastMessageFromEnemy = false;
 
             if (lastMessageBlock) {
-                isLastMessageFromEnemy = lastMessageBlock.querySelector(".from").innerText == "you :" ? false : true;
+                isLastMessageFromEnemy = lastMessageBlock.querySelector(".from").innerText === "you :" ? false : true;
             }
+
             if (!lastDate) {
                 if (created) {
-                    messagesArea.appendChild(createBlockDate({day: created.day, month: created.month}));
+                    messagesArea.appendChild(createBlockDate({day: created.day, month: created.month, year: created.year}));
+                } else {
+                    messagesArea.appendChild(createBlockDate({day: new Date().getDate(), month: getCurrentMonthName(), year: new Date().getFullYear().toString()}));
                 }
-                else {
-                    messagesArea.appendChild(createBlockDate({day: new Date().getDate(), month: getCurrentMonthName()}));
-                }
-            } else if (lastDate.textContent != created.day) {
+            } else if (lastDate.textContent !== (created.day + " " + created.month + " " + created.year)) {
+                console.log("lastDate: " + lastDate.textContent + ", " + created.day + " " + created.month + " " + created.year);
+                console.log("created: " + created);
                 if (created) {
-                    messagesArea.appendChild(createBlockDate({day: created.day, month: created.month}));
+                    messagesArea.appendChild(createBlockDate(
+                        {day: created.day, month: created.month, year: created.year}
+                    ));
                 }
                 else {
-                    messagesArea.appendChild(createBlockDate({day: new Date().getDate(), month: getCurrentMonthName()}));
+                    messagesArea.appendChild(createBlockDate(
+                        {day: new Date().getDate(), month: getCurrentMonthName(), year: new Date().getFullYear().toString()})
+                    );
                 }
             }
             newMessage.classList.add("data-message");
             newMessage.innerHTML = `<span>${message}</span><span class="message-date">${created.time}</span>`;
-            if ((isLastMessageFromEnemy || !(lastMessageBlock)) && messageFromId === {{ global_user.id }}) {
+            if ((isLastMessageFromEnemy || !(lastMessageBlock) ||
+                lastDate.textContent !== (created.day + " " + created.month + " " + created.year))
+                && messageFromId === {{ global_user.id }}) {
                 let newBlockMessage = createBlockMessage({from: "you :", created: created});
 
                 newBlockMessage.appendChild(newMessage);
@@ -196,7 +211,7 @@
             } else if (messageFromId === {{ global_user.id }}) {
                 lastMessageBlock.appendChild(newMessage);
             } else {
-                if (lastMessageBlock && isLastMessageFromEnemy) {
+                if (lastMessageBlock && isLastMessageFromEnemy && lastDate.textContent === (created.day + " " + created.month + " " + created.year)) {
                     lastMessageBlock.appendChild(newMessage);
                 } else {
                     let newBlockMessage = createBlockMessage({from: "{{ interlocutor.username }} :", created: created});
@@ -212,7 +227,10 @@
             appendMessage(mes);
         });
 
-        chatSocket.onmessage = (e) => {appendMessage(JSON.parse(e.data))};
+        chatSocket.onmessage = (e) => {
+            appendMessage(JSON.parse(e.data));
+            console.log("e.data: " + JSON.stringify(JSON.parse(e.data)));
+        };
 
         chatSocket.onclose = (e) => {alert("WebSocket was closed")};
 

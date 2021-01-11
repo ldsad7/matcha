@@ -247,6 +247,7 @@ class UserSerializer(CommonSerializer):
     id = serializers.IntegerField(read_only=True)
     # password = serializers.CharField(required=False, max_length=128)
     # last_login = serializers.DateTimeField(required=False, allow_null=True, read_only=True)
+    # last_online = serializers.DateTimeField(required=False, allow_null=True, read_only=True)
     # username = serializers.CharField(required=False, max_length=150)
     # is_superuser = serializers.BooleanField(required=False, default=False)
     first_name = serializers.CharField(required=False, allow_blank=True, max_length=30, default='')
@@ -275,13 +276,13 @@ class UserSerializer(CommonSerializer):
     # last_login = serializers.SerializerMethodField()
 
     # @staticmethod
-    # def get_last_login(instance: User):
-    #     if instance.last_login:
+    # def get_last_online(instance: User):
+    #     if instance.last_online:
     #         if datetime.utcnow().replace(tzinfo=pytz.UTC) - timedelta(minutes=5) < \
-    #                 instance.last_login.replace(tzinfo=pytz.UTC):
+    #                 instance.last_online.replace(tzinfo=pytz.UTC):
     #             return 'online'
     #         else:
-    #             return instance.last_login.replace(tzinfo=pytz.UTC)
+    #             return instance.last_online.replace(tzinfo=pytz.UTC)
     #     return 'offline'
 
     # @staticmethod
@@ -321,20 +322,20 @@ class ShortUserSerializer(CommonSerializer):
     date_of_birth = serializers.DateField(required=False, allow_null=True)
     location = serializers.CharField(required=False, allow_blank=True, max_length=512, default='')
 
-    last_login = serializers.SerializerMethodField()
+    last_online = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
     photos = serializers.SerializerMethodField()
     main_photo = serializers.SerializerMethodField()
     age = serializers.SerializerMethodField()
 
     @staticmethod
-    def get_last_login(instance: User):
-        if instance.last_login:
+    def get_last_online(instance: User):
+        if instance.last_online:
             if datetime.utcnow().replace(tzinfo=pytz.UTC) - timedelta(minutes=5) < \
-                    instance.last_login.replace(tzinfo=pytz.UTC):
+                    instance.last_online.replace(tzinfo=pytz.UTC):
                 return 'online'
             else:
-                return instance.last_login.replace(tzinfo=pytz.UTC)
+                return instance.last_online.replace(tzinfo=pytz.UTC)
         return 'offline'
 
     @staticmethod
@@ -400,7 +401,7 @@ class UserReadSerializer(CommonSerializer):
     rating = serializers.FloatField(required=False, default=0.0)
 
     # date_joined = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
-    last_login = serializers.SerializerMethodField()
+    last_online = serializers.SerializerMethodField()
     # fake_accusations = serializers.SerializerMethodField()  # serializers.IntegerField(required=False, default=0)
     tags = serializers.SerializerMethodField()
     photos = serializers.SerializerMethodField()
@@ -421,13 +422,13 @@ class UserReadSerializer(CommonSerializer):
             return 'неизвестно, сколько'
 
     @staticmethod
-    def get_last_login(instance: User):
-        if instance.last_login:
+    def get_last_online(instance: User):
+        if instance.last_online:
             if datetime.utcnow().replace(tzinfo=pytz.UTC) - timedelta(minutes=5) < \
-                    instance.last_login.replace(tzinfo=pytz.UTC):
+                    instance.last_online.replace(tzinfo=pytz.UTC):
                 return 'online'
             else:
-                return instance.last_login.replace(tzinfo=pytz.UTC)
+                return instance.last_online.replace(tzinfo=pytz.UTC)
         return 'offline'
 
     # @staticmethod

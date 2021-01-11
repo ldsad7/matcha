@@ -1,6 +1,6 @@
 {% load static %}
 <div class="center">
-        <nav style="bottom:10px;z-index:10;position:fixed;" aria-label="...">
+        <nav style="bottom:10px;z-index:14;position:fixed;" aria-label="...">
           <ul class="pagination" style="">
             <li class="page-item {% if page >= 2 %} active {% else %} disabled {% endif %}">
               <a class="page-link" href="{{ page|add:-1 }}" tabindex="-1">Previous</a>
@@ -68,7 +68,7 @@
                     <span class="not-here-pls">&#10008;</span>
                 </div>
                 <div id="connection">
-                    <span class="{% if user.last_login == "online" %}green{% else %}red{% endif %}"></span>{{ user.last_login }}
+                    <span class="{% if user.last_online == "online" %}green{% else %}red{% endif %}"></span>{{ user.last_online }}
                 </div>
             </figure>
             <section class="user-data">

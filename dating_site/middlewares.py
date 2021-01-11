@@ -22,14 +22,9 @@ class CustomMiddleware:
 
         method = request.method
         path = request.path
+
         user_1_id = request.user.id
         if user_1_id is not None:
-            try:
-                body = request.body.decode()
-                body = json.loads(body)
-            except Exception:
-                body = []
-
             user_obj = User.objects_.get(id=user_1_id)
             x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
             if x_forwarded_for:
@@ -54,10 +49,16 @@ class CustomMiddleware:
             except Exception as e:
                 if verbose_flag:
                     print(f"Error happened: {e}")
-            user_obj.last_login = datetime.utcnow()
+            user_obj.last_online = datetime.utcnow()
             user_obj.save()
 
             if path.startswith('/api/v1/user_connects/'):
+                try:
+                    body = request.body.decode()
+                    body = json.loads(body)
+                except Exception as e:
+                    print(f'error happened: {e}')
+                    body = {}
                 if method == 'POST':
                     if body['type'] == UsersConnect.PLUS:
                         Notification(
@@ -90,8 +91,5 @@ class CustomMiddleware:
                         ).save()
 
         response = self.get_response(request)
-
-        # Code to be executed for each request/response after
-        # the view is called.
 
         return response

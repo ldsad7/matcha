@@ -1,4 +1,4 @@
-_intervalNotification = 20; // seconds
+_intervalNotification = 5; // seconds
 
 _idsNotifs = [];
 
@@ -17,17 +17,48 @@ if (document.getElementById("read-all")) {
         newNotif.id = id;
         newNotif.classList.add("animate__animated");
         newNotif.innerHTML = `<span class='notif_elem'>${text}</span>`
-        newNotif.addEventListener("mouseenter", function(e) {
+        newNotif.addEventListener("click", function(e) {
+            setTimeout(() => {
+                _idTimeout = setTimeout(
+                    () => {
+                        let index = _idsNotifs.indexOf(+this.id);
+                        if (index > -1) {
+                            _idsNotifs.splice(index, 1);
+                            if (_idsNotifs.length < 1) {
+                                document.querySelector("span.circle").style.display = "none";
+                                // }
+                                // if (_idsNotifs.length < 2) {
+                                document.getElementById("read-all").style.display = "none";
+                            }
+                            this.classList.add("animate__fadeOutTopRight");
+                            $.ajax({
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': csrftoken
+                                },
+                                url: "/api/v1/notifications/read/",
+                                type: "PATCH",
+                                data: JSON.stringify({
+                                    "ids": this.id
+                                })
+                            });
+                            setTimeout(() => {this.remove()}, 250)
+                        }
+                    })})
+        });
+        /*newNotif.addEventListener("mouseenter", function(e) {
             setTimeout(() => {
                 _idTimeout = setTimeout(
                     () => {
                         const index = _idsNotifs.indexOf(+this.id);
                         if (index > -1) {
                             _idsNotifs.splice(index, 1);
+                            console.log("_idsNotifs.length: " + _idsNotifs.length);
                             if (_idsNotifs.length < 1) {
                                 document.querySelector("span.circle").style.display = "none";
-                            }
-                            if (_idsNotifs.length < 2) {
+                            // }
+                            // if (_idsNotifs.length < 2) {
                                 document.getElementById("read-all").style.display = "none";
                             }
                             this.classList.add("animate__fadeOutTopRight");
@@ -47,9 +78,10 @@ if (document.getElementById("read-all")) {
                         }
                     }, 1500)
             }, 0);
-        });
-        newNotif.addEventListener("mouseleave", function(e) {clearInterval(_idTimeout)});
-        document.getElementById("notif_list").appendChild(newNotif);
+        });*/
+        // newNotif.addEventListener("mouseleave", function(e) {clearInterval(_idTimeout)});
+        let notif_list = document.getElementById("notif_list");
+        notif_list.insertBefore(newNotif, notif_list.children[1]);
     };
 
     function changeNotifList() {
@@ -70,8 +102,8 @@ if (document.getElementById("read-all")) {
             });
             if (_idsNotifs.length) {
                 document.querySelector("span.circle").style.display = "block";
-            }
-            if (_idsNotifs.length > 1) {
+            // }
+            // if (_idsNotifs.length > 1) {
                 document.getElementById("read-all").style.display = "block";
             }
         });
@@ -92,8 +124,8 @@ if (document.getElementById("read-all")) {
             _idsNotifs.splice(index, 1);
             if (_idsNotifs.length < 1) {
                 document.querySelector("span.circle").style.display = "none";
-            }
-            if (_idsNotifs.length < 2) {
+            // }
+            // if (_idsNotifs.length < 2) {
                 document.getElementById("read-all").style.display = "none";
             }
             document.getElementById(id_notif).remove();

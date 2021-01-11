@@ -7,7 +7,7 @@
 {% block content %}
     {{ block.super }}
     <div class="center">
-        <nav style="bottom:10px;z-index:10;position:fixed;" aria-label="...">
+        <nav style="bottom:10px;z-index:14;position:fixed;" aria-label="...">
           <ul class="pagination" style="">
             <li class="page-item {% if page >= 2 %} active {% else %} disabled {% endif %}">
               <a class="page-link" href="{{ page|add:-1 }}" tabindex="-1">Previous</a>
@@ -109,10 +109,6 @@
         {% for user in users %}
             room = document.getElementById("room-name-{{ forloop.counter0 }}");
             room.setAttribute("href", ["{{ global_user.id }}", "{{ user.id }}"].sort().join('_'));
-            _date = room.querySelector(".unread-counter").textContent;
-            if (!_date) {
-                room.querySelector(".unread-counter").innerHTML = "Нет сообщений";
-            }
         {% endfor %}
 
         let input = document.getElementById("search-bar");
