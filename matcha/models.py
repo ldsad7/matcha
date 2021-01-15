@@ -60,7 +60,7 @@ class User(ManagedModel, AbstractUser, GetById):
         (UNKNOWN, "unknown")
     )
 
-    email = models.EmailField(_('email address'), blank=False, null=False, unique=True)
+    email = models.EmailField(_('email address'), blank=False, null=True, unique=True)
     gender = models.CharField(_('пол'), max_length=32, choices=GENDERS, default=UNKNOWN)
     orientation = models.CharField(_('ориентация'), max_length=32, choices=ORIENTATIONS, default=UNKNOWN)
     date_of_birth = models.DateField(_('дата рождения'), blank=False, null=True)
@@ -77,7 +77,10 @@ class User(ManagedModel, AbstractUser, GetById):
 
     @property
     def age(self):
-        bday = datetime.strptime(self.date_of_birth, '%Y-%m-%d')
+        if isinstance(self.date_of_birth, str):
+            bday = datetime.strptime(self.date_of_birth, '%Y-%m-%d')
+        else:
+            bday = self.date_of_birth
         d = date.today()
         return (d.year - bday.year) - int((d.month, d.day) < (bday.month, bday.day))
 

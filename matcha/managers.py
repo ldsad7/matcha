@@ -45,7 +45,6 @@ class CommonManager:
         values = []
         for field in fields:
             value = getattr(c, field)
-            # print(field, value, type(value))
             if isinstance(value, datetime.datetime):
                 value = value.replace(tzinfo=None)
                 if field == MODIFIED:
@@ -53,39 +52,28 @@ class CommonManager:
                 elif field in [CREATED, DATE_JOINED]:
                     value = self.format_datetime(value)
                 setattr(c, field, value)
-                values.append(f"'{value}'")
-            elif isinstance(value, bool):
-                values.append(f'{value}')
             elif value is None and field in [MODIFIED, CREATED, DATE_JOINED]:
                 if field in [MODIFIED, CREATED, DATE_JOINED]:
                     value = self.get_current_datetime()
                 setattr(c, field, value)
-                values.append(f"'{value}'")
-            elif value is None:
-                values.append("NULL")
-            else:
-                values.append(f"'{value}'")
+            values.append(value)
         return values
 
     def delete(self, c):
-        query = f"""
-                    DELETE FROM {self.db_table}
-                    WHERE id={c.id};
-                """
+        query = f"DELETE FROM {self.db_table} WHERE id=%s;"
+        args = (c.id,)
         if verbose_flag:
-            print(f'delete query: {query}')
+            print('delete query: ' + query % args)
         with connection.cursor() as cursor:
-            cursor.execute(query)
+            cursor.execute(query, args)
 
     def all(self):
-        query = f"""
-                    SELECT {','.join(self.fields)}
-                    FROM {self.db_table};
-                """
+        query = f"SELECT {','.join(self.fields)} FROM {self.db_table};"
+        args = ()
         if verbose_flag:
-            print(f'all query: {query}')
+            print('all query: ' + query % args)
         with connection.cursor() as cursor:
-            cursor.execute(query)
+            cursor.execute(query, args)
             objects = []
             for row in cursor.fetchall():
                 c = self.model()
@@ -95,15 +83,12 @@ class CommonManager:
         return objects
 
     def get(self, *, id):
-        query = f"""
-                    SELECT {','.join(self.fields)}
-                    FROM {self.db_table}
-                    WHERE id={id};
-                """
+        query = f"SELECT {','.join(self.fields)} FROM {self.db_table} WHERE id=%s;"
+        args = (id,)
         if verbose_flag:
-            print(f'get query: {query}')
+            print('get query: ' + query % args)
         with connection.cursor() as cursor:
-            cursor.execute(query)
+            cursor.execute(query, args)
             objects = []
             for row in cursor.fetchall():
                 c = self.model()
@@ -113,29 +98,28 @@ class CommonManager:
         return None if not objects else objects[0]
 
     def update(self, c):
-        set_values = f',{NL}'.join([f'{key}={value}' for key, value in zip(
-            self.fields_without_id, self.field_values(c, self.fields_without_id)
-        )])
-        query = f"""
-                    UPDATE {self.db_table}
-                    SET {set_values}
-                    WHERE id={c.id};
-                """
+        set_values = f',{NL}'.join([f'{key}=%s' for key in self.fields_without_id])
+        query = f"UPDATE {self.db_table} SET {set_values} WHERE id=%s;"
+        args = [*self.field_values(c, self.fields_without_id), c.id]
+        if 'image' in self.fields_without_id:
+            args[self.fields_without_id.index('image')] = args[self.fields_without_id.index('image')].name
+        args = tuple(args)
         if verbose_flag:
-            print(f'update query: {query}')
+            print('update query: ' + query % args)
         with connection.cursor() as cursor:
-            cursor.execute(query)
+            cursor.execute(query, args)
 
     def insert(self, c):
-        query = f"""
-                    INSERT INTO {self.db_table}
-                    ({','.join(self.fields_without_id)})
-                    VALUES ({','.join(self.field_values(c, self.fields_without_id))});
-                """
+        vals = self.fields_without_id
+        query = f"INSERT INTO {self.db_table} ({','.join(vals)}) VALUES ({','.join(['%s' for _ in range(len(vals))])});"
+        args = self.field_values(c, self.fields_without_id)
+        if 'image' in vals:
+            args[vals.index('image')] = args[vals.index('image')].name
+        args = tuple(args)
         if verbose_flag:
-            print(f'insert query: {query}')
+            print('insert query: ' + query % args)
         with connection.cursor() as cursor:
-            cursor.execute(query)
+            cursor.execute(query, args)
             setattr(c, 'id', cursor.lastrowid)
         c.save()
 
@@ -143,44 +127,45 @@ class CommonManager:
         if not kwargs:
             return []
         where_conditions = []
+        values = []
         for key, value in kwargs.items():
             key, *op = key.rsplit('__', maxsplit=1)
             if op:
                 op = op[0]
-                if op == 'gte':
-                    where_condition = f"{key}>='{value}'"
-                elif op == 'gt':
-                    where_condition = f"{key}>'{value}'"
-                elif op == 'lte':
-                    where_condition = f"{key}<='{value}'"
-                elif op == 'lt':
-                    where_condition = f"{key}<'{value}'"
+                if op in ['gte', 'gt', 'lte', 'lt', 'icontains']:
+                    if op == 'gte':
+                        where_condition = f"{key}>=%s"
+                    elif op == 'gt':
+                        where_condition = f"{key}>%s"
+                    elif op == 'lte':
+                        where_condition = f"{key}<=%s"
+                    elif op == 'lt':
+                        where_condition = f"{key}<%s"
+                    else:  # op == 'icontains'
+                        where_condition = f"LOWER({key}) LIKE %s"
+                        value = '%' + value + '%'
+                    values.append(value)
                 elif op == 'in':
-                    objs = ', '.join([f"'{obj}'" for obj in value])
-                    where_condition = ''
+                    objs = ', '.join(["%s" for _ in range(len(value))])
                     if objs:
                         where_condition = f"{key} IN ({objs})"
+                        values.extend(value)
                     else:
                         where_condition = f"2+2=5"
-                elif op == 'icontains':
-                    where_condition = f"LOWER({key}) LIKE '%{value}%'"
                 else:
                     raise ValueError(f"Unknown op {op}")
             else:
-                where_condition = f"{key}='{value}'"
-            if where_condition:
-                where_conditions.append(where_condition)
+                where_condition = f"{key}=%s"
+                values.append(value)
+            where_conditions.append(where_condition)
         with connection.cursor() as cursor:
             objects = []
             if where_conditions:
-                query = f"""
-                    SELECT {','.join(self.fields)}
-                    FROM {self.db_table}
-                    WHERE {' AND '.join(where_conditions)}
-                """
+                query = f"SELECT {','.join(self.fields)} FROM {self.db_table} WHERE {' AND '.join(where_conditions)}"
+                args = tuple(values)
                 if verbose_flag:
-                    print(f'filter query: {query}')
-                cursor.execute(query)
+                    print(f'filter query: ' + query % args)
+                cursor.execute(query, args)
                 for row in cursor.fetchall():
                     c = self.model()
                     for key, value in zip(self.fields, row):

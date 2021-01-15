@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}404{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <section class="content">
+        <div class="center" style="margin: 85px auto; max-width: 80%;">
+            <p class="white">An error happened: {{ exception }} (404)</p>
+        </div>
+    </section>
+{% endblock %}

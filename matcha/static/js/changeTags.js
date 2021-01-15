@@ -4,7 +4,7 @@ var new_tag_edited = false;
 function submitTag(el) {
     let input = el.querySelector("input");
     try {
-        var data = input.value.trim();
+        var data = input.value.trim().replace(/#/g, "");
     } catch (error) {
         return;
     }
@@ -22,7 +22,7 @@ function submitTag(el) {
         createNewTag();
         new_tag_edited = false;
     }
-    el.querySelector("span").innerHTML = "#" + data;
+    el.querySelector("span").innerHTML = "#" + data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 function createNewTag() {

@@ -129,7 +129,8 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.AllowAny',),
     'PAGE_SIZE': 20,
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+    'EXCEPTION_HANDLER': 'matcha.utils.custom_exception_handler'
 }
 
 ####################################
@@ -199,7 +200,7 @@ INTERNAL_IPS = [
 # VERBOSE
 ####################################
 
-verbose_flag = False
+verbose_flag = True
 
 ####################################
 # REDIS

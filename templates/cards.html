@@ -59,7 +59,7 @@
             <figure>
                 <div>
                     {% if user.main_photo %}
-                        <img src="{{ user.main_photo }}" class="main" alt="profile picture">
+                        <img src="{{ user.main_photo|safe }}" class="main" alt="profile picture">
                     {% else %}
                         <img src="{% static 'img/default.png' %}" alt="default profile picture">
                     {% endif %}
@@ -81,7 +81,7 @@
                 <div class="location" style="margin-left:10px;line-height:20px;display:inline-block">Местоположение: <span>{{ user.location|safe }}</span></div>
                 <div style="margin-left: 10px;">
                     {% if user.info %}
-                        <button id="show-more">показать полностью</button>
+                        {% comment %}<button id="show-more">показать полностью</button>{% endcomment %}
                         <div id="history" class="short-history">Инфо: {{ user.info|safe }}</div>
                     {% endif %}
                 </div>
@@ -91,7 +91,7 @@
                         <p class="white">Интересы: </p>
                         {% for tag in user.tags %}
                             <div class="tag">
-                                <span>#{{ tag|safe }}</span>
+                                <span>#{{ tag }}</span>
                             </div>
                         {% endfor %}
                     </div>
@@ -111,10 +111,12 @@
             </section>
             {% if global_user.is_authenticated %}
                 {% if type == "likes" %}
+                    {% if can_like %}
                     <section id="buttons-card">
                         <button type="button" id="act-dislike-{{ forloop.counter0 }}" class="btn btn-outline-danger btn-lg"><i id="act-dislike" class="fa fa-thumbs-down"></i></button>
                         <button type="button" id="act-like-{{ forloop.counter0 }}" class="btn btn-outline-success btn-lg"><i id="act-like" class="fa fa-thumbs-up"></i></button>
                     </section>
+                    {% endif %}
                 {% elif type == "connects" %}
                     <section class="buttons-sec" style="margin-top: 10px;width: 100%;text-align: center;">
                         {% if user.liked_back %}
@@ -150,19 +152,20 @@
             const focus_actions = (e) => e.target.parentNode.querySelector('.buttons').classList.toggle('visible');
             function check_actions(e, elem) {
                 let targ_id = e.target.id;
-                if (targ_id.startsWith('act-like-') || targ_id.startsWith('act-dislike-')
-                                                    || targ_id.startsWith('btn-report-')
-                                                    || targ_id.startsWith('btn-block-')
-                                                    || targ_id === 'show-more'
-                                                    || targ_id.startsWith('like-button-')
-                                                    || targ_id.startsWith('more-actions-')
-                                                    || targ_id.startsWith('btn-')
-                                                    || targ_id.startsWith('chat-button-')) {
-                    if (targ_id.startsWith('act-dislike-') || targ_id.startsWith('btn-report-') || targ_id.startsWith('btn-block-')) {
+                if (targ_id.startsWith('act-like') || targ_id.startsWith('act-dislike')
+                                                   || targ_id.startsWith('btn-report-')
+                                                   || targ_id.startsWith('btn-block-')
+                                                   {% comment %}|| targ_id === 'show-more'{% endcomment %}
+                                                   || targ_id.startsWith('like-button-')
+                                                   || targ_id.startsWith('more-actions-')
+                                                   || targ_id.startsWith('btn-')
+                                                   || targ_id.startsWith('chat-button-')
+                                                   || targ_id === 'buttons-card') {
+                    if (targ_id.startsWith('act-dislike') || targ_id.startsWith('btn-report-') || targ_id.startsWith('btn-block-')) {
                         elem.classList.add("animate__backOutLeft");
                         elem.id = "tmp_" + elem.id;
                         setTimeout(() => {elem.remove()}, 600);
-                    } else if (targ_id.startsWith('act-like-')) {
+                    } else if (targ_id.startsWith('act-like')) {
                         elem.classList.add("animate__backOutRight");
                         elem.id = "tmp_" + elem.id;
                         setTimeout(() => {elem.remove()}, 600);
@@ -187,12 +190,13 @@
                 let user_ids = [];
                 let users_connect_ids = [];
                 {% for user in users %}
-                    user_ids.push({{ user.id }});
+                    user_ids.push({{ global_user.id }});
                     users_connect_ids.push({{ user.users_connect_id }});
                 {% endfor %}
                 csrftoken = getCookie('csrftoken');
                 for (let i = 0; i < {{ users|length }}; i++) {
                     {% if type == "likes" %}
+                        {% if can_like %}
                         document.getElementById("act-like-" + i).addEventListener("click", function (e) {
                             if (user_ids[i] !== {{ global_user.id }}) {
                                 $.ajax({
@@ -227,6 +231,7 @@
                                 });
                             }
                         });
+                        {% endif %}
                     {% elif type == "connects" %}
                         let chat_button = null;
                         document.getElementById("like-button-" + i).addEventListener("click", function (e) {
@@ -241,7 +246,7 @@
                                     $(this).parent().append(chat_button);
                                     chat_button.addEventListener("click", function (e) {
                                         if (user_ids[i] !== {{ global_user.id }}) {
-                                            window.location.href = "/chat/" + user_id + "_" + user_ids[i] + "/";
+                                            window.location.href = "/chat/" + {{ global_user.id }} + "_" + user_ids[i] + "/";
                                         }
                                     });
                                 } else {
@@ -270,7 +275,7 @@
                         if (chat_button) {
                             chat_button.addEventListener("click", function (e) {
                                 if (user_ids[i] !== {{ global_user.id }}) {
-                                    let ids = [user_id.toString(), user_ids[i].toString()];
+                                    let ids = [{{ global_user.id }}.toString(), user_ids[i].toString()];
                                     ids.sort();
                                     window.location.href = "/chat/" + ids[0] + "_" + ids[1] + "/";
                                 }
@@ -314,7 +319,7 @@
         {% endif %}
 
         <script>
-            function check_line_clamp() {
+            {% comment %}function check_line_clamp() {
                 document.querySelectorAll("#history").forEach(el => {
                     if (el.scrollHeight === el.clientHeight) {
                         el.parentNode.querySelector("button").style.display = "none";
@@ -322,10 +327,10 @@
                         el.parentNode.querySelector("button").style.display = "block";
                     }
                 })
-            }
-            check_line_clamp();
+            }{% endcomment %}
+            {% comment %}check_line_clamp();
             window.onresize = function(e) {
                 check_line_clamp();
-            }
+            }{% endcomment %}
         </script>
 </div>

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor
 from django.utils import timezone
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError, ErrorDetail
+from rest_framework.exceptions import ErrorDetail, ValidationError
 from rest_framework.fields import (
     CharField, IntegerField, DateTimeField, FloatField, BooleanField,
     ImageField, empty
@@ -108,7 +108,6 @@ class CommonSerializer(serializers.Serializer):
                 if field in unique_together:
                     unique_together_dict[field] = value
                 if read_only:
-                    print(f'field: {field}, data: {data}')
                     raise_exception(field, 'Это поле read_only')
                 if not allow_null and value is None:
                     raise_exception(field, 'Это поле не может быть нулевым')
@@ -170,8 +169,11 @@ class CommonSerializer(serializers.Serializer):
         if self.main_model.objects_.filter(**unique_together_dict):
             raise_exception(', '.join(unique_together_dict), 'Эти поля должны образовывать уникальный набор')
         for field in self.unique_fields:
-            if field in data and self.main_model.objects_.filter(**{field: data[field]}):
-                raise_exception(field, 'Это поле должно быть уникальным')
+            if field in data:
+                objs = self.main_model.objects_.filter(**{field: data[field]})
+                objs = [obj for obj in objs if int(obj.id) != self.context['user_id']]
+                if objs:
+                    raise_exception(field, 'Это поле должно быть уникальным')
         # print(f'data: {data}')
         return data
 
@@ -179,6 +181,7 @@ class CommonSerializer(serializers.Serializer):
         c = self.main_model()
         for field in self.model_fields_without_id:
             setattr(c, field, validated_data.get(field))
+            print(f'field: {field}, validated_data.get(field): {validated_data.get(field)}')
         c.save()
         return c
 
@@ -252,7 +255,7 @@ class UserSerializer(CommonSerializer):
     # is_superuser = serializers.BooleanField(required=False, default=False)
     first_name = serializers.CharField(required=False, allow_blank=True, max_length=30, default='')
     last_name = serializers.CharField(required=False, allow_blank=True, max_length=150, default='')
-    # email = serializers.EmailField(required=False)
+    email = serializers.EmailField(required=False, allow_blank=True, max_length=254, default='')
     # is_staff = serializers.BooleanField(required=False, default=False)
     # is_active = serializers.BooleanField(required=False, default=True)
     # date_joined = serializers.DateTimeField(required=False)
@@ -319,6 +322,7 @@ class ShortUserSerializer(CommonSerializer):
     info = serializers.CharField(required=False, allow_blank=True, max_length=4096, default='')
     orientation = serializers.CharField(required=False, max_length=32, default=User.UNKNOWN)
     rating = serializers.FloatField(required=False, default=0.0)
+    email = serializers.EmailField(required=False, allow_blank=True, max_length=254, default='')
     date_of_birth = serializers.DateField(required=False, allow_null=True)
     location = serializers.CharField(required=False, allow_blank=True, max_length=512, default='')
 
@@ -385,7 +389,7 @@ class UserReadSerializer(CommonSerializer):
     # is_superuser = serializers.BooleanField(required=False, default=False)
     first_name = serializers.CharField(required=False, allow_blank=True, max_length=30, default='')
     last_name = serializers.CharField(required=False, allow_blank=True, max_length=150, default='')
-    email = serializers.EmailField(required=True)
+    email = serializers.EmailField(required=False, allow_blank=True, max_length=254, default='')
     # is_staff = serializers.BooleanField(required=False, default=False)
     # is_active = serializers.BooleanField(required=False, default=True)
     gender = serializers.CharField(required=False, max_length=32, default=User.UNKNOWN)
@@ -514,7 +518,7 @@ class UserTagReadSerializer(CommonSerializer):
 class UserPhotoSerializer(CommonSerializer):
     id = serializers.IntegerField(read_only=True)
     title = serializers.CharField(required=False, allow_blank=True, max_length=32)
-    image = serializers.ImageField(required=False)
+    image = serializers.CharField(required=False)  # ImageField
     main = serializers.BooleanField(required=False, default=False)
     user_id = serializers.IntegerField(required=True)
     created = serializers.DateTimeField(required=False)
@@ -731,6 +735,99 @@ class NotificationSerializer(CommonSerializer):
     @property
     def model(self):
         return NotificationSerializer
+
+    @property
+    def main_model(self):
+        return Notification
+
+
+class ShortNotificationReadSerializer(CommonSerializer):
+    # id = serializers.IntegerField(read_only=True)
+    # type = serializers.CharField(required=True, max_length=32)
+    # user_1 = serializers.SerializerMethodField()
+    # user_2 = serializers.SerializerMethodField()
+    # was_read = serializers.BooleanField(required=False, default=False)
+    created = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+    # modified = serializers.SerializerMethodField()  # serializers.DateTimeField(required=False)
+
+    message = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+    user_id = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_user_id(instance: Notification):
+        if instance.to:
+            return instance.user_1_id
+        return instance.user_2_id
+
+    @staticmethod
+    def get_message(instance: Notification):
+        if instance.to:
+            user_id = instance.user_1_id
+        else:
+            user_id = instance.user_2_id
+        user = User.objects_.get(id=user_id)
+        message = ''
+        if instance.type == Notification.LIKE:
+            if instance.to:
+                message = 'Вас лайкнул(а) '
+            else:
+                message = 'Вы поставили лайк '
+        elif instance.type == Notification.PROFILE:
+            if instance.to:
+                message = 'Ваш профиль был просмотрен '
+            else:
+                message = 'Вы просмотрели профиль '
+        elif instance.type == Notification.MESSAGE:
+            if instance.to:
+                message = 'Вам было отправлено сообщение от '
+            else:
+                message = 'Вы отправили сообщение '
+        elif instance.type == Notification.LIKE_BACK:
+            if instance.to:
+                message = 'Вас лайкнул(а) в ответ '
+            else:
+                message = 'Вы лайкнули в ответ '
+        elif instance.type == Notification.IGNORE:
+            if instance.to:
+                message = 'Вас проигнорировал(а) в ответ '
+            else:
+                message = 'Вы проигнорировали в ответ '
+        message += f'{user.first_name} {user.last_name} ({user.username})'
+        return message
+
+    @staticmethod
+    def get_image(instance: Notification):
+        if instance.to:
+            user_id = instance.user_1_id
+        else:
+            user_id = instance.user_2_id
+        photos = UserPhoto.objects_.filter(user_id=user_id)
+        main_photos = [photo for photo in photos if photo.main]
+        if main_photos:
+            return f'/{MEDIA_PREFIX}/{main_photos[0].image}'
+        elif photos:
+            return f'/{MEDIA_PREFIX}/{photos[0].image}'
+
+    @staticmethod
+    def get_created(instance: Notification):
+        return instance.created.replace(tzinfo=pytz.UTC)
+
+    # @staticmethod
+    # def get_modified(instance: Notification):
+    #     return instance.modified.replace(tzinfo=pytz.UTC)
+
+    @staticmethod
+    def get_user_1(instance: Notification):
+        return instance.user_1.id
+
+    @staticmethod
+    def get_user_2(instance: Notification):
+        return instance.user_2.id
+
+    @property
+    def model(self):
+        return NotificationReadSerializer
 
     @property
     def main_model(self):

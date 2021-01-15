@@ -5,7 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render
 from django.views.decorators.cache import never_cache
-from rest_framework.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied
+
 
 from dating_site.settings import PAGE_SIZE
 from matcha.filters import filter_name

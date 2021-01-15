@@ -6,20 +6,20 @@ var hist = {
         this.textArea = document.createElement("textarea"),
         this.history = document.getElementById("history"),
         this.textArea.setAttribute("id", "textArea");
-        this.textArea.innerHTML = this.history.innerHTML;
+        this.textArea.innerHTML = this.history.innerHTML.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         this.history.innerHTML = "";
         this.history.appendChild(this.textArea);
         autosize(this.textArea);
     },
     submit: function() {
-        this.history.innerHTML = this.textArea.value;
+        this.history.innerHTML = this.textArea.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         this.textArea.remove();
     }
 }
 
 document.getElementById("change-profile-data").addEventListener("click", function(e) {
     if (change_user_data === false) {
-        initial_images = [...$('.img-area img')].filter(el => el.getAttribute('src')).map(el => { return el.getAttribute('src') });
+        initial_images = [...$('.user-profile img')].filter(el => el.getAttribute('src')).map(el => { return el.getAttribute('src') });
         initial_main_image = [...$('figure img')].filter(el => el.getAttribute('src'));
         new_images = [];
         new_images_srcs = [];
@@ -37,6 +37,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         _location.edit();
         avatar.edit();
         image.edit();
+        _email.edit();
 
         change_user_data = true;
         cancel_btn.style.display = "inline-block";
@@ -118,7 +119,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
             }
         });
 
-        const tag_names = [...$(".tag span")].map(el => { return el.textContent });
+        const tag_names = [...$(".tag span")].map(el => { return el.textContent.replace(/</g, "&lt;").replace(/>/g, "&gt;") });
 
         csrftoken = getCookie('csrftoken');
         $.ajax({
@@ -130,13 +131,14 @@ document.getElementById("change-profile-data").addEventListener("click", functio
             url: "/api/v1/users/" + user_id + "/",
             type: "PATCH",
             data: JSON.stringify({
-                "first_name": $("#first_name").val(),
-                "last_name": $("#last_name").val(),
-                "date_of_birth": $("#date-picker").val(),
-                "gender": $("#selectGender option:checked").val(),
-                "orientation": $("#selectOrientation option:checked").val(),
-                "location": $("#selectLocation").val(),
-                "info": $("#textArea").val(),
+                "first_name": $("#first_name").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"),
+                "last_name": $("#last_name").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"),
+                "date_of_birth": $("#date-picker").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"),
+                "gender": $("#selectGender option:checked").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"),
+                "orientation": $("#selectOrientation option:checked").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"),
+                "location": $("#selectLocation").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"),
+                "info": $("#textArea").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"),
+                "email": $("#email_input").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"),
                 "tags": tag_names
             })
         });
@@ -144,12 +146,13 @@ document.getElementById("change-profile-data").addEventListener("click", functio
         avatar.submit();
         _name.submit();
         hist.submit();
-        tags.submit();
         age.submit();
+        tags.submit();
         gender.submit();
         orientat.submit();
         _location.submit();
         image.submit();
+        _email.submit();
         this.innerHTML = "&#9998;";
         this.style.padding = "2px 5px";
         change_user_data = false;

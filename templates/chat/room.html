@@ -28,7 +28,7 @@
         <a href="/profiles/{{ interlocutor.id }}" class="chat-user-info">
             <div style="display: flex; align-items: center;">
                 {% if interlocutor.main_photo %}
-                    <img src="{{ interlocutor.main_photo }}" class="main avatar" alt="profile picture">
+                    <img src="{{ interlocutor.main_photo|safe }}" class="main avatar" alt="profile picture">
                 {% else %}
                     <img src="{% static 'img/default.png' %}" class="avatar" alt="default profile picture">
                 {% endif %}
@@ -38,7 +38,7 @@
                     </span>
                 </div>
                 <div style="display: flex; width: 100%;  justify-content: left;">
-                    <span class="username">{% if interlocutor.first_name and interlocutor.last_name %}{{ interlocutor.first_name }} {{ interlocutor.last_name }} ({{ interlocutor.username }}){% else %}{{ interlocutor.username }}{% endif %}</span>
+                    <span class="username">{% if interlocutor.first_name and interlocutor.last_name %}{{ interlocutor.first_name|safe }} {{ interlocutor.last_name|safe }} ({{ interlocutor.username|safe }}){% else %}{{ interlocutor.username|safe }}{% endif %}</span>
                 </div>
             </div>
         </a>
@@ -62,6 +62,9 @@
         </div>
     </section>
     {{ room_name|json_script:"room-name" }}
+{% endblock %}
+
+{% block end_content %}
 {% endblock %}
 
 {% block body_scripts %}
@@ -99,7 +102,7 @@
             let newBlockMessage = document.createElement("div");
 
             if (from !== "you :") {newBlockMessage.classList.add("aqua-border")}
-            newBlockMessage.innerHTML = `<p class="from">${from}</p>`;
+            newBlockMessage.innerHTML = `<p class="from">${from.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>`;
             newBlockMessage.classList.add("block-message");
             return newBlockMessage;
         }
@@ -108,7 +111,7 @@
             let newBlockMessage = document.createElement("div");
 
             newBlockMessage.classList.add("date-block");
-            newBlockMessage.innerHTML = `<span class="day">${day}</span> ${month} ${year}`
+            newBlockMessage.innerHTML = `<span class="day">${day}</span> ${month.replace(/</g, "&lt;").replace(/>/g, "&gt;")} ${year}`
 
             return newBlockMessage;
         }
@@ -186,8 +189,6 @@
                     messagesArea.appendChild(createBlockDate({day: new Date().getDate(), month: getCurrentMonthName(), year: new Date().getFullYear().toString()}));
                 }
             } else if (lastDate.textContent !== (created.day + " " + created.month + " " + created.year)) {
-                console.log("lastDate: " + lastDate.textContent + ", " + created.day + " " + created.month + " " + created.year);
-                console.log("created: " + created);
                 if (created) {
                     messagesArea.appendChild(createBlockDate(
                         {day: created.day, month: created.month, year: created.year}
@@ -200,7 +201,7 @@
                 }
             }
             newMessage.classList.add("data-message");
-            newMessage.innerHTML = `<span>${message}</span><span class="message-date">${created.time}</span>`;
+            newMessage.innerHTML = `<span>${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</span><span class="message-date">${created.time.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</span>`;
             if ((isLastMessageFromEnemy || !(lastMessageBlock) ||
                 lastDate.textContent !== (created.day + " " + created.month + " " + created.year))
                 && messageFromId === {{ global_user.id }}) {
@@ -229,7 +230,6 @@
 
         chatSocket.onmessage = (e) => {
             appendMessage(JSON.parse(e.data));
-            console.log("e.data: " + JSON.stringify(JSON.parse(e.data)));
         };
 
         chatSocket.onclose = (e) => {alert("WebSocket was closed")};

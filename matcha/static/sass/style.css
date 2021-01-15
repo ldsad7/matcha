@@ -280,7 +280,7 @@ span.circle {
 }
 
 .content {
-  min-height: 600px;
+  min-height: 100%;
 }
 
 .user-profile {
@@ -769,7 +769,7 @@ span.circle {
   -webkit-line-clamp: 3;
 }
 
-.user-profile-short .user-data #show-more {
+/*.user-profile-short .user-data #show-more {
   left: 0;
   cursor: pointer;
   position: absolute;
@@ -778,11 +778,11 @@ span.circle {
   color: #96cbf8;
   outline: none;
   border: none;
-}
+}*/
 
-.user-profile-short .user-data #show-more:focus ~ .short-history {
+/*.user-profile-short .user-data #show-more:focus ~ .short-history {
   display: inline-block;
-}
+}*/
 
 @media screen and (max-width: 780px) {
   .search-data {

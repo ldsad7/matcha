@@ -17,7 +17,7 @@ var _name = {
         this.first_name.style.display = "none";
         this.last_name.style.display = "none";
 
-        this.firstname.innerHTML = this.first_name.value.trim() + " ";
-        this.lastname.innerHTML = this.last_name.value.trim();
+        this.firstname.innerHTML = this.first_name.value.trim().replace(/</g, "&lt;").replace(/>/g, "&gt;") + " ";
+        this.lastname.innerHTML = this.last_name.value.trim().replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 }

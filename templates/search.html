@@ -4,6 +4,37 @@
 
 {% load static %}
 
+{% block styles %}
+    {{ block.super }}
+    .arrow-up {
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 10px solid white;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .arrow-down {
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 10px solid white;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .arrow-down-active {
+      border-top: 10px solid green;
+    }
+
+    .arrow-up-active {
+      border-bottom: 10px solid green;
+    }
+{% endblock %}
+
 {% block content %}
     {{ block.super }}
     <section class="content">
@@ -17,7 +48,7 @@
             </div>
             <div class="search-data">
                 <div class="age-gap">
-                    <div class="age-gap-title">Возраст</div>
+                    <div class="age-gap-title">Возраст <div class="arrow-down" id="sort-down-age"></div><div class="arrow-up" id="sort-up-age"></div></div>
                     <span>От:</span>
                     <input type="number" name="" id="low_age" min="16" max="110" value="16">
                     <br/>
@@ -25,7 +56,7 @@
                     <input type="number" name="" id="high_age" min="16" max="110" value="{{ max_age }}">
                 </div>
                 <div class="rating-gap">
-                    <div class="rating-gap-title">Рейтинг</div>
+                    <div class="rating-gap-title">Рейтинг <div class="arrow-down" id="sort-down-rating"></div><div class="arrow-up" id="sort-up-rating"></div></div>
                     <span>От:</span>
                     <input type="number" name="" id="low_rating" min="0" max="9999" value="0">
                     <br/>
@@ -33,7 +64,7 @@
                     <input type="number" name="" id="high_rating" min="0" max="9999" value="{{ max_rating }}">
                 </div>
                 <div class="location">
-                    <div class="location-gap-title">Местоположение:</div>
+                    <div class="location-gap-title">Местоположение <div class="arrow-down" id="sort-down-location"></div><div class="arrow-up" id="sort-up-location"></div></div>
                     <input type="text" id="selectLocation" list="locat" placeholder="Поиск..." oninput="changeDatalist(this);"  autocomplete="off">
                     <datalist id="locat">
                         <option value="Москва"></option>
@@ -42,7 +73,7 @@
                     </datalist>
                 </div>
                 <div class="interests">
-                    <div class="rating-gap-title">Интересы:</div>
+                    <div class="rating-gap-title">Интересы <div class="arrow-down" id="sort-down-tags"></div><div class="arrow-up" id="sort-up-tags"></div></div>
                     <div id="tags" class="search-tags"></div>
                 </div>
                 <button id="search_button" style="align-self: flex-end;padding: 5px;border-radius: 20px; margin-right:0;">Искать</button>
@@ -57,6 +88,44 @@
 {% block body_scripts %}
     {{ block.super }}
     <script>
+
+        document.querySelectorAll(".arrow-up").forEach(
+            arrow => arrow.addEventListener("click", function(e) {
+                let initial_value = e.target.getAttribute("class");
+                let arrows_down = document.querySelectorAll(".arrow-down-active");
+                for (let i = 0; i < arrows_down.length; i++) {
+                    arrows_down[i].setAttribute("class", "arrow-down");
+                }
+                let arrows_up = document.querySelectorAll(".arrow-up-active");
+                for (let i = 0; i < arrows_up.length; i++) {
+                    arrows_up[i].setAttribute("class", "arrow-up");
+                }
+                if (initial_value === "arrow-up arrow-up-active") {
+                    e.target.setAttribute("class", "arrow-up");
+                } else {
+                    e.target.setAttribute("class", "arrow-up arrow-up-active");
+                }
+            })
+        );
+        document.querySelectorAll(".arrow-down").forEach(
+            arrow => arrow.addEventListener("click", function(e) {
+                let initial_value = e.target.getAttribute("class");
+                let arrows_down = document.querySelectorAll(".arrow-down-active");
+                for (let i = 0; i < arrows_down.length; i++) {
+                    arrows_down[i].setAttribute("class", "arrow-down");
+                }
+                let arrows_up = document.querySelectorAll(".arrow-up-active");
+                for (let i = 0; i < arrows_up.length; i++) {
+                    arrows_up[i].setAttribute("class", "arrow-up");
+                }
+                if (initial_value === "arrow-down arrow-down-active") {
+                    e.target.setAttribute("class", "arrow-down");
+                } else {
+                    e.target.setAttribute("class", "arrow-down arrow-down-active");
+                }
+            })
+        );
+
         let input = document.getElementById("search-bar");
         input.addEventListener("keyup", function(event) {
           if (event.keyCode === 13) {
@@ -102,7 +171,18 @@
                         el.classList.remove("active-tag");
                         el.classList.remove("new-tag");
                         tagListener(el);
-                        el.querySelector("span").innerHTML = "#" + tag;
+                        el.querySelector("span").innerHTML = "#" + tag.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    }
+                }
+                let sort = getParameterByName('sort');
+                if (sort) {
+                    let arrows = $("#" + sort);
+                    if (arrows.length) {
+                        if (arrows[0].getAttribute("class") === "arrow-down") {
+                            arrows[0].setAttribute("class", "arrow-down arrow-down-active");
+                        } else if (arrows[0].getAttribute("class") === "arrow-up") {
+                            arrows[0].setAttribute("class", "arrow-up arrow-up-active");
+                        }
                     }
                 }
             } catch (error) {
@@ -134,7 +214,7 @@
                 createNewTag();
                 new_tag_edited = false;
             }
-            el.querySelector("span").innerHTML = "#" + data;
+            el.querySelector("span").innerHTML = "#" + data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
 
         function createNewTag() {
@@ -162,7 +242,7 @@
                     }
                     el.classList.add("active-tag");
                     let span = el.querySelector("span");
-                    let data = span.innerHTML.split("#")[1];
+                    let data = span.innerHTML.split("#")[1].replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     span.innerHTML = "# ";
                     let input = document.createElement("input");
                     input.setAttribute("value", data);
@@ -238,11 +318,19 @@
             let tag_names = [];
             let tag_tags = $(".search-data .tag span");
             for (let tag_tag of tag_tags) {
-                let text = tag_tag.textContent.trim().replace('#', '');
+                let text = tag_tag.textContent.trim().replace(/#/g, "");
                 if (text)
                     tag_names.push(text);
             }
-            window.location.href = "/search/?" + "age=" + $("#low_age").val() + ":" + $("#high_age").val() + "&rating=" + $("#low_rating").val() + ":" + $("#high_rating").val() + "&location=" + $("#selectLocation").val() + "&tags=" + tag_names.join(',');
+            let arrows_down = $(".arrow-down-active");
+            let arrows_up = $(".arrow-up-active");
+            let sort = '';
+            if (arrows_down.length) {
+                sort = arrows_down[0].getAttribute('id');
+            } else if (arrows_up.length) {
+                sort = arrows_up[0].getAttribute('id');
+            }
+            window.location.href = "/search/?" + "age=" + $("#low_age").val() + ":" + $("#high_age").val() + "&rating=" + $("#low_rating").val() + ":" + $("#high_rating").val() + "&location=" + $("#selectLocation").val() + "&tags=" + tag_names.join(',') + "&sort=" + sort + "&nocache=" + (new Date()).getTime();
         });
     </script>
 {% endblock %}

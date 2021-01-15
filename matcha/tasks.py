@@ -129,21 +129,38 @@ def update_rating(users, user):
     max_rating = 0.0
     max_distance = 0.0
     user_tags = set(user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=user.id))
+    if user.latitude or user.longitude:
+        check_coords = True
+    else:
+        check_coords = False
+        max_distance = 1.0
     for inner_user in users:
         max_rating = min(max(inner_user.rating, max_rating), MAX_RATING)
-        inner_user.distance = mpu.haversine_distance(
-            (user.latitude, user.longitude), (inner_user.latitude, inner_user.longitude)
-        )
-        max_distance = max(inner_user.distance, max_distance)
         inner_user.tag_names = set(
             user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=inner_user.id)
         )
+        if check_coords:
+            if inner_user.latitude or inner_user.longitude:
+                inner_user.distance = mpu.haversine_distance(
+                    (user.latitude, user.longitude), (inner_user.latitude, inner_user.longitude)
+                )
+            else:
+                if user.location.lower().strip() == inner_user.location.lower().strip():
+                    inner_user.distance = 0
+                else:
+                    inner_user.distance = max_distance
+            max_distance = max(inner_user.distance, max_distance)
+        else:
+            if user.location.lower().strip() == inner_user.location.lower().strip():
+                inner_user.distance = 0
+            else:
+                inner_user.distance = 1
     for inner_user in users:
         users_rating = UsersRating.objects_.filter(user_1_id=inner_user.id, user_2_id=user.id)
         rating = \
-            0.33 * inner_user.rating / (max_rating + 0.01) + \
-            0.33 * len(user_tags & inner_user.tag_names) / (len(user_tags | inner_user.tag_names) + 0.1) + \
-            0.33 * (1 - inner_user.distance / (max_distance + 0.01))
+            0.25 * inner_user.rating / (max_rating + 0.01) + \
+            0.25 * len(user_tags & inner_user.tag_names) / (len(user_tags | inner_user.tag_names) + 0.1) + \
+            0.5 * (1 - inner_user.distance / (max_distance + 0.01))
         rating = min(rating, MAX_RATING)
         if users_rating:
             users_rating[0].rating = rating

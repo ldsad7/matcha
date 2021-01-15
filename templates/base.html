@@ -24,19 +24,19 @@
     {% endblock %}
     <style>{% block styles %}{% endblock %}</style>
 </head>
-<body>
-    {% include "header.html" %}
-    {% block content %}{% endblock %}
+<body style="min-height:100vh;margin:0;position:relative;">
+    {% block content %}
+        {% include "header.html" %}
+    {% endblock %}
+    {% block end_content %}
+        {% include "footer.html" %}
+    {% endblock %}
     {% block body_scripts %}
-        <script>
-            {% if global_user.id %}user_id = {{ global_user.id }}{% endif %};
-        </script>
         <script src="{% static 'js/toggleBtn.js' %}"></script>
         {% if global_user.is_authenticated %}
             <script src="{% static 'js/getNotifications.js' %}"></script>
         {% endif %}
         <script src="{% static 'js/callAvitoApi.js' %}"></script>
     {% endblock %}
-    {% include "footer.html" %}
 </body>
 </html>

@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block title %}Чаты{% endblock %}
+{% block title %}Действия{% endblock %}
 
 {% block content %}
     {{ block.super }}
@@ -58,19 +58,17 @@
             </div>
 
             <div style="display: flex; width: 80%; justify-content: center; flex-direction: column;">
-                {% for user in users %}
+                {% for notification in notifications %}
                     <div id="chats-area" style="margin: 0 0 20px;">
-                        <a id="room-name-{{ forloop.counter0 }}" class="card-chat">
-                            {% if user.main_photo %}
-                                <img src="{{ user.main_photo|safe }}" class="main avatar" alt="profile picture">
+                        <a href="/profiles/{{ notification.user_id }}" class="card-chat">
+                            {% if notification.image %}
+                                <img src="{{ notification.image|safe }}" class="main avatar" alt="profile picture">
                             {% else %}
                                 <img src="{% static 'img/default.png' %}" class="avatar" alt="default profile picture">
                             {% endif %}
-                            <div class="card-chat-info">
-                                <div class="card-chat-user">
-                                    {% if user.first_name and user.last_name %}{{ user.first_name|safe }} {{ user.last_name|safe }} ({{ user.username|safe }}){% else %}{{ user.username|safe }}{% endif %}
-                                </div>
-                                <span class="unread-counter">{{ user.last_message }}</span>
+                            <div class="card-chat-info" style="width:100%;">
+                                <span style="padding:10px;">{{ notification.message|safe }}</span>
+                                <span style="padding:10px;">{{ notification.created }}</span>
                             </div>
                         </a>
                     </div>
@@ -108,17 +106,12 @@
             }
         });
 
-        {% for user in users %}
-            room = document.getElementById("room-name-{{ forloop.counter0 }}");
-            room.setAttribute("href", ["{{ global_user.id }}", "{{ user.id }}"].sort().join('_'));
-        {% endfor %}
-
         let input = document.getElementById("search-bar");
         input.addEventListener("keyup", function(event) {
           if (event.keyCode === 13) {
             event.preventDefault();
             let value = input.value.trim();
-            window.location.href = "/chat/?" + "name=" + value;
+            window.location.href = "/actions/?" + "name=" + value;
           }
         });
     </script>

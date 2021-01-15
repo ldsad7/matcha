@@ -11,7 +11,7 @@ var gender = {
         this.changeGender.style.display = "inline-block";
     },
     submit: function() {
-        this.span.innerHTML = this.changeGender.value;
+        this.span.innerHTML = this.changeGender.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         this.changeGender.querySelectorAll("option").forEach(opt => {
             opt.removeAttribute("selected");
         });

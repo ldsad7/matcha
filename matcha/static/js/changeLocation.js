@@ -11,6 +11,6 @@ var _location = {
     submit: function() {
         this.changeLocation.style.display = "none";
 
-        this.span.innerHTML = this.changeLocation.value;
+        this.span.innerHTML = this.changeLocation.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 }

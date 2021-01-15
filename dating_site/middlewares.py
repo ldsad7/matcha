@@ -42,10 +42,13 @@ class CustomMiddleware:
             try:
                 user_obj.country = data['country'] or None
                 user_obj.city = data['city'] or None
-                user_obj.latitude, user_obj.longitude = data["lat"] or 0.0, data["lon"] or 0.0
-                user_obj.latitude, user_obj.longitude = list(
-                    map(float, [user_obj.latitude, user_obj.longitude])
+                latitude, longitude = data["lat"] or 0.0, data["lon"] or 0.0
+                latitude, longitude = list(
+                    map(float, [latitude, longitude])
                 )
+                if -90 <= latitude <= 90 and -180 <= longitude <= 180:
+                    user_obj.latitude = latitude
+                    user_obj.longitude = longitude
             except Exception as e:
                 if verbose_flag:
                     print(f"Error happened: {e}")
