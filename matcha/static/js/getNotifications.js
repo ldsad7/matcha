@@ -16,7 +16,7 @@ if (document.getElementById("read-all")) {
         newNotif.setAttribute("href", href || "#");
         newNotif.id = id;
         newNotif.classList.add("animate__animated");
-        newNotif.innerHTML = `<span class='notif_elem'>${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</span>`;
+        newNotif.innerHTML = `<span class='notif_elem'>${replaceAllSymbols(text)}</span>`;
         newNotif.addEventListener("click", function(e) {
             setTimeout(() => {
                 _idTimeout = setTimeout(

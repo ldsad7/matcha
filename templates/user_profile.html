@@ -20,14 +20,14 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/autosize.min.js' %}"></script>
-    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey={{ api_key }}" type="text/javascript"></script>
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=74b2ed32-1340-405d-be18-ab91a877defe" type="text/javascript"></script>
     <script>
         ymaps.ready(init);
 
         function init () {
             let myMap;
             myMap = new ymaps.Map('map', {
-                center: [{{ latitude|safe }}, {{ longitude|safe }}],
+                center: [{{ latitude }}, {{ longitude }}],
                 zoom: 10
             }, {
                 searchControlProvider: 'yandex#search'
@@ -36,7 +36,7 @@
             let userGeoObject = new ymaps.GeoObject({
                 geometry: {
                     type: "Point",
-                    coordinates: [{{ latitude|safe }}, {{ longitude|safe }}]
+                    coordinates: [{{ latitude }}, {{ longitude }}]
                 },
                 properties: {
                     iconContent: '{{ username }}',
@@ -50,7 +50,7 @@
             let myGeoObject = new ymaps.GeoObject({
                 geometry: {
                     type: "Point",
-                    coordinates: [{{ current_user.latitude|safe }}, {{ current_user.longitude|safe }}]
+                    coordinates: [{{ current_user.latitude }}, {{ current_user.longitude }}]
                 },
                 properties: {
                     iconCaption: 'Я',
@@ -65,6 +65,135 @@
             myMap.geoObjects.add(userGeoObject).add(myGeoObject);
         }
     </script>
+
+
+<script>
+    var new_tag_edited = false;
+
+    function submitTag(el) {
+        let input = el.querySelector("input");
+        try {
+            var data = input.value.trim();
+        } catch (error) {
+            return;
+        }
+        if (!data) {
+            el.remove();
+        }
+        input.remove();
+        el.classList.remove("active-tag");
+        el.classList.remove("new-tag");
+        if (new_tag_edited) {
+            let del_btn = document.createElement("div");
+            del_btn.classList.add("del_btn");
+            el.appendChild(del_btn);
+            tagListener(el);
+            createNewTag();
+            new_tag_edited = false;
+        }
+        el.querySelector("span").innerHTML = "#" + replaceAllSymbols(data);
+    }
+
+    function createNewTag() {
+        let new_tag = document.createElement("div");
+        let span = document.createElement("span");
+        let tags_area = document.getElementById("tags");
+
+        span.innerHTML = "# ";
+        new_tag.classList.add("tag");
+        new_tag.classList.add("new-tag");
+        new_tag.appendChild(span);
+        let input_elem = createElementFromHTML(
+            '<input type="text" list="tag" placeholder="Поиск..." oninput="changeTagDatalist(this);" autocomplete="off">'
+        );
+        new_tag.appendChild(input_elem);
+
+        tags_area.appendChild(new_tag);
+        tagListener(new_tag);
+        new_tag.querySelector("input").focus();
+        return new_tag;
+    }
+
+    function tagListener(el) {
+        el.addEventListener("click", function(e) {
+            if (!el.classList.contains("active-tag") && !el.classList.contains("new-tag")) {
+                let active = document.querySelector(".active-tag");
+                if (active) {
+                    submitTag(active);
+                }
+                el.classList.add("active-tag");
+                let span = el.querySelector("span");
+                let data = replaceAllSymbols(span.innerHTML.split("#")[1]);
+                span.innerHTML = "# ";
+                let input = document.createElement("input");
+                input.setAttribute("value", data);
+                el.appendChild(input);
+            }
+        });
+        el.addEventListener("input", function(e) {
+            if (el.classList.contains("new-tag")) {
+                new_tag_edited = true;
+            }
+            if (el.classList.contains("new-tag") && el.querySelector("input").value == "") {
+                new_tag_edited = false;
+            }
+            if (e.data === " ") {
+                submitTag(el);
+            }
+        });
+        el.addEventListener("keypress", function(e) {
+            let code = e.keyCode || e.which;
+            if (code === 13) {
+                if ((document.querySelector(".search-tags .new-tag") && document.querySelector(".new-tag input").value) || el.classList.contains("active-tag"))
+                    submitTag(el);
+            }
+        });
+        try {
+            el.querySelector(".del_btn").addEventListener("click", function(e) {
+                el.remove();
+            });
+        } catch {
+        }
+    }
+
+    function editTag() {
+        document.addEventListener("click", function(e) {
+            let active_tag = document.querySelector(".active-tag");
+            if (active_tag) {
+                if (!(e.target == active_tag || active_tag.contains(e.target))) {
+                    submitTag(active_tag);
+                }
+            }
+        });
+        document.querySelectorAll(".interests .tag").forEach(el => {
+            tagListener(el);
+        });
+    }
+
+    var tags = {
+        edit: function() {
+            document.querySelectorAll(".search-tags .tag").forEach(el => {
+                let del_btn = document.createElement("div");
+                del_btn.classList.add("del_btn");
+                el.appendChild(del_btn);
+            });
+            // change_tag_btn.innerHTML = "&#10004;";
+            createNewTag();
+            editTag();
+            // change_tag = true;
+        },
+        submit: function() {
+            document.querySelectorAll(".search-tags .tag").forEach(el => {
+                try {
+                    el.querySelector(".search-tags .del_btn").remove();
+                } catch (error) {
+                }
+            });
+            document.querySelector(".search-tags .new-tag").remove();
+        }
+    };
+</script>
+
 {% endblock %}
 
 {% block content %}
@@ -75,7 +204,7 @@
                 <figure>
                     <div>
                         {% if main_photo %}
-                            <img src="{{ main_photo|safe }}" class="main" alt="profile picture">
+                            <img src="{{ main_photo }}" class="main" alt="profile picture">
                         {% else %}
                             <img src="{% static 'img/default.png' %}" alt="default profile picture">
                         {% endif %}
@@ -83,39 +212,40 @@
                     <div id="connection"><span class="{% if last_online == "online" %}green{% else %}red{% endif %}"></span>{{ last_online }}</div>
                 </figure>
                 <figcaption>
-                    <div id="username">{{ username|safe }}</div>
-                    <div id="rating">Рейтинг: <span>{{ rating|safe }}&#9733;</span></div>
+                    <div id="username">{{ username }}</div>
+                    <div id="rating">Рейтинг: <span>{{ rating }}&#9733;</span></div>
                     <div id="name">
-                        <span id="firstname">{{ first_name|safe }} </span>
-                        <span id="lastname">{{ last_name|safe }}</span>
+                        <span id="firstname">{{ first_name }} </span>
+                        <span id="lastname">{{ last_name }}</span>
                     </div>
                 </figcaption>
                 <figcaption id="second_caption">
                     <div id="age">Дата рождения:
                         <input  type="hidden" id="date-picker" name="trip-start"
-                        value="{{ date_of_birth|safe }}" placeholder="2004-12-31"
+                        value="{{ date_of_birth }}"
+                        placeholder="2004-12-31"
                         min="1945-01-01" max="2004-12-31" required>
-                        <span>{{ age|safe }}</span><span> лет</span>
+                        <span>{{ age }}</span><span> лет</span>
                     </div>
-                    <div id="gender">Пол: <span>{{ gender|safe }}</span></div>
+                    <div id="gender">Пол: <span>{{ gender }}</span></div>
                     <div id="orientation">
                         <span class="gray">Ориентация: </span>
-                        <span id="orientation-data">{{ orientation|safe }}</span>
+                        <span id="orientation-data">{{ orientation }}</span>
                     </div>
                     <div id="location">
                         <span class="gray">Локация: </span>
-                        <span id="location-data">{{ location|safe }}</span>
+                        <span id="location-data">{{ location }}</span>
                     </div>
                 </figcaption>
                 <section class="user-data">
-                    <div class="mt-20">Инфо:</br><span id="history">{{ info|safe }}</span></div>
+                    <div class="mt-20">Инфо:</br><span id="history">{{ info }}</span></div>
                 </section>
                 <section class="interests">
                     <div id="tags">
                         <p class="white">Интересы:</p>
                         {% for tag in tags %}
                             <div class="tag">
-                                <span>#{{ tag|safe }}</span>
+                                <span>#{{ tag }}</span>
                             </div>
                         {% endfor %}
                     </div>
@@ -126,7 +256,7 @@
                         <div style="flex-wrap: wrap;">
                             {% for photo in photos %}
                                 <div>
-                                    <img class="for-push" src="{{ photo|safe }}">
+                                    <img class="for-push" src="{{ photo }}">
                                 </div>
                             {% endfor %}
                         </div>

@@ -5,8 +5,10 @@
 {% block content %}
     {{ block.super }}
     <section class="content">
-        <div class="center" style="margin: 85px auto; max-width: 80%;">
-            <p class="white">An error happened: {{ exception }} (403)</p>
+        <div class="white" style="display: -webkit-box;">
+            <section style="position: relative;margin-top: 80px;margin-left: 90px;">
+                <p class="white">Случилась ошибка: {{ exception }} (400)</p>
+            </section>
         </div>
     </section>
 {% endblock %}

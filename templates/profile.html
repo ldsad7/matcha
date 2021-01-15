@@ -26,7 +26,7 @@
                 <figure>
                     <div>
                         {% if main_photo %}
-                            <img src="{{ main_photo|safe }}" class="main" alt="profile picture">
+                            <img src="{{ main_photo }}" class="main" alt="profile picture">
                         {% else %}
                             <img src="{% static 'img/default.png' %}" alt="default profile picture">
                         {% endif %}
@@ -38,33 +38,34 @@
 
                 </figure>
                 <figcaption>
-                    <div id="username">{{ username|safe }}</div>
+                    <div id="username">{{ username }}</div>
                     <div id="email">
-                        E-mail: <span id="email_value">{{ email|safe }}</span>
-                        <input style="display: none;" type="text" id="email_input" value="{{ email|safe }}">
+                        E-mail: <span id="email_value">{{ email }}</span>
+                        <input style="display: none;" type="text" id="email_input" value="{{ email }}">
                     </div>
                     <div id="name">
-                        <span id='firstname'>{{ first_name|safe }} </span><span id='lastname'>{{ last_name|safe }}</span>
-                        <input style="display: none;" type="text" id="first_name" value="{{ first_name|safe }}">
-                        <input style="display: none;" type="text" id="last_name" value="{{ last_name|safe }}">
+                        <span id='firstname'>{{ first_name }} </span><span id='lastname'>{{ last_name }}</span>
+                        <input style="display: none;" type="text" id="first_name" value="{{ first_name }}">
+                        <input style="display: none;" type="text" id="last_name" value="{{ last_name }}">
                     </div>
-                    <div id="rating">Рейтинг: <span>{{ rating|safe }}&#9733;</span></div>
+                    <div id="rating">Рейтинг: <span>{{ rating }}&#9733;</span></div>
                 </figcaption>
                 <figcaption id="second_caption">
                     <div id="age">Возраст:
                         <input  type="hidden" id="date-picker" placeholder="2004-12-31"
-                        name="trip-start" value="{{ date_of_birth|safe }}"
+                        name="trip-start"
+                        value="{{ date_of_birth }}"
                         min="1945-01-01" max="2004-12-31" required>
-                        <span>{{ age|safe }}</span><span> лет</span></div>
-                    <div id="gender">Пол: <span>{{ gender|safe }}</span>
+                        <span>{{ age }}</span><span> лет</span></div>
+                    <div id="gender">Пол: <span>{{ gender }}</span>
                         <select id="selectGender" style="display: none;">
                             <option value="мужской">М</option>
                             <option value="женский">Ж</option>
                             <option value="неизвестно">Неизвестно</option>
                         </select>
                     </div>
-                    <div id="orientation"><span class="gray">Ориентация: </span><span id="orientation-data">{{ orientation|safe }}</span>
-                        <!-- <div id="orientation">Ориентация: <span>{{ orientation|safe }}</span> -->
+                    <div id="orientation"><span class="gray">Ориентация: </span><span id="orientation-data">{{ orientation }}</span>
+                        <!-- <div id="orientation">Ориентация: <span>{{ orientation }}</span> -->
                         <select id="selectOrientation" style="display: none;">
                             <option value="гетеросексуальность">Гетеро</option>
                             <option value="гомосексуальность">Гомо</option>
@@ -74,7 +75,7 @@
                     </div>
                     <div id="location">
                         <span class="gray">Локация: </span>
-                        <span id="location-data">{{ location|safe }}</span>
+                        <span id="location-data">{{ location }}</span>
                         <input style="display: none;" type="text" id="selectLocation" list="locat" oninput="changeAvitoDatalist(this);" autocomplete="off">
                         <datalist id="locat">
                             <option value="Москва"></option>
@@ -84,17 +85,22 @@
                     </div>
                 </figcaption>
                 <section class="user-data">
-                    <div class="mt-20">Инфо:</br><span id="history">{{ info|safe }}</span></div>
+                    <div class="mt-20">Инфо:</br><span id="history">{{ info }}</span></div>
                 </section>
                 <section class="interests">
                     <div id="tags">
                         <p class="white">Интересы:</p>
                         {% for tag in tags %}
                             <div class="tag">
-                                <span>#{{ tag|safe }}</span>
+                                <span>#{{ tag }}</span>
                             </div>
                         {% endfor %}
                     </div>
+                    <datalist id="tag">
+                        <option value="любовь"></option>
+                        <option value="семья"></option>
+                        <option value="дом"></option>
+                    </datalist>
                 </section>
                 <section class="images">
                     <p class="white">Фото:</p>
@@ -103,7 +109,7 @@
                             <img id="output" style="display: none;">
                             {% for photo in photos %}
                                 <div>
-                                    <img src="{{ photo|safe }}">
+                                    <img src="{{ photo }}">
                                 </div>
                             {% endfor %}
                             <img id="output" style="display: none;">
@@ -134,6 +140,3 @@
     <script src="{% static 'js/changeEmail.js' %}"></script>
     <!-- endif -->
 {% endblock %}
-
-
-</html>

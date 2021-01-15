@@ -22,7 +22,7 @@ function submitTag(el) {
         createNewTag();
         new_tag_edited = false;
     }
-    el.querySelector("span").innerHTML = "#" + data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    el.querySelector("span").innerHTML = "#" + replaceAllSymbols(data);
 }
 
 function createNewTag() {

@@ -10,6 +10,6 @@ var _email = {
     },
     submit: function() {
         this.email_input.style.display = "none";
-        this.email_value.innerHTML = this.email_input.value.trim().replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        this.email_value.innerHTML = replaceAllSymbols(this.email_input.value.trim());
     }
 }

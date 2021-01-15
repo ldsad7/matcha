@@ -26,7 +26,7 @@ var image = {
             main_image_src = img.getAttribute("src");
             document.querySelector("figure div").appendChild(img);
             if (!del)
-                el.addEventListener("click", (e) => swapImages(img));
+                el.addEventListener("click", (e) => image.swapImages(img));
             else {
                 el.remove();
             }
@@ -37,8 +37,8 @@ var image = {
         _image.file = event.target.files[0];
 
         // console.log("Size: " + _image.file.size + " bytes");
-        if (_image.file.size > 26214400) {
-            console.log("File is too big (> 25Mb)...")
+        if (_image.file &&_image.file.size > 26214400) {
+            alert("File is too big (> 25Mb)...")
             return;
         }
         // console.log("Filename: " + _image.file.name);
@@ -72,7 +72,7 @@ var image = {
             if (file_type !== "unknown") {
                 myCallback();
             } else {
-                console.log("Incorrect extension...")
+                alert("Incorrect extension...")
             }
         };
         fileReader.readAsArrayBuffer(_image.file);
@@ -96,9 +96,9 @@ var image = {
             div.appendChild(createDelBlock());
 
             if (!document.querySelector(".main")) {
-                this.func(output, true);
+                image.func(output, true);
             } else {
-                // output.addEventListener("click", (e) => this.func(e.target));
+                output.addEventListener("click", (e) => image.func(e.target));
             }
             if (document.querySelectorAll(".img-area div div img").length < 4) {
                 let tmp = document.createElement("img");

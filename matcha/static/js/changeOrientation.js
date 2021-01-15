@@ -11,7 +11,7 @@ var orientat = {
         this.changeOrientation.style.display = "inline-block";
     },
     submit: function() {
-        this.span.innerHTML = this.changeOrientation.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        this.span.innerHTML = replaceAllSymbols(this.changeOrientation.value);
         this.changeOrientation.querySelectorAll("option").forEach(opt => {
             opt.removeAttribute("selected");
         });

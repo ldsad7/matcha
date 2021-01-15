@@ -59,7 +59,7 @@
             <figure>
                 <div>
                     {% if user.main_photo %}
-                        <img src="{{ user.main_photo|safe }}" class="main" alt="profile picture">
+                        <img src="{{ user.main_photo }}" class="main" alt="profile picture">
                     {% else %}
                         <img src="{% static 'img/default.png' %}" alt="default profile picture">
                     {% endif %}
@@ -72,17 +72,17 @@
                 </div>
             </figure>
             <section class="user-data">
-                <div id="username"><span>{{ user.username|safe }}</span></div>
+                <div id="username"><span>{{ user.username }}</span></div>
                 <div id="name">
-                    <span>{{ user.first_name|safe }} {{ user.last_name|safe }}</span>
+                    <span>{{ user.first_name }} {{ user.last_name }}</span>
                 </div>
                 <div id="age" class="age">Возраст: <span>{{ user.age }}</span></div><br/>
-                <div id="rating">Рейтинг: <span class="rating">{{ user.rating|safe }}&#9733;</span></div><br/>
-                <div class="location" style="margin-left:10px;line-height:20px;display:inline-block">Местоположение: <span>{{ user.location|safe }}</span></div>
+                <div id="rating">Рейтинг: <span class="rating">{{ user.rating }}&#9733;</span></div><br/>
+                <div class="location" style="margin-left:10px;line-height:20px;display:inline-block">Местоположение: <span>{{ user.location }}</span></div>
                 <div style="margin-left: 10px;">
                     {% if user.info %}
                         {% comment %}<button id="show-more">показать полностью</button>{% endcomment %}
-                        <div id="history" class="short-history">Инфо: {{ user.info|safe }}</div>
+                        <div id="history" class="short-history">Инфо: {{ user.info }}</div>
                     {% endif %}
                 </div>
                 {% if user.tags %}

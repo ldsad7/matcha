@@ -62,12 +62,12 @@
                     <div id="chats-area" style="margin: 0 0 20px;">
                         <a href="/profiles/{{ notification.user_id }}" class="card-chat">
                             {% if notification.image %}
-                                <img src="{{ notification.image|safe }}" class="main avatar" alt="profile picture">
+                                <img src="{{ notification.image }}" class="main avatar" alt="profile picture">
                             {% else %}
                                 <img src="{% static 'img/default.png' %}" class="avatar" alt="default profile picture">
                             {% endif %}
                             <div class="card-chat-info" style="width:100%;">
-                                <span style="padding:10px;">{{ notification.message|safe }}</span>
+                                <span style="padding:10px;">{{ notification.message }}</span>
                                 <span style="padding:10px;">{{ notification.created }}</span>
                             </div>
                         </a>

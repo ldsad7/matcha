@@ -18,12 +18,12 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
-    'rating_sync': {
-        'task': 'matcha.tasks.sync_rating',
-        'schedule': crontab(hour='*', minute='*')  # /15
-    },
+    # 'rating_sync': {
+    #     'task': 'matcha.tasks.sync_rating',
+    #     'schedule': crontab(hour='*', minute='*')  # /15
+    # },
     'reflexive_rating_sync': {
         'task': 'matcha.tasks.sync_relfexive_rating',
-        'schedule': crontab(hour='*', minute='*')  # /15
+        'schedule': crontab(hour='*', minute='*/5')
     }
 }

@@ -17,7 +17,7 @@ echo '\033[32mcopying large or secret files into our folder...\033[0m'
 cp ~/local_settings.py $scriptpath/$site_name
 
 echo '\033[32mcreating venv myvenv...\033[0m'
-if [ ! -d "myvenve" ]; then
+if [ ! -d "myvenv" ]; then
     $py -m venv myvenv
 fi
 
@@ -26,8 +26,6 @@ source ./myvenv/bin/activate
 
 echo '\033[32minstalling necessary libraries...\033[0m'
 $py -m pip install -r requirements.txt
-brew update
-brew install libmaxminddb
 
 echo '\033[32mlaunching mysql...\033[0m'
 mysqld_safe --skip-grant-tables

@@ -6,13 +6,13 @@ var hist = {
         this.textArea = document.createElement("textarea"),
         this.history = document.getElementById("history"),
         this.textArea.setAttribute("id", "textArea");
-        this.textArea.innerHTML = this.history.innerHTML.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        this.textArea.innerHTML = this.history.innerHTML;
         this.history.innerHTML = "";
         this.history.appendChild(this.textArea);
         autosize(this.textArea);
     },
     submit: function() {
-        this.history.innerHTML = this.textArea.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        this.history.innerHTML = replaceAllSymbols(this.textArea.value);
         this.textArea.remove();
     }
 }
@@ -119,7 +119,7 @@ document.getElementById("change-profile-data").addEventListener("click", functio
             }
         });
 
-        const tag_names = [...$(".tag span")].map(el => { return el.textContent.replace(/</g, "&lt;").replace(/>/g, "&gt;") });
+        const tag_names = [...$(".tag span")].map(el => { return replaceAllSymbols(el.textContent) });
 
         csrftoken = getCookie('csrftoken');
         $.ajax({
@@ -131,14 +131,14 @@ document.getElementById("change-profile-data").addEventListener("click", functio
             url: "/api/v1/users/" + user_id + "/",
             type: "PATCH",
             data: JSON.stringify({
-                "first_name": $("#first_name").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"),
-                "last_name": $("#last_name").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"),
-                "date_of_birth": $("#date-picker").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"),
-                "gender": $("#selectGender option:checked").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"),
-                "orientation": $("#selectOrientation option:checked").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"),
-                "location": $("#selectLocation").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"),
-                "info": $("#textArea").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"),
-                "email": $("#email_input").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"),
+                "first_name": replaceAllSymbols($("#first_name").val()),
+                "last_name": replaceAllSymbols($("#last_name").val()),
+                "date_of_birth": replaceAllSymbols($("#date-picker").val()),
+                "gender": replaceAllSymbols($("#selectGender option:checked").val()),
+                "orientation": replaceAllSymbols($("#selectOrientation option:checked").val()),
+                "location": replaceAllSymbols($("#selectLocation").val()),
+                "info": replaceAllSymbols($("#textArea").val()),
+                "email": replaceAllSymbols($("#email_input").val()),
                 "tags": tag_names
             })
         });

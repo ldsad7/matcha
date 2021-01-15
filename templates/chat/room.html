@@ -28,7 +28,7 @@
         <a href="/profiles/{{ interlocutor.id }}" class="chat-user-info">
             <div style="display: flex; align-items: center;">
                 {% if interlocutor.main_photo %}
-                    <img src="{{ interlocutor.main_photo|safe }}" class="main avatar" alt="profile picture">
+                    <img src="{{ interlocutor.main_photo }}" class="main avatar" alt="profile picture">
                 {% else %}
                     <img src="{% static 'img/default.png' %}" class="avatar" alt="default profile picture">
                 {% endif %}
@@ -38,7 +38,7 @@
                     </span>
                 </div>
                 <div style="display: flex; width: 100%;  justify-content: left;">
-                    <span class="username">{% if interlocutor.first_name and interlocutor.last_name %}{{ interlocutor.first_name|safe }} {{ interlocutor.last_name|safe }} ({{ interlocutor.username|safe }}){% else %}{{ interlocutor.username|safe }}{% endif %}</span>
+                    <span class="username">{% if interlocutor.first_name and interlocutor.last_name %}{{ interlocutor.first_name }} {{ interlocutor.last_name }} ({{ interlocutor.username }}){% else %}{{ interlocutor.username }}{% endif %}</span>
                 </div>
             </div>
         </a>
@@ -102,7 +102,7 @@
             let newBlockMessage = document.createElement("div");
 
             if (from !== "you :") {newBlockMessage.classList.add("aqua-border")}
-            newBlockMessage.innerHTML = `<p class="from">${from.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>`;
+            newBlockMessage.innerHTML = `<p class="from">${replaceAllSymbols(from)}</p>`;
             newBlockMessage.classList.add("block-message");
             return newBlockMessage;
         }
@@ -111,7 +111,7 @@
             let newBlockMessage = document.createElement("div");
 
             newBlockMessage.classList.add("date-block");
-            newBlockMessage.innerHTML = `<span class="day">${day}</span> ${month.replace(/</g, "&lt;").replace(/>/g, "&gt;")} ${year}`
+            newBlockMessage.innerHTML = `<span class="day">${day}</span> ${replaceAllSymbols(month)} ${year}`
 
             return newBlockMessage;
         }
@@ -201,7 +201,7 @@
                 }
             }
             newMessage.classList.add("data-message");
-            newMessage.innerHTML = `<span>${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</span><span class="message-date">${created.time.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</span>`;
+            newMessage.innerHTML = `<span>${replaceAllSymbols(message)}</span><span class="message-date">${replaceAllSymbols(created.time)}</span>`;
             if ((isLastMessageFromEnemy || !(lastMessageBlock) ||
                 lastDate.textContent !== (created.day + " " + created.month + " " + created.year))
                 && messageFromId === {{ global_user.id }}) {

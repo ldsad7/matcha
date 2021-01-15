@@ -13,7 +13,7 @@ from dating_site.settings import MEDIA_PREFIX
 
 from matcha.models import User, UserPhoto, UserTag, Tag, UsersConnect, UsersFake, UsersBlackList, Notification
 
-NUM_OF_USERS = 500
+NUM_OF_USERS = 515
 # Faker.seed(0)
 fake = Faker('ru_RU')
 

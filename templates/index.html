@@ -38,14 +38,14 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/autosize.min.js' %}"></script>
-    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey={{ api_key }}" type="text/javascript"></script>
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=74b2ed32-1340-405d-be18-ab91a877defe" type="text/javascript"></script>
     <script>
         ymaps.ready(init);
 
         function init () {
             let myMap;
             myMap = new ymaps.Map('map', {
-                center: [{{ current_user.latitude|safe }}, {{ current_user.longitude|safe }}],
+                center: [{{ current_user.latitude }}, {{ current_user.longitude }}],
                 zoom: 10
             }, {
                 searchControlProvider: 'yandex#search'
@@ -55,7 +55,7 @@
                 userGeoObject = new ymaps.GeoObject({
                     geometry: {
                         type: "Point",
-                        coordinates: [{{ user.latitude|safe }}, {{ user.longitude|safe }}]
+                        coordinates: [{{ user.latitude }}, {{ user.longitude }}]
                     },
                     properties: {
                         iconContent: '{{ user.username }}',
@@ -72,7 +72,7 @@
             let myGeoObject = new ymaps.GeoObject({
                 geometry: {
                     type: "Point",
-                    coordinates: [{{ current_user.latitude|safe }}, {{ current_user.longitude|safe }}]
+                    coordinates: [{{ current_user.latitude }}, {{ current_user.longitude }}]
                 },
                 properties: {
                     iconCaption: 'Я',
@@ -120,7 +120,7 @@
                         <option value="Московская Область"></option>
                     </datalist>
                 </div>
-                <div class="interests">
+                <div class="interests" style="width:50%;">
                     <div class="rating-gap-title">Интересы <div class="arrow-down" id="sort-down-tags"></div><div class="arrow-up" id="sort-up-tags"></div></div>
                     <div id="tags" class="search-tags"></div>
                     <datalist id="tag">
@@ -147,7 +147,6 @@
 {% block body_scripts %}
     {{ block.super }}
     <script>
-
         document.querySelectorAll(".arrow-up").forEach(
             arrow => arrow.addEventListener("click", function(e) {
                 let initial_value = e.target.getAttribute("class");
@@ -218,7 +217,7 @@
                         el.classList.remove("active-tag");
                         el.classList.remove("new-tag");
                         tagListener(el);
-                        el.querySelector("span").innerHTML = "#" + tag.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                        el.querySelector("span").innerHTML = "#" + replaceAllSymbols(tag);
                     }
                 }
                 let sort = getParameterByName('sort');
@@ -262,7 +261,7 @@
                 createNewTag();
                 new_tag_edited = false;
             }
-            el.querySelector("span").innerHTML = "#" + data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            el.querySelector("span").innerHTML = "#" + replaceAllSymbols(data);
         }
 
         function createNewTag() {
@@ -294,7 +293,7 @@
                     }
                     el.classList.add("active-tag");
                     let span = el.querySelector("span");
-                    let data = span.innerHTML.split("#")[1].replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    let data = replaceAllSymbols(span.innerHTML.split("#")[1]);
                     span.innerHTML = "# ";
                     let input = document.createElement("input");
                     input.setAttribute("value", data);
