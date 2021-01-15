@@ -1,4 +1,4 @@
-const datalist = document.getElementById("locat");
+const avitoDatalist = document.getElementById("locat");
 
 function clearDatalist() {
     document.querySelectorAll("#locat option").forEach(el => {
@@ -15,13 +15,13 @@ function callAvitoApi(value) {
                 const name = obj["names"]["1"];
                 const newEl = document.createElement("option");
                 newEl.setAttribute("value", name);
-                datalist.appendChild(newEl);
+                avitoDatalist.appendChild(newEl);
             });
         }
     });
 }
 
-function changeDatalist(e) {
+function changeAvitoDatalist(e) {
     var res = e.value;
     setTimeout((res) => {
         if (e.value === res)

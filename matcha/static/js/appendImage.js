@@ -98,7 +98,7 @@ var image = {
             if (!document.querySelector(".main")) {
                 this.func(output, true);
             } else {
-                output.addEventListener("click", (e) => this.func(e.target));
+                // output.addEventListener("click", (e) => this.func(e.target));
             }
             if (document.querySelectorAll(".img-area div div img").length < 4) {
                 let tmp = document.createElement("img");

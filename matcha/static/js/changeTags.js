@@ -60,7 +60,7 @@ function tagListener(el) {
         if (el.classList.contains("new-tag")) {
             new_tag_edited = true;
         }
-        if (el.classList.contains("new-tag") && el.querySelector("input").value == "") {
+        if (el.classList.contains("new-tag") && el.querySelector("input").value === "") {
             new_tag_edited = false;
         }
         if (e.data === " ") {

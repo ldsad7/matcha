@@ -40,4 +40,5 @@ urlpatterns = [
     path('messages/<int:id>/', views.messages_detail, name='messages'),
 
     path('location/', views.get_locations, name='location'),
+    path('tag/', views.get_tags, name='tag'),
 ]

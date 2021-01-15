@@ -11,7 +11,7 @@ from django.core.exceptions import PermissionDenied
 from dating_site.settings import PAGE_SIZE
 from matcha.filters import filter_name
 from matcha.models import UsersConnect, User, Message
-from matcha.serializers import UserReadSerializer, ShortUserSerializer, MessageSerializer
+from matcha.serializers import UserReadSerializer, ShortUserSerializer
 from matcha.tasks import ignore_only_blocked_and_faked_users_bidir
 
 

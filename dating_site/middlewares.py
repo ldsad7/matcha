@@ -85,11 +85,13 @@ class CustomMiddleware:
                     user_2_id = int(user_2_id)
                 except ValueError:
                     raise Http404(f"Пользователя с данным id ({user_2_id}) не существует в базе")
+                if User.objects_.get(id=user_2_id) is None:
+                    raise Http404(f"Пользователя с данным id ({user_2_id}) не существует в базе")
                 if user_1_id != user_2_id:
                     if method == 'GET':
                         Notification(
                             user_1_id=user_1_id,
-                            user_2_id=path.split('/')[-2],
+                            user_2_id=user_2_id,
                             type=Notification.PROFILE
                         ).save()
 

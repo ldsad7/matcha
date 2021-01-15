@@ -190,7 +190,7 @@
                 let user_ids = [];
                 let users_connect_ids = [];
                 {% for user in users %}
-                    user_ids.push({{ global_user.id }});
+                    user_ids.push({{ user.id  }});
                     users_connect_ids.push({{ user.users_connect_id }});
                 {% endfor %}
                 csrftoken = getCookie('csrftoken');
@@ -198,7 +198,7 @@
                     {% if type == "likes" %}
                         {% if can_like %}
                         document.getElementById("act-like-" + i).addEventListener("click", function (e) {
-                            if (user_ids[i] !== {{ global_user.id }}) {
+                            if (user_ids[i] !== user_id) {
                                 $.ajax({
                                     headers: {
                                         'Content-Type': 'application/json',
@@ -207,7 +207,7 @@
                                     url: "/api/v1/user_connects/",
                                     type: "POST",
                                     data: JSON.stringify({
-                                        "user_1_id": {{ global_user.id }},
+                                        "user_1_id": user_id,
                                         "user_2_id": user_ids[i],
                                         "type": 'плюс'
                                     })
@@ -215,7 +215,7 @@
                             }
                         });
                         document.getElementById("act-dislike-" + i).addEventListener("click", function (e) {
-                            if (user_ids[i] !== {{ global_user.id }}) {
+                            if (user_ids[i] !== user_id) {
                                 $.ajax({
                                     headers: {
                                         'Content-Type': 'application/json',
@@ -224,7 +224,7 @@
                                     url: "/api/v1/user_connects/",
                                     type: "POST",
                                     data: JSON.stringify({
-                                        "user_1_id": {{ global_user.id }},
+                                        "user_1_id": user_id,
                                         "user_2_id": user_ids[i],
                                         "type": 'минус'
                                     })
@@ -235,7 +235,7 @@
                     {% elif type == "connects" %}
                         let chat_button = null;
                         document.getElementById("like-button-" + i).addEventListener("click", function (e) {
-                            if (user_ids[i] !== {{ global_user.id }}) {
+                            if (user_ids[i] !== user_id) {
                                 let prev_text = $(this).text();
                                 let type = '';
                                 if (prev_text === "Like") {
@@ -245,8 +245,10 @@
                                     chat_button = createElementFromHTML('<button id="chat-button-' + i + '" style="background-color: rgb(69, 199, 69);width: 100px;">Chat</button>');
                                     $(this).parent().append(chat_button);
                                     chat_button.addEventListener("click", function (e) {
-                                        if (user_ids[i] !== {{ global_user.id }}) {
-                                            window.location.href = "/chat/" + {{ global_user.id }} + "_" + user_ids[i] + "/";
+                                        if (user_ids[i] !== user_id) {
+                                            let ids = [user_id.toString(), user_ids[i].toString()];
+                                            ids.sort();
+                                            window.location.href = "/chat/" + ids[0] + "_" + ids[1] + "/";
                                         }
                                     });
                                 } else {
@@ -274,8 +276,8 @@
                         chat_button = document.getElementById("chat-button-" + i);
                         if (chat_button) {
                             chat_button.addEventListener("click", function (e) {
-                                if (user_ids[i] !== {{ global_user.id }}) {
-                                    let ids = [{{ global_user.id }}.toString(), user_ids[i].toString()];
+                                if (user_ids[i] !== user_id) {
+                                    let ids = [user_id.toString(), user_ids[i].toString()];
                                     ids.sort();
                                     window.location.href = "/chat/" + ids[0] + "_" + ids[1] + "/";
                                 }
@@ -283,7 +285,7 @@
                         }
                     {% endif %}
                     document.getElementById("btn-report-" + i).addEventListener("click", function (e) {
-                        if (user_ids[i] !== {{ global_user.id }}) {
+                        if (user_ids[i] !== user_id) {
                             $.ajax({
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -292,14 +294,14 @@
                                 url: "/api/v1/user_fakes/",
                                 type: "POST",
                                 data: JSON.stringify({
-                                    "user_1_id": {{ global_user.id }},
+                                    "user_1_id": user_id,
                                     "user_2_id": user_ids[i]
                                 })
                             });
                         }
                     });
                     document.getElementById("btn-block-" + i).addEventListener("click", function (e) {
-                        if (user_ids[i] !== {{ global_user.id }}) {
+                        if (user_ids[i] !== user_id) {
                             $.ajax({
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -308,7 +310,7 @@
                                 url: "/api/v1/user_blacklists/",
                                 type: "POST",
                                 data: JSON.stringify({
-                                    "user_1_id": {{ global_user.id }},
+                                    "user_1_id": user_id,
                                     "user_2_id": user_ids[i]
                                 })
                             });

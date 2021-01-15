@@ -35,12 +35,66 @@
     }
 {% endblock %}
 
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/autosize.min.js' %}"></script>
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey={{ api_key }}" type="text/javascript"></script>
+    <script>
+        ymaps.ready(init);
+
+        function init () {
+            let myMap;
+            myMap = new ymaps.Map('map', {
+                center: [{{ current_user.latitude|safe }}, {{ current_user.longitude|safe }}],
+                zoom: 10
+            }, {
+                searchControlProvider: 'yandex#search'
+            });
+
+            {% for user in users %}
+                userGeoObject = new ymaps.GeoObject({
+                    geometry: {
+                        type: "Point",
+                        coordinates: [{{ user.latitude|safe }}, {{ user.longitude|safe }}]
+                    },
+                    properties: {
+                        iconContent: '{{ user.username }}',
+                    }
+                }, {
+                    preset: 'islands#blackStretchyIcon'
+                });
+                userGeoObject.events.add(['click'], function (e) {
+                    window.location.href = "/profiles/{{ user.id }}/";
+                });
+                myMap.geoObjects.add(userGeoObject);
+            {% endfor %}
+
+            let myGeoObject = new ymaps.GeoObject({
+                geometry: {
+                    type: "Point",
+                    coordinates: [{{ current_user.latitude|safe }}, {{ current_user.longitude|safe }}]
+                },
+                properties: {
+                    iconCaption: 'Я',
+                }
+            }, {
+                preset: 'islands#blueCircleDotIconWithCaption'
+            });
+            myGeoObject.events.add(['click'], function (e) {
+                window.location.href = "/profiles/{{ current_user.id }}/";
+            });
+
+            myMap.geoObjects.add(myGeoObject);
+        }
+    </script>
+{% endblock %}
+
 {% block content %}
     {{ block.super }}
     <section class="content">
         <div class="center">
             {% if global_user.is_authenticated %}
-            <div class="search-data display-flex" style="margin:80px 0 0 60px;">
+            <div class="search-data display-flex" style="margin:80px 0 20px 60px;">
                 <div class="age-gap">
                     <div class="age-gap-title">Возраст <div class="arrow-down" id="sort-down-age"></div><div class="arrow-up" id="sort-up-age"></div></div>
                     <span>От:</span>
@@ -59,7 +113,7 @@
                 </div>
                 <div class="location">
                     <div class="location-gap-title">Местоположение <div class="arrow-down" id="sort-down-location"></div><div class="arrow-up" id="sort-up-location"></div></div>
-                    <input type="text" id="selectLocation" list="locat" placeholder="Поиск..." oninput="changeDatalist(this);"  autocomplete="off">
+                    <input type="text" id="selectLocation" list="locat" placeholder="Поиск..." oninput="changeAvitoDatalist(this);"  autocomplete="off">
                     <datalist id="locat">
                         <option value="Москва"></option>
                         <option value="Москва и МО"></option>
@@ -69,9 +123,19 @@
                 <div class="interests">
                     <div class="rating-gap-title">Интересы <div class="arrow-down" id="sort-down-tags"></div><div class="arrow-up" id="sort-up-tags"></div></div>
                     <div id="tags" class="search-tags"></div>
+                    <datalist id="tag">
+                        <option value="любовь"></option>
+                        <option value="семья"></option>
+                        <option value="дом"></option>
+                    </datalist>
                 </div>
                 <button id="search_button" style="align-self: flex-end;padding: 5px;border-radius: 20px; margin-right:0;">Искать</button>
             </div>
+            <section style="margin: 20px 0 20px 60px;padding: 20px;background-color: #1d1d1d;width: 64rem;max-width: 80%;min-height: 250px;overflow: hidden;">
+                <section class="map" style="margin: 10px;">
+                    <div id="map" style="height:450px;"></div>
+                </section>
+            </section>
             {% endif %}
             <div style="width: 90%;">
                 {% include "cards.html" with type="likes" %}
@@ -156,7 +220,6 @@
                         tagListener(el);
                         el.querySelector("span").innerHTML = "#" + tag.replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     }
-                    tags.edit();
                 }
                 let sort = getParameterByName('sort');
                 if (sort) {
@@ -172,6 +235,7 @@
             } catch (error) {
                 console.log("search filters error happened: " + error);
             }
+            tags.edit();
         });
         {% endif %}
 
@@ -210,7 +274,11 @@
             new_tag.classList.add("tag");
             new_tag.classList.add("new-tag");
             new_tag.appendChild(span);
-            new_tag.appendChild(document.createElement("input"));
+            let input_elem = createElementFromHTML(
+                '<input type="text" list="tag" placeholder="Поиск..." oninput="changeTagDatalist(this);" autocomplete="off">'
+            );
+            new_tag.appendChild(input_elem);
+
             tags_area.appendChild(new_tag);
             tagListener(new_tag);
             new_tag.querySelector("input").focus();

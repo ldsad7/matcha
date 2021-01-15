@@ -4,7 +4,7 @@ var _location = {
         this.span = document.getElementById("location-data");
 
         this.changeLocation.style.display = "inline-block";
-        this.changeLocation.value = this.span.innerHTML;
+        this.changeLocation.value = this.span.textContent.trim();
 
         this.span.innerHTML = "";
     },

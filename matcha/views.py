@@ -12,7 +12,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from dating_site.settings import PAGE_SIZE, MEDIA_PREFIX, MAX_AGE, MAX_RATING
+from dating_site.settings import PAGE_SIZE, MEDIA_PREFIX, MAX_AGE, MAX_RATING, API_KEY
 from .filters import filter_name
 from .models import (
     Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification, Message,
@@ -430,11 +430,11 @@ def inner_search(request):
     if age is not None:
         try:
             low, high = list(map(int, age.split(':')))
+            today = date.today()
+            filters['date_of_birth__gte'] = date(year=today.year - high - 1, month=today.month, day=today.day)
+            filters['date_of_birth__lte'] = date(year=today.year - low, month=today.month, day=today.day)
         except Exception as e:
             raise SuspiciousOperation(f'Некорректные входные значения: {age}')
-        today = date.today()
-        filters['date_of_birth__gte'] = date(year=today.year - high - 1, month=today.month, day=today.day)
-        filters['date_of_birth__lte'] = date(year=today.year - low, month=today.month, day=today.day)
 
     rating = request.GET.get('rating')
     if rating is not None:
@@ -465,7 +465,7 @@ def inner_search(request):
     return users
 
 
-def get_tags(user_id):
+def get_user_tags(user_id):
     user_tags = UserTag.objects_.filter(user_id=user_id)
     tags = [
         user_tag.tag.name.strip().strip('#')
@@ -484,7 +484,7 @@ def apply_sort_filter(request, users):
                     field in ['age', 'rating', 'location', 'tags']:
                 reverse = up_down == 'down'
                 if field == 'tags':
-                    users = sorted(users, key=lambda elem: get_tags(elem.id), reverse=reverse)
+                    users = sorted(users, key=lambda elem: get_user_tags(elem.id), reverse=reverse)
                 else:
                     users = sorted(users, key=lambda elem: getattr(elem, field), reverse=reverse)
     return users
@@ -571,6 +571,7 @@ def user_profile(request, id):
         context = UserReadSerializer(user).data
     else:
         raise Http404(f"Пользователя с данным id ({id}) не существует в базе")
+    context['api_key'] = API_KEY
     return HttpResponse(template.render(context, request))
 
 
@@ -636,7 +637,21 @@ def actions(request):
 
 @login_required
 def get_locations(request):
-    return JsonResponse(requests.get(
-        "https://www.avito.ru/web/1/slocations?locationId=637640&limit=10&q=" +
-        request.GET['value']
-    ).json())
+    try:
+        result_json = requests.get(
+            "https://www.avito.ru/web/1/slocations?locationId=637640&limit=10&q=" +
+            request.GET.get('value', '')
+        ).json()
+    except Exception as e:
+        result_json = {
+            "result": {"locations": []}
+        }
+    return JsonResponse(result_json)
+
+
+@login_required
+def get_tags(request):
+    value = request.GET.get('value', '')
+    return JsonResponse({
+        "tags": sorted([obj.name for obj in Tag.objects_.filter(name__icontains=value)])
+    })

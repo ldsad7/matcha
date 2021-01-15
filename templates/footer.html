@@ -14,7 +14,7 @@
           <li><a href="http://127.0.0.1:8000/accounts/profile/">Profile</a></li>
           <li><a href="http://127.0.0.1:8000/connections/">Connections</a></li>
           <li><a href="http://127.0.0.1:8000/chat/">Chats</a></li>
-          <li><a href="http://127.0.0.1:8000/notifications/">Notifications</a></li>
+          <li><a href="http://127.0.0.1:8000/actions/">Actions</a></li>
         </ul>
       </div>
     </div>
@@ -32,7 +32,6 @@
         <ul class="social-icons">
           <li><a target="_blank" rel="noopener noreferrer" class="facebook" href="https://www.facebook.com/"><i class="fa fa-facebook"></i></a></li>
           <li><a target="_blank" rel="noopener noreferrer" class="twitter" href="http://twitter.com/"><i class="fa fa-twitter"></i></a></li>
-          <li><a target="_blank" rel="noopener noreferrer" class="linkedin" href="https://www.linkedin.com/"><i class="fa fa-linkedin"></i></a></li>
           <li><a target="_blank" rel="noopener noreferrer" class="instagram" href="https://instagram.com/"><i class="fa fa-instagram"></i></a></li>
         </ul>
       </div>
@@ -44,7 +43,7 @@
     body::after {
       content: '';
       display: block;
-      height: 370px;
+      height: 334px;
     }
 
     .site-footer
@@ -52,7 +51,7 @@
       position:absolute;
       bottom:0;
       width:100%;
-      height:370px;
+      {% comment %}height: 370px;{% endcomment %}
       background-color:#262729;
       padding:45px 60px 20px;
       font-size:15px;
@@ -131,6 +130,12 @@
       {
         margin-bottom:30px
       }
+
+      body::after {
+          content: '';
+          display: block;
+          height: 394px;
+      }
     }
     @media (max-width:767px)
     {
@@ -141,6 +146,12 @@
       .site-footer .copyright-text,.site-footer .social-icons
       {
         text-align:center
+      }
+
+      body::after {
+          content: '';
+          display: block;
+          height: 480px;
       }
     }
     .social-icons

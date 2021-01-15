@@ -325,6 +325,8 @@ class ShortUserSerializer(CommonSerializer):
     email = serializers.EmailField(required=False, allow_blank=True, max_length=254, default='')
     date_of_birth = serializers.DateField(required=False, allow_null=True)
     location = serializers.CharField(required=False, allow_blank=True, max_length=512, default='')
+    latitude = serializers.FloatField(required=False, default=0.0)
+    longitude = serializers.FloatField(required=False, default=0.0)
 
     last_online = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()

@@ -20,8 +20,51 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/autosize.min.js' %}"></script>
-    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=74b2ed32-1340-405d-be18-ab91a877defe" type="text/javascript"></script>
-    <script src="{% static 'js/mapbasics.js' %}"></script>
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey={{ api_key }}" type="text/javascript"></script>
+    <script>
+        ymaps.ready(init);
+
+        function init () {
+            let myMap;
+            myMap = new ymaps.Map('map', {
+                center: [{{ latitude|safe }}, {{ longitude|safe }}],
+                zoom: 10
+            }, {
+                searchControlProvider: 'yandex#search'
+            });
+
+            let userGeoObject = new ymaps.GeoObject({
+                geometry: {
+                    type: "Point",
+                    coordinates: [{{ latitude|safe }}, {{ longitude|safe }}]
+                },
+                properties: {
+                    iconContent: '{{ username }}',
+                }
+            }, {
+                preset: 'islands#blackStretchyIcon'
+            });
+            userGeoObject.events.add(['click'], function (e) {
+                window.location.href = "/profiles/{{ id }}/";
+            });
+            let myGeoObject = new ymaps.GeoObject({
+                geometry: {
+                    type: "Point",
+                    coordinates: [{{ current_user.latitude|safe }}, {{ current_user.longitude|safe }}]
+                },
+                properties: {
+                    iconCaption: 'Я',
+                }
+            }, {
+                preset: 'islands#blueCircleDotIconWithCaption'
+            });
+            myGeoObject.events.add(['click'], function (e) {
+                window.location.href = "/profiles/{{ current_user.id }}/";
+            });
+
+            myMap.geoObjects.add(userGeoObject).add(myGeoObject);
+        }
+    </script>
 {% endblock %}
 
 {% block content %}
@@ -43,8 +86,8 @@
                     <div id="username">{{ username|safe }}</div>
                     <div id="rating">Рейтинг: <span>{{ rating|safe }}&#9733;</span></div>
                     <div id="name">
-                        <span id='firstname'>{{ first_name|safe }} </span>
-                        <span id='lastname'>{{ last_name|safe }}</span>
+                        <span id="firstname">{{ first_name|safe }} </span>
+                        <span id="lastname">{{ last_name|safe }}</span>
                     </div>
                 </figcaption>
                 <figcaption id="second_caption">
