@@ -200,7 +200,7 @@ INTERNAL_IPS = [
 # VERBOSE
 ####################################
 
-verbose_flag = True
+verbose_flag = False
 
 ####################################
 # REDIS

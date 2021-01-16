@@ -9,9 +9,10 @@ database='pmt'
 domain='yandex.ru'
 name='127.0.0.1:8000'
 site_name='dating_site'
-py='/Users/tsimonis/Desktop/projects/matcha/myvenv/bin/python'
-script=$(readlink "$0")
-scriptpath=$(dirname "$script")
+scriptpath="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+py='$basedir/myvenv/bin/python'
+mysql_file_1="$scriptpath/myvenv/lib/python3.8/site-packages/django/db/backends/mysql/operations.py"
+mysql_file_2="$scriptpath/myvenv/lib/python3.8/site-packages/django/db/backends/mysql/base.py"
 
 echo '\033[32mcopying large or secret files into our folder...\033[0m'
 cp ~/local_settings.py $scriptpath/$site_name
@@ -19,7 +20,12 @@ cp ~/local_settings.py $scriptpath/$site_name
 echo '\033[32mcreating venv myvenv...\033[0m'
 if [ ! -d "myvenv" ]; then
     $py -m venv myvenv
+    sed -i '' "s/query = query.decode(errors='replace')/query = errors='replace'/" $mysql_file_1
+    sed -i '' "s/raise ImproperlyConfigured('mysqlclient 1.3.13 or newer is required; you have %s.' % Database.__version__)/pass/" $mysql_file_2
 fi
+
+sed -i "s/query = query.decode(errors='replace')/query = errors='replace'/" $mysql_file_1
+sed -i "s/raise ImproperlyConfigured('mysqlclient 1.3.13 or newer is required; you have %s.' % Database.__version__)/pass = errors='replace'/" $mysql_file_2
 
 echo '\033[32mactivating myvenv...\033[0m'
 source ./myvenv/bin/activate

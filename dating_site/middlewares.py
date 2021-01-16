@@ -36,15 +36,18 @@ class CustomMiddleware:
                 ip = ip_2
             if verbose_flag:
                 print(f'ip: {ip}')
-            if ip in IP_TO_JSON:
-                data = IP_TO_JSON[ip]
-            else:
-                data = requests.get(f"https://extreme-ip-lookup.com/json/{ip}").json()
-                IP_TO_JSON[ip] = data
             try:
-                user_obj.country = data['country'] or None
-                user_obj.city = data['city'] or None
-                latitude, longitude = data["lat"] or 0.0, data["lon"] or 0.0
+                if ip in IP_TO_JSON:
+                    data = IP_TO_JSON[ip]
+                else:
+                    data = requests.get(f"https://extreme-ip-lookup.com/json/{ip}").json()
+                    IP_TO_JSON[ip] = data
+            except Exception as e:
+                data = {}
+            try:
+                user_obj.country = data.get('country') or None
+                user_obj.city = data.get('city') or None
+                latitude, longitude = data.get("lat") or 0.0, data.get("lon") or 0.0
                 latitude, longitude = list(
                     map(float, [latitude, longitude])
                 )
