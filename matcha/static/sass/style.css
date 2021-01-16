@@ -786,7 +786,10 @@ span.circle {
 
 @media screen and (max-width: 780px) {
   .search-data {
-    margin: 0 !important;
+    margin: 80px 0 0 !important;
+  }
+  .map_section {
+    margin: 20px 0 !important;
   }
   .toggle {
     display: inline-block;

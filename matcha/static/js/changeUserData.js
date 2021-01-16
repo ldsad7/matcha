@@ -57,7 +57,10 @@ document.getElementById("change-profile-data").addEventListener("click", functio
                 data: JSON.stringify({
                     "image": initial_main_image_src,
                     "main": 0
-                })
+                }),
+                error: function (request, status, error) {
+                    alert(request.responseText + ". Запрос не был сохранён.");
+                }
             });
             if (!main_image_src.startsWith("blob:")) {
                 $.ajax({
@@ -71,7 +74,10 @@ document.getElementById("change-profile-data").addEventListener("click", functio
                     data: JSON.stringify({
                         "image": main_image_src,
                         "main": 1
-                    })
+                    }),
+                    error: function (request, status, error) {
+                        alert(request.responseText + ". Запрос не был сохранён.");
+                    }
                 });
             }
         }
@@ -87,7 +93,10 @@ document.getElementById("change-profile-data").addEventListener("click", functio
             data: JSON.stringify({
                 "images": images,
                 "initial_images": initial_images
-            })
+            }),
+            error: function (request, status, error) {
+                alert(request.responseText + ". Запрос не был сохранён.");
+            }
         });
 
         new_images.forEach(function (elem, i) {
@@ -140,7 +149,11 @@ document.getElementById("change-profile-data").addEventListener("click", functio
                 "info": replaceAllSymbols($("#textArea").val()),
                 "email": replaceAllSymbols($("#email_input").val()),
                 "tags": tag_names
-            })
+            }),
+            error: function (request, status, error) {
+                alert(request.responseText + ". Запрос не был сохранён.");
+                wasError = true;
+            }
         });
 
         avatar.submit();

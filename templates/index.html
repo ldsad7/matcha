@@ -38,15 +38,15 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/autosize.min.js' %}"></script>
-    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=74b2ed32-1340-405d-be18-ab91a877defe" type="text/javascript"></script>
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey={{ api_key }}" type="text/javascript"></script>
     <script>
         ymaps.ready(init);
 
         function init () {
             let myMap;
             myMap = new ymaps.Map('map', {
-                center: [{{ current_user.latitude }}, {{ current_user.longitude }}],
-                zoom: 10
+                center: [{{ current_user.latitude|safe }}, {{ current_user.longitude|safe }}],
+                zoom: 7
             }, {
                 searchControlProvider: 'yandex#search'
             });
@@ -55,7 +55,7 @@
                 userGeoObject = new ymaps.GeoObject({
                     geometry: {
                         type: "Point",
-                        coordinates: [{{ user.latitude }}, {{ user.longitude }}]
+                        coordinates: [{{ user.latitude|safe }}, {{ user.longitude|safe }}]
                     },
                     properties: {
                         iconContent: '{{ user.username }}',
@@ -72,7 +72,7 @@
             let myGeoObject = new ymaps.GeoObject({
                 geometry: {
                     type: "Point",
-                    coordinates: [{{ current_user.latitude }}, {{ current_user.longitude }}]
+                    coordinates: [{{ current_user.latitude|safe }}, {{ current_user.longitude|safe }}]
                 },
                 properties: {
                     iconCaption: 'Я',
@@ -131,7 +131,7 @@
                 </div>
                 <button id="search_button" style="align-self: flex-end;padding: 5px;border-radius: 20px; margin-right:0;">Искать</button>
             </div>
-            <section style="margin: 20px 0 20px 60px;padding: 20px;background-color: #1d1d1d;width: 64rem;max-width: 80%;min-height: 250px;overflow: hidden;">
+            <section class="map_section" style="margin: 20px 0 20px 60px;padding: 20px;background-color: #1d1d1d;width: 64rem;max-width: 80%;min-height: 250px;overflow: hidden;">
                 <section class="map" style="margin: 10px;">
                     <div id="map" style="height:450px;"></div>
                 </section>

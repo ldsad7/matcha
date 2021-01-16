@@ -41,45 +41,16 @@ if (document.getElementById("read-all")) {
                                 type: "PATCH",
                                 data: JSON.stringify({
                                     "ids": this.id
-                                })
+                                }),
+                                error: function (request, status, error) {
+                                    alert(request.responseText + ". Запрос не был сохранён.");
+                                }
+
                             });
                             setTimeout(() => {this.remove()}, 250)
                         }
                     })})
         });
-        /*newNotif.addEventListener("mouseenter", function(e) {
-            setTimeout(() => {
-                _idTimeout = setTimeout(
-                    () => {
-                        const index = _idsNotifs.indexOf(+this.id);
-                        if (index > -1) {
-                            _idsNotifs.splice(index, 1);
-                            console.log("_idsNotifs.length: " + _idsNotifs.length);
-                            if (_idsNotifs.length < 1) {
-                                document.querySelector("span.circle").style.display = "none";
-                            // }
-                            // if (_idsNotifs.length < 2) {
-                                document.getElementById("read-all").style.display = "none";
-                            }
-                            this.classList.add("animate__fadeOutTopRight");
-                            $.ajax({
-                                headers: {
-                                    'Accept' : 'application/json',
-                                    'Content-Type' : 'application/json',
-                                    'X-CSRFToken': csrftoken
-                                },
-                                url: "/api/v1/notifications/read/",
-                                type: "PATCH",
-                                data: JSON.stringify({
-                                    "ids": this.id
-                                })
-                            });
-                            setTimeout(() => {this.remove()}, 500)
-                        }
-                    }, 1500)
-            }, 0);
-        });*/
-        // newNotif.addEventListener("mouseleave", function(e) {clearInterval(_idTimeout)});
         let notif_list = document.getElementById("notif_list");
         notif_list.insertBefore(newNotif, notif_list.children[1]);
     };
@@ -139,7 +110,10 @@ if (document.getElementById("read-all")) {
                 type: "PATCH",
                 data: JSON.stringify({
                     "ids": id_notif
-                })
+                }),
+                error: function (request, status, error) {
+                    alert(request.responseText + ". Запрос не был сохранён.");
+                }
             })
         }
     }
@@ -158,7 +132,10 @@ if (document.getElementById("read-all")) {
                 type: "PATCH",
                 data: JSON.stringify({
                     "ids": _idsNotifs.join(",")
-                })
+                }),
+                error: function (request, status, error) {
+                    alert(request.responseText + ". Запрос не был сохранён.");
+                }
             });
             this.style.display = "none";
             _idsNotifs = [];

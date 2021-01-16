@@ -4,15 +4,15 @@ from datetime import date, datetime, timedelta
 import requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import SuspiciousOperation
-from django.http import HttpResponse, JsonResponse, Http404
+from django.http import HttpResponse, JsonResponse, Http404, HttpResponseBadRequest
 from django.template import loader
 from django.views.decorators.cache import never_cache
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
-from dating_site.settings import PAGE_SIZE, MEDIA_PREFIX, MAX_AGE, MAX_RATING, API_KEY
+from dating_site.settings import PAGE_SIZE, MEDIA_PREFIX, MAX_AGE, MAX_RATING, API_KEY, verbose_flag
 from .filters import filter_name
 from .models import (
     Tag, User, UserTag, UserPhoto, UsersConnect, UsersFake, UsersBlackList, Notification, Message,
@@ -23,17 +23,29 @@ from .serializers import (
     UsersFakeSerializer, UsersFakeReadSerializer, UsersBlackListSerializer,
     UsersBlackListReadSerializer, NotificationSerializer, NotificationReadSerializer,
     MessageSerializer, MessageReadSerializer, UsersRatingSerializer, UsersRatingReadSerializer,
-    ShortUserSerializer, ShortNotificationReadSerializer)
+    ShortUserSerializer, ShortNotificationReadSerializer
+)
 from .tasks import ignore_false_users, ignore_by_orientation_and_gender, ignore_only_blocked_and_faked_users_bidir, \
     ignore_only_blocked_and_faked_users_onedir, update_rating
 
 MINUS = '-'
 
 
+def raise_400(message, request):
+    template = loader.get_template('error.html')
+    return HttpResponseBadRequest(
+        template.render(
+            {
+                'exception': message,
+                'status_code': 400
+            }, request
+        )
+    )
+
+
 def order_by(objs, field):
-    starts_with_minus = field.startswith(MINUS)
     objs = sorted(objs, key=lambda elem: getattr(elem, field.strip(MINUS)))
-    if starts_with_minus:
+    if field.startswith(MINUS):
         objs = objs[::-1]
     return objs
 
@@ -45,7 +57,6 @@ def common_list(request, model, model_serializer, model_read_serializer, order_b
             objs = order_by(objs, order_by_field)
         serializer = model_read_serializer(objs, many=True)
         return Response(serializer.data)
-        # return ListCreateAPIView.get_paginated_response(data=serializer.data)
     elif request.method == 'POST':
         serializer = model_serializer(data=request.data)
         serializer.context.update({
@@ -56,7 +67,7 @@ def common_list(request, model, model_serializer, model_read_serializer, order_b
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     else:
-        raise ValueError("Invalid request")
+        return raise_400('некорректный метод, отличный от GET, POST', request)
 
 
 def common_detail(request, model, model_serializer, model_read_serializer, id_):
@@ -79,7 +90,7 @@ def common_detail(request, model, model_serializer, model_read_serializer, id_):
         obj.delete()
         return HttpResponse(status=status.HTTP_204_NO_CONTENT)
     else:
-        raise ValueError("Invalid request")
+        return raise_400('некорректный метод, отличный от GET, PUT, PATCH, DELETE', request)
 
 
 @api_view(['GET', 'POST'])
@@ -95,22 +106,24 @@ def user_list(request):
 @never_cache
 @login_required
 def user_detail(request, id):
-    try:
-        if request.method in ['PUT', 'PATCH']:
-            user_tags = {user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=request.user.id)}
-            new_tags = {tag.strip().strip('#') for tag in request.data.get('tags') if tag.strip().strip('#')}
-            tag_ids = [obj.id for obj in Tag.objects_.filter(name__in=user_tags - new_tags)]
-            for obj in UserTag.objects_.filter(tag_id__in=tag_ids):
-                obj.delete()
-            for tag_name in new_tags - user_tags:
-                if not tag_name:
-                    continue
-                if not Tag.objects_.filter(name=tag_name):
+    if request.method in ['PUT', 'PATCH']:
+        user_tags = {user_tag.tag.name for user_tag in UserTag.objects_.filter(user_id=request.user.id)}
+        new_tags = {tag.strip().strip('#') for tag in request.data.get('tags') if tag.strip().strip('#')}
+        tag_ids = [obj.id for obj in Tag.objects_.filter(name__in=user_tags - new_tags)]
+        for obj in UserTag.objects_.filter(tag_id__in=tag_ids):
+            obj.delete()
+        for tag_name in new_tags - user_tags:
+            if not tag_name:
+                continue
+            if not Tag.objects_.filter(name=tag_name):
+                try:
                     Tag(name=tag_name).save()
-                tag_obj = Tag.objects_.filter(name=tag_name)[0]
-                UserTag(user_id=request.user.id, tag_id=tag_obj.id).save()
-    except Exception as e:
-        raise SuspiciousOperation(e)
+                except Exception as e:
+                    return raise_400(
+                        f"Некорректное входное значение в поле 'теги': `{tag_name}`", request
+                    )
+            tag_obj = Tag.objects_.filter(name=tag_name)[0]
+            UserTag(user_id=request.user.id, tag_id=tag_obj.id).save()
     return common_detail(request, User, UserSerializer, UserReadSerializer, id)
 
 
@@ -134,6 +147,8 @@ def liking(user_id):
     """
 
     user = User.objects_.get(id=user_id)
+    if user is None:
+        raise Http404(f"Пользователя с данным id ({user_id}) не существует")
     users = [
         user_connect.user_1
         for user_connect in UsersConnect.objects_.filter(user_2_id=user.id)
@@ -173,13 +188,15 @@ def user_liking(request, id):
 def user_photos_update_main(request):
     image = request.data.get('image')
     new_main = request.data.get('main')
-    # print(f'user_photos_update_main: image: {image}, new_main: {new_main}')
     if image.startswith(f'/{MEDIA_PREFIX}/'):
         image = image[len(f'/{MEDIA_PREFIX}/'):]
     user_photos = UserPhoto.objects_.filter(image=image)
     if user_photos:
         user_photos[0].main = new_main
-        user_photos[0].save()
+        try:
+            user_photos[0].save()
+        except Exception:
+            return raise_400(f'невозможно сохранить изображение {image}', request)
     return Response({'result': 'SUCCESS'})
 
 
@@ -198,7 +215,6 @@ def user_photos_update(request, id):
         for image in images
     }
     to_delete = UserPhoto.objects_.filter(user_id=id, image__in=initial_images - images)
-    # print(f"user_photos_update: initial_images: {initial_images}, images: {images}, to_delete: {to_delete}")
     for image in to_delete:
         image.delete()
     return Response({'result': 'SUCCESS'})
@@ -218,12 +234,15 @@ def read_notifications(request):
     return Response({'result': 'FAIL'})
 
 
-def liked(id):
+def liked(user_id):
     """
     returns those users whom current user likes
     """
 
-    user = User.objects_.get(id=id)
+    try:
+        user = User.objects_.get(id=user_id)
+    except Exception:
+        raise Http404(f"Пользователя с данным id ({user_id}) не существует")
     users = [
         user_connect.user_2
         for user_connect in UsersConnect.objects_.filter(user_1_id=user.id)
@@ -258,11 +277,11 @@ def user_tags_detail(request, id):
 def user_photos_list(request):
     if request.method == 'POST':
         uuid1 = uuid.uuid1()
-        file_name = f'.{settings.MEDIA_URL}{UserPhoto.image.field.upload_to}tmp_{request.data["user_id"]}_{uuid1}.jpg'
+        file_name = f'.{settings.MEDIA_URL}{UserPhoto.image.field.upload_to}tmp_{request.data.get("user_id")}_{uuid1}.jpg'
         image = request.data.get('image')
         if image:
             file = image.file.read()
-            request.data['image'] = f'tmp_{request.data["user_id"]}_{uuid1}.jpg'
+            request.data['image'] = f'tmp_{request.data.get("user_id")}_{uuid1}.jpg'
         serializer = UserPhotoSerializer(data=request.data)
         serializer.context.update({
             'user_id': request.user.id
@@ -370,16 +389,8 @@ def notifications_list(request):
                not UsersConnect.objects_.filter(user_1_id=request.user.id, user_2_id=obj.user_1_id,
                                                 type=UsersConnect.MINUS)
         ]
-        # for query_param, value in request.query_params.items():
-        #     if query_param == 'created':
-        #         try:
-        #             value = int(value)
-        #         except ValueError:
-        #             raise Http404(f"В базе нет notification-а с данным id ({value})")
-        #         objs = filter_timestamp(objs, value)
         objs = order_by(objs, 'created')
-        serializer = NotificationReadSerializer(objs, many=True)
-        return Response(serializer.data)
+        return Response(NotificationReadSerializer(objs, many=True).data)
     return common_list(request, Notification, NotificationSerializer, NotificationReadSerializer)
 
 
@@ -415,7 +426,8 @@ def get_page(request, len_users):
     try:
         page = int(float(request.GET.get('page', 1)))
     except ValueError as e:
-        print(f"ValueError happened: {e}. Setting page=1.")
+        if verbose_flag:
+            print(f"ValueError happened reading page parameter: {e}. Setting page=1.")
         page = 1
     max_page = max((len_users + PAGE_SIZE - 1) // PAGE_SIZE, 1)
     if not (1 <= page <= max_page):
@@ -434,14 +446,14 @@ def inner_search(request):
             filters['date_of_birth__gte'] = date(year=today.year - high - 1, month=today.month, day=today.day)
             filters['date_of_birth__lte'] = date(year=today.year - low, month=today.month, day=today.day)
         except Exception as e:
-            raise SuspiciousOperation(f'Некорректные входные значения: {age}')
+            raise ValidationError(f"Некорректные входные значения в поле 'возраст': `{age}`")
 
     rating = request.GET.get('rating')
     if rating is not None:
         try:
             low, high = list(map(float, rating.replace(',', '.').split(':')))
         except Exception as e:
-            raise SuspiciousOperation(f"Некорректные входные значения: {rating}")
+            raise ValidationError(f"Некорректные входные значения в поле 'рейтинг': `{rating}`")
         filters['rating__gte'] = low
         filters['rating__lte'] = high
 
@@ -460,7 +472,6 @@ def inner_search(request):
 
     if not filters:
         return User.objects_.all()
-    print(f'filters: {filters}')
     users = User.objects_.filter(**filters)
     return users
 
@@ -493,17 +504,25 @@ def apply_sort_filter(request, users):
 @never_cache
 def index(request):
     template = loader.get_template('index.html')
-    users = inner_search(request)
+    try:
+        users = inner_search(request)
+    except ValidationError as e:
+        template = loader.get_template('error.html')
+        return HttpResponseBadRequest(
+            template.render(
+                {
+                    'exception': e.detail[0] if e.detail else 'неизвестная ошибка',
+                    'status_code': e.status_code
+                }, request)
+        )
+
     user_id = request.user.id
     if user_id is not None:
         users = ignore_false_users(users, user_id)
         users = ignore_by_orientation_and_gender(users, request.user)
-        user_ratings = UsersRating.objects_.filter(user_2_id=user_id)
-        # if not user_ratings:
         update_rating(users, User.objects_.get(id=user_id))
         user_ratings = UsersRating.objects_.filter(user_2_id=user_id)
 
-        # if user_ratings:
         correct_ids = [user_rating.user_1_id for user_rating in user_ratings]
         correct_ratings = [user_rating.rating for user_rating in user_ratings]
         new_users = []
@@ -522,7 +541,8 @@ def index(request):
         'page': page,
         'max_page': max_page,
         'max_age': MAX_AGE,
-        'max_rating': MAX_RATING
+        'max_rating': MAX_RATING,
+        'api_key': API_KEY
     }
     return HttpResponse(template.render(context, request))
 
@@ -533,7 +553,17 @@ def search(request):
     template = loader.get_template('search.html')
 
     user_id = request.user.id
-    users = inner_search(request)
+    try:
+        users = inner_search(request)
+    except ValidationError as e:
+        template = loader.get_template('error.html')
+        return HttpResponseBadRequest(
+            template.render(
+                {
+                    'exception': e.detail[0] if e.detail else 'неизвестная ошибка',
+                    'status_code': e.status_code
+                }, request)
+        )
 
     name = request.GET.get('name')
     if name is not None:
@@ -637,15 +667,24 @@ def actions(request):
 
 @login_required
 def get_locations(request):
+    value = request.GET.get('value')
+    if not value:
+        return JsonResponse({
+            "result": {"locations": []}
+        })
     try:
         result_json = requests.get(
             "https://www.avito.ru/web/1/slocations?locationId=637640&limit=10&q=" +
-            request.GET.get('value', '')
+            value
         ).json()
     except Exception as e:
         result_json = {
             "result": {"locations": []}
         }
+    if 'result' not in result_json or "locations" not in result_json['result']:
+        return JsonResponse({
+            "result": {"locations": []}
+        })
     return JsonResponse(result_json)
 
 

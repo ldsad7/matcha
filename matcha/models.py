@@ -1,7 +1,6 @@
 from datetime import datetime, date
 
 from django.db import models
-from django.utils.functional import cached_property
 from model_utils.models import TimeStampedModel
 from django.contrib.auth.models import AbstractUser
 from model_utils import Choices
@@ -11,12 +10,13 @@ from .managers import (
     TagManager, UsersConnectManager, UserTagManager, UserPhotoManager, UserManager,
     UsersFakeManager, UsersBlackListManager, NotificationManager, MessageManager,
     UsersRatingManager)
+from .tasks import count_user_rating
 
 
 class ManagedModel:
-    def save(self, **kwargs):
+    def save(self, model_fields=None, **kwargs):
         if self.id is not None:
-            return self.objects_.update(self)
+            return self.objects_.update(self, model_fields=model_fields)
         else:
             return self.objects_.insert(self)
 
@@ -89,19 +89,18 @@ class User(ManagedModel, AbstractUser, GetById):
         for field in self._meta.fields:
             name = field.name
             value = getattr(self, field.name)
-            if (name in ['first_name', 'last_name', 'info', 'location', 'date_of_birth'] and not value) or \
+            if (name in ['email', 'first_name', 'last_name', 'info', 'location', 'date_of_birth', 'tags'] and not value) or \
                     (name in ['gender', 'orientation'] and value == self.UNKNOWN):
                 was_empty_field = True
                 break
         self.profile_activated = not was_empty_field
-
-        # self.latitude =
-        # self.longitude =
-
+        utc_time = datetime.utcnow()
+        if utc_time.minute % 5 == 0 and 30 <= utc_time.second <= 35:
+            self.rating = count_user_rating(self)
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.last_name} {self.first_name}"
+        return f"{self.last_name} {self.first_name} ({self.username})"
 
     class Meta:
         verbose_name = "Пользователь"

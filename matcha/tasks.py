@@ -8,33 +8,54 @@ from dating_site.settings import verbose_flag, MAX_RATING
 LOG = logging.getLogger(__name__)
 
 
+def count_user_rating(user):
+    from matcha.models import UsersConnect, UsersBlackList, UsersFake, UserPhoto, UserTag
+
+    users_connects = UsersConnect.objects_.all()
+    rating = \
+        sum([1 for obj in users_connects if obj.user_2_id == user.id and obj.type == UsersConnect.PLUS]) - \
+        sum([1 for obj in users_connects if obj.user_2_id == user.id and obj.type == UsersConnect.MINUS]) - \
+        len(UsersBlackList.objects_.filter(user_2_id=user.id)) - \
+        len(UsersFake.objects_.filter(user_2_id=user.id)) + \
+        10 * int(user.profile_activated) + \
+        5 * (len(UserPhoto.objects_.filter(user_id=user.id)) > 2) + \
+        5 * (len(UserTag.objects_.filter(user_id=user.id)) > 2) + \
+        sum([1 for obj in users_connects if obj.user_1_id == user.id])
+    if rating < 0:
+        rating = 0.0
+    return rating
+
+
+def sync_user_rating(user):
+    """
+    Counts fame rating of a user
+    """
+
+    from dating_site.settings import verbose_flag
+
+    user.rating = min(count_user_rating(user), MAX_RATING)
+    if verbose_flag:
+        print(f"{user.id}: {user.rating}")
+    user.save()
+
+
 @app.task
 def sync_rating():
-    from dating_site.settings import verbose_flag
-    from matcha.models import User, UsersConnect, UsersBlackList, UsersFake, UserPhoto, UserTag
+    """
+    Counts fame rating of all users
+    """
+
+    from matcha.models import User
+
     for user in User.objects_.all():
-        users_connects = UsersConnect.objects_.all()
-        rating = \
-            sum([1 for obj in users_connects if obj.user_2_id == user.id and obj.type == UsersConnect.PLUS]) - \
-            sum([1 for obj in users_connects if obj.user_2_id == user.id and obj.type == UsersConnect.MINUS]) - \
-            len(UsersBlackList.objects_.filter(user_2_id=user.id)) - \
-            len(UsersFake.objects_.filter(user_2_id=user.id)) + \
-            10 * int(user.profile_activated) + \
-            5 * (len(UserPhoto.objects_.filter(user_id=user.id)) > 3) + \
-            5 * (len(UserTag.objects_.filter(user_id=user.id)) > 3) + \
-            sum([1 for obj in users_connects if obj.user_1_id == user.id])
-        if rating < 0:
-            rating = 0.0
-        user.rating = min(rating, MAX_RATING)
-        if verbose_flag:
-            print(f"{user.id}: {user.rating}")
-        user.save()
+        sync_user_rating(user)
 
 
 def ignore_false_users(objs, user_id):
     """
     Removes blocked, faked, already (dis)liked users and himself from a list
     """
+
     from matcha.models import UsersConnect, UsersBlackList, UsersFake
 
     ignored_ids = {user_id}
@@ -60,6 +81,7 @@ def ignore_only_blocked_and_faked_users_bidir(objs, user_id):
     """
     Removes blocked and faked users and himself from a list (bidirectional)
     """
+
     from matcha.models import UsersBlackList, UsersFake
 
     ignored_ids = {user_id}
@@ -159,7 +181,7 @@ def update_rating(users, user):
         users_rating = UsersRating.objects_.filter(user_1_id=inner_user.id, user_2_id=user.id)
         rating = \
             0.25 * inner_user.rating / (max_rating + 0.01) + \
-            0.25 * len(user_tags & inner_user.tag_names) / (len(user_tags | inner_user.tag_names) + 0.1) + \
+            0.25 * len(user_tags & inner_user.tag_names) / (len(user_tags | inner_user.tag_names) + 0.01) + \
             0.5 * (1 - inner_user.distance / (max_distance + 0.01))
         rating = min(rating, MAX_RATING)
         if users_rating:

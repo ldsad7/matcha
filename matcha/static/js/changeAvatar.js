@@ -77,18 +77,5 @@ var avatar = {
                 document.querySelector("figure div").appendChild(e.target);
             });
         });
-        // this.deleted_imgs.forEach(img => {
-        //     csrftoken = getCookie('csrftoken');
-        //
-        //     $.ajax({
-        //         "url": "/api/v1/user_photos/" + img.id,
-        //         "headers": {
-        //             'Accept' : 'application/json',
-        //             'Content-Type' : 'application/json',
-        //             "X-CSRFToken": csrftoken,
-        //         },
-        //         type: "DELETE",
-        //     });
-        // })
     }
 }

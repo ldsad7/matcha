@@ -20,15 +20,15 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/autosize.min.js' %}"></script>
-    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=74b2ed32-1340-405d-be18-ab91a877defe" type="text/javascript"></script>
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey={{ api_key }}" type="text/javascript"></script>
     <script>
         ymaps.ready(init);
 
         function init () {
             let myMap;
             myMap = new ymaps.Map('map', {
-                center: [{{ latitude }}, {{ longitude }}],
-                zoom: 10
+                center: [{{ latitude|safe }}, {{ longitude|safe }}],
+                zoom: 7
             }, {
                 searchControlProvider: 'yandex#search'
             });
@@ -36,7 +36,7 @@
             let userGeoObject = new ymaps.GeoObject({
                 geometry: {
                     type: "Point",
-                    coordinates: [{{ latitude }}, {{ longitude }}]
+                    coordinates: [{{ latitude|safe }}, {{ longitude|safe }}]
                 },
                 properties: {
                     iconContent: '{{ username }}',
@@ -50,7 +50,7 @@
             let myGeoObject = new ymaps.GeoObject({
                 geometry: {
                     type: "Point",
-                    coordinates: [{{ current_user.latitude }}, {{ current_user.longitude }}]
+                    coordinates: [{{ current_user.latitude|safe }}, {{ current_user.longitude|safe }}]
                 },
                 properties: {
                     iconCaption: 'Я',

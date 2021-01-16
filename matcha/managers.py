@@ -97,12 +97,14 @@ class CommonManager:
                 objects.append(c)
         return None if not objects else objects[0]
 
-    def update(self, c):
-        set_values = f',{NL}'.join([f'{key}=%s' for key in self.fields_without_id])
+    def update(self, c, model_fields=None):
+        if model_fields is None:
+            model_fields = self.fields_without_id
+        set_values = f',{NL}'.join([f'{key}=%s' for key in model_fields])
         query = f"UPDATE {self.db_table} SET {set_values} WHERE id=%s;"
-        args = [*self.field_values(c, self.fields_without_id), c.id]
-        if 'image' in self.fields_without_id:
-            args[self.fields_without_id.index('image')] = args[self.fields_without_id.index('image')].name
+        args = [*self.field_values(c, model_fields), c.id]
+        if 'image' in model_fields:
+            args[model_fields.index('image')] = args[model_fields.index('image')].name
         args = tuple(args)
         if verbose_flag:
             print('update query: ' + query % args)

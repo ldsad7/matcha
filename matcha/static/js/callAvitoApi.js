@@ -8,15 +8,19 @@ function clearDatalist() {
 
 function callAvitoApi(value) {
     SendRequest("get", "/api/v1/location", "&value=" + encodeURI(value), function(e) {
-        const result = JSON.parse(e.response);
-        clearDatalist();
-        if (result["result"]["locations"]) {
-            result["result"]["locations"].forEach(obj => {
-                const name = obj["names"]["1"];
-                const newEl = document.createElement("option");
-                newEl.setAttribute("value", name);
-                avitoDatalist.appendChild(newEl);
-            });
+        try {
+            const result = JSON.parse(e.response);
+            clearDatalist();
+            if (result["result"]["locations"]) {
+                result["result"]["locations"].forEach(obj => {
+                    const name = obj["names"]["1"];
+                    const newEl = document.createElement("option");
+                    newEl.setAttribute("value", name);
+                    avitoDatalist.appendChild(newEl);
+                });
+            }
+        } catch (error) {
+            alert("Значение в `location` слишком большое");
         }
     });
 }

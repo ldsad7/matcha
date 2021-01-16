@@ -31,6 +31,9 @@ class CustomMiddleware:
                 ip = x_forwarded_for.split(',')[0]
             else:
                 ip = request.META.get('REMOTE_ADDR')
+            ip_2 = requests.get('https://api.ipify.org/?format=json').json().get('ip')
+            if ip == '127.0.0.1' or ip != ip_2:
+                ip = ip_2
             if verbose_flag:
                 print(f'ip: {ip}')
             if ip in IP_TO_JSON:
@@ -38,7 +41,6 @@ class CustomMiddleware:
             else:
                 data = requests.get(f"https://extreme-ip-lookup.com/json/{ip}").json()
                 IP_TO_JSON[ip] = data
-            # g = GeoIP2()
             try:
                 user_obj.country = data['country'] or None
                 user_obj.city = data['city'] or None
@@ -53,7 +55,7 @@ class CustomMiddleware:
                 if verbose_flag:
                     print(f"Error happened: {e}")
             user_obj.last_online = datetime.utcnow()
-            user_obj.save()
+            user_obj.save(model_fields=['last_online'])
 
             if path.startswith('/api/v1/user_connects/'):
                 try:
