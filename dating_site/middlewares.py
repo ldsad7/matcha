@@ -58,7 +58,7 @@ class CustomMiddleware:
                 if verbose_flag:
                     print(f"Error happened: {e}")
             user_obj.last_online = datetime.utcnow()
-            user_obj.save(model_fields=['last_online'])
+            user_obj.save(model_fields=['last_online', 'latitude', 'longitude'])
 
             if path.startswith('/api/v1/user_connects/'):
                 try:

@@ -3,9 +3,9 @@
 echo "\033[31mLet's start!\033[0m"
 
 echo '\033[32msetting variables and credentials...\033[0m'
-user='root'
-password='password'
-database='pmt'
+user='SECRET'
+password='SECRET'
+database='SECRET'
 domain='yandex.ru'
 name='127.0.0.1:8000'
 site_name='dating_site'
@@ -34,9 +34,7 @@ echo '\033[32minstalling necessary libraries...\033[0m'
 $py -m pip install -r requirements.txt
 
 echo '\033[32mlaunching mysql...\033[0m'
-mysqld_safe --skip-grant-tables
 brew services start mysql
-mysql.server start
 
 echo '\033[32mcreating database...\033[0m'
 mysql --user="$user" --password="$password" --execute="drop database if exists $database; create database $database;"

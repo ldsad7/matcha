@@ -601,6 +601,7 @@ def user_profile(request, id):
         context = UserReadSerializer(user).data
     else:
         raise Http404(f"Пользователя с данным id ({id}) не существует в базе")
+    context.last_online = 'online'
     context['api_key'] = API_KEY
     return HttpResponse(template.render(context, request))
 
